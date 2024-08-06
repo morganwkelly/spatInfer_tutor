@@ -7,6 +7,8 @@ format:
     toc: true
     html-math-method: katex
     css: styles.css
+execute:
+  freeze: auto 
 ---
 ```{r setup}
 library(spatInfer)
