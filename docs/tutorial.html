@@ -8,7 +8,7 @@
 
 <meta name="author" content="Morgan Kelly">
 
-<title>Tutorial</title>
+<title>spatInfer Tutorial</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -101,6 +101,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -129,7 +172,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Tutorial</h1>
+<h1 class="title">spatInfer Tutorial</h1>
 </div>
 
 
@@ -152,28 +195,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<p>The purpose of <code>spatInfer</code> is to estimate regressions with spatial data that are robust to the long range trends and medium range autocorrelation that are a feature of spatial observations. Specifically, a spatial basis is added to the regression and standard errors are estimated by a large cluster feature. A feature of <code>spatInfer</code> is its simple workflow, requiring only four commands.</p>
+<p>This tutorial gives an example of the use of <code>spatInfer</code> based on a subset of data from Chetty et al’s examination of income mobility across US cities. This consists of the outcome, intergenerational mobility, the treatment of interest racial segregation, and a control in the form of commuting distance. The longitude and latitude of each observation is included in the data. These must be named <code>X</code> and <code>Y</code>.</p>
+<p>The four steps in estimating a spatial basis regression with large cluster inference are</p>
+<ol type="1">
+<li><p>Estimate the optimal spatial basis parameters.</p></li>
+<li><p>Use a spatial noise placebo to select the number of clusters for standard error estimation and estimate a placebo significance level of the treatment.</p></li>
+<li><p>Generate synthetic outcomes to test the null hypothesis that the outcome is spatial noise, independent of the treatment.</p></li>
+<li><p>Estimate a spatial basis regression using the parameters estimated in the first two steps.</p></li>
+</ol>
+<p>We begin by loading the <code>spatInfer</code> library and the data frame called <code>opportunity</code>. This is a 250 observation subset from the data used by Chetty et al to examine intergenerational mobility in US cities</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatInfer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The html_vignette output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatInfer)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(opportunity)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>opportunity<span class="ot">=</span>opportunity <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatInfer)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(opportunity)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#set.seed(123)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#opportunity=opportunity |&gt; dplyr::slice_sample(n=100)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="choose-the-spatial-basis" class="level2">
 <h2 class="anchored" data-anchor-id="choose-the-spatial-basis">1. Choose the Spatial Basis</h2>
-<p>Now run the regression and print output</p>
+<p>The first step is to estimate the optimal spatial basis that best explains the outcome variable. The spatial basis serves both to remove long range structure from the data (acting like a systematic version of the polynomials in longitude and latitude, or continental dummies often employed in spatial regressions) and to improve inference by allowing smaller clusters of residuals.</p>
+<p>We apply the simplest basis possible: a <span class="math inline">k \times k</span> tensor of linear b-splines and, to minimize the loss of degrees of freedom, we select the first <span class="math inline">p</span> principal components of the tensor. The first command `optimal_basis` chooses the combination of <span class="math inline">k</span> and <span class="math inline">p</span> that minimizes a Bayes Information Criterion. To make the diagram legible, select the maximum basis degree that you want to examine. As with most commands in <code>R</code> it starts with the regression formula and the name of the dataset. Here we will regress intergenerational mobility on racial segregation, the treatment of interest here, using the fraction of household with children headed by a lone parent.</p>
+<p>The treatment of interest is placed as the first on the right hand side. If several are of concern the procedure can be repeated using each as the first entry.</p>
 <div class="cell" data-cache="false">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">optimal_basis</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">max_splines=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">optimal_basis</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">max_splines=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="fig-basis" class="quarto-figure quarto-figure-center quarto-float anchored" width="480">
+<div id="fig-basis" class="quarto-figure quarto-figure-center quarto-float anchored" width="576">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-basis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="tutorial_files/figure-html/fig-basis-1.png" id="fig-basis" class="img-fluid figure-img" width="480">
+<img src="tutorial_files/figure-html/fig-basis-1.png" id="fig-basis" class="img-fluid figure-img" width="576">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-basis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1
@@ -182,30 +233,35 @@ Figure&nbsp;1
 </div>
 </div>
 </div>
+<p>It can be seen here that the optimal combination is the first xx principal components of a xx spline. It is notable that this very small number of spatial controls explains xx% of variability in the outcome. Knowing the location of a place lets you make a decent guess about the likely degree of intergenerational mobility there, before knowing anything about its other characteristics.</p>
+<p>The predicted outcomes using this xx spline are shown by the command yy. It shows the strong regional trend from xx to xx.</p>
 </section>
 <section id="run-placebo-test" class="level2">
 <h2 class="anchored" data-anchor-id="run-placebo-test">2. Run Placebo Test</h2>
-<p>next run placebo test.</p>
-<div class="cell" data-cache="false">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">3</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">50</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel=</span>T</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Having chosen a spatial basis, we now need to choose the optimal number of clusters for the residuals. If too many are chosen, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.</p>
+<p>The placebos are constructed to have the same spatial structure as the treatment, here racial segregation. First, the treatment is regressed on the spatial basis terms selected in Step 1. The correlation between residuals is assumed to decay exponentially so that the correlation between two at distance <span class="math inline">h</span> apart is <span class="math inline">\rho \exp (- \theta / h)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The parameters <span class="math inline">\rho</span> and <span class="math inline">\theta</span> are referred to as the structure and range of the correlation. Effective range is <span class="math inline">2 \theta</span>: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the <code>fields</code> library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.</p>
+<p>These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t statistic) than the treatment. The second is that the placebos act as a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient. This allows us to choose the optimal number of clusters where points are assigned to clusters using k-medoids.</p>
+<p>The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving. <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<div class="cell" data-cache="true">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">5</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel=</span>T</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                 )</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
  
 
   
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tinytable_7t11k9me9bt1uustocz6</title>
+    <title>tinytable_5hv1yclan42zsmk5i7ot</title>
     <style>
-.table td.tinytable_css_ddn5yg33n34abaswsmrn, .table th.tinytable_css_ddn5yg33n34abaswsmrn {   padding-left: 1em; }
-.table td.tinytable_css_8jya73cq7je7dgbenvy5, .table th.tinytable_css_8jya73cq7je7dgbenvy5 {    text-align: center; }
-.table td.tinytable_css_45sszhdu0qmvyyn7zmak, .table th.tinytable_css_45sszhdu0qmvyyn7zmak {    font-weight: bold; text-align: left; }
-.table td.tinytable_css_6ew13zmwa0p0x3sz9y7e, .table th.tinytable_css_6ew13zmwa0p0x3sz9y7e {    font-weight: bold; }
-.table td.tinytable_css_klrbkl7jkyo4xzz605si, .table th.tinytable_css_klrbkl7jkyo4xzz605si {    color: orange; }
+.table td.tinytable_css_1sua29ew27jkqdjilrty, .table th.tinytable_css_1sua29ew27jkqdjilrty {   padding-left: 1em; }
+.table td.tinytable_css_y8s4oyc3c4006zk51k7r, .table th.tinytable_css_y8s4oyc3c4006zk51k7r {    text-align: center; }
+.table td.tinytable_css_ak8rgcp3v75s3jeahh01, .table th.tinytable_css_ak8rgcp3v75s3jeahh01 {    font-weight: bold; text-align: left; }
+.table td.tinytable_css_0j4ahoqqhdm0i962a27l, .table th.tinytable_css_0j4ahoqqhdm0i962a27l {    font-weight: bold; }
+.table td.tinytable_css_ctogplay1uyprfcjp3lr, .table th.tinytable_css_ctogplay1uyprfcjp3lr {    color: orange; }
     </style>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -223,7 +279,7 @@ Figure&nbsp;1
 
   
     <div class="container">
-      <table class="table table-striped" id="tinytable_7t11k9me9bt1uustocz6" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table table-striped" id="tinytable_5hv1yclan42zsmk5i7ot" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <thead>
         
               <tr>
@@ -235,62 +291,62 @@ Figure&nbsp;1
                 <th scope="col">CI</th>
               </tr>
         </thead>
-        <tfoot><tr><td colspan="6">Moran=3.34, Structure=0.03, Effective Range=0.15, R2=0.02.</td></tr>
-<tr><td colspan="6">Splines=4, PCs=3.</td></tr>
+        <tfoot><tr><td colspan="6">Moran=21.5, Structure=0.4, Effective Range=0.1, R2=0.07.</td></tr>
+<tr><td colspan="6">Splines=4, PCs=5.</td></tr>
 <tr><td colspan="6">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
                 with confidence intervals. R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
         <tbody>
                 <tr>
                   <td>.</td>
-                  <td>0.4 </td>
-                  <td>0.38</td>
-                  <td>0.06</td>
-                  <td>4.7</td>
-                  <td>[-3.34, 1.34]</td>
+                  <td>0   </td>
+                  <td>0   </td>
+                  <td>0.23</td>
+                  <td>0.67</td>
+                  <td>[-1.34, -0.66]</td>
                 </tr>
                 <tr>
                   <td>3</td>
-                  <td>0.45</td>
-                  <td>0.46</td>
-                  <td>0.02</td>
-                  <td>9.2</td>
-                  <td>[-5.61, 3.61]</td>
+                  <td>0.01</td>
+                  <td>0.01</td>
+                  <td>0.06</td>
+                  <td>0.86</td>
+                  <td>[-1.43, -0.57]</td>
                 </tr>
                 <tr>
                   <td>4</td>
-                  <td>0.38</td>
-                  <td>0.44</td>
-                  <td>0.1 </td>
-                  <td>6.2</td>
-                  <td>[-4.12, 2.12]</td>
+                  <td>0.02</td>
+                  <td>0.03</td>
+                  <td>0.09</td>
+                  <td>1.29</td>
+                  <td>[-1.64, -0.36]</td>
                 </tr>
                 <tr>
                   <td>5</td>
-                  <td>0.39</td>
-                  <td>0.4 </td>
-                  <td>0.04</td>
-                  <td>5.8</td>
-                  <td>[-3.89, 1.89]</td>
+                  <td>0.01</td>
+                  <td>0.02</td>
+                  <td>0.1 </td>
+                  <td>1.16</td>
+                  <td>[-1.58, -0.42]</td>
                 </tr>
                 <tr>
                   <td>6</td>
-                  <td>0.51</td>
-                  <td>0.46</td>
-                  <td>0.06</td>
-                  <td>7.2</td>
-                  <td>[-4.61, 2.61]</td>
+                  <td>0.01</td>
+                  <td>0.01</td>
+                  <td>0.09</td>
+                  <td>1.19</td>
+                  <td>[-1.59, -0.41]</td>
                 </tr>
         </tbody>
       </table>
     </div>
 
     <script>
-      function styleCell_tinytable_0za93b0cour7u892oe95(i, j, css_id) {
-        var table = document.getElementById("tinytable_7t11k9me9bt1uustocz6");
+      function styleCell_tinytable_1u9le7ycxqs3b5jg2fix(i, j, css_id) {
+        var table = document.getElementById("tinytable_5hv1yclan42zsmk5i7ot");
         table.rows[i].cells[j].classList.add(css_id);
       }
-      function insertSpanRow_d15nwb5gdgpp0ymx8v05(i, colspan, content) {
-        var table = document.getElementById('tinytable_7t11k9me9bt1uustocz6');
+      function insertSpanRow_mg3e12c5mz9tu5hbn3yz(i, colspan, content) {
+        var table = document.getElementById('tinytable_5hv1yclan42zsmk5i7ot');
         var newRow = table.insertRow(i);
         var newCell = newRow.insertCell(0);
         newCell.setAttribute("colspan", colspan);
@@ -298,8 +354,8 @@ Figure&nbsp;1
         // this may be unsafe, but innerText does not interpret <br>
         newCell.innerHTML = content;
       }
-      function spanCell_tinytable_0za93b0cour7u892oe95(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_7t11k9me9bt1uustocz6");
+      function spanCell_tinytable_1u9le7ycxqs3b5jg2fix(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_5hv1yclan42zsmk5i7ot");
         const targetRow = table.rows[i];
         const targetCell = targetRow.cells[j];
         for (let r = 0; r < rowspan; r++) {
@@ -326,45 +382,45 @@ Figure&nbsp;1
         targetCell.colSpan = colspan;
       }
 
-window.addEventListener('load', function () { insertSpanRow_d15nwb5gdgpp0ymx8v05(2, 6, 'BCH') });
-window.addEventListener('load', function () { insertSpanRow_d15nwb5gdgpp0ymx8v05(1, 6, 'HC') });
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(2, 0, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(4, 0, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(5, 0, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(6, 0, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(7, 0, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(-1, 0, 'tinytable_css_8jya73cq7je7dgbenvy5') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(-1, 1, 'tinytable_css_8jya73cq7je7dgbenvy5') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(-1, 2, 'tinytable_css_8jya73cq7je7dgbenvy5') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(-1, 3, 'tinytable_css_8jya73cq7je7dgbenvy5') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(-1, 4, 'tinytable_css_8jya73cq7je7dgbenvy5') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(-1, 5, 'tinytable_css_8jya73cq7je7dgbenvy5') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(1, 0, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(3, 0, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(1, 1, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(3, 1, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(1, 2, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(3, 2, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(1, 3, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(3, 3, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(1, 4, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(3, 4, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(1, 5, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(3, 5, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(0, 0, 'tinytable_css_6ew13zmwa0p0x3sz9y7e') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(0, 1, 'tinytable_css_6ew13zmwa0p0x3sz9y7e') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(0, 2, 'tinytable_css_6ew13zmwa0p0x3sz9y7e') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(0, 3, 'tinytable_css_6ew13zmwa0p0x3sz9y7e') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(0, 4, 'tinytable_css_6ew13zmwa0p0x3sz9y7e') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(0, 5, 'tinytable_css_6ew13zmwa0p0x3sz9y7e') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(0, 3, 'tinytable_css_klrbkl7jkyo4xzz605si') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(1, 3, 'tinytable_css_klrbkl7jkyo4xzz605si') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(2, 3, 'tinytable_css_klrbkl7jkyo4xzz605si') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(3, 3, 'tinytable_css_klrbkl7jkyo4xzz605si') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(4, 3, 'tinytable_css_klrbkl7jkyo4xzz605si') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(5, 3, 'tinytable_css_klrbkl7jkyo4xzz605si') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(6, 3, 'tinytable_css_klrbkl7jkyo4xzz605si') })
-window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u892oe95(7, 3, 'tinytable_css_klrbkl7jkyo4xzz605si') })
+window.addEventListener('load', function () { insertSpanRow_mg3e12c5mz9tu5hbn3yz(2, 6, 'BCH') });
+window.addEventListener('load', function () { insertSpanRow_mg3e12c5mz9tu5hbn3yz(1, 6, 'HC') });
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(2, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(4, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(5, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(6, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(7, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 0, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 1, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 2, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 3, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 4, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 5, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 5, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 5, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 0, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 1, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 2, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 3, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 4, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 5, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(2, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(4, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(5, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(6, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
+window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(7, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
     </script>
 
   
@@ -372,29 +428,38 @@ window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u8
 
 </div>
 </div>
+<p>Placebo generates a table where the top row uses unadjusted heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are large cluster (Bester-Conley-Hansen) standard errors, starting with three and going up. The second column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.</p>
+<p>The next column gives the placebo p-value: the proportion of simulations where the placebo had a lower p-value than the real treatment. It can be seen that these differ markedly for xx.</p>
+<p>Following this, and highlighted in orange, is the percentage of simulations where the placebo is significant at 5%. If this is markedly higher than 5% it suggests that the inference method employed was inadequate. In practice a value in the range of 0.05 to 0.07 or 0.08 indicates satisfactory performance. The next column gives the width of the confidence interval associated with each cluster and allows an informal size-power tradeoff: increasing the proportion above 5% to, say, 8% is desirable if it leads to a marked narrowing of the confidence interval. In this case here, xx clusters gives a p-value of xx and a narrower confidence interval of xx. The regression and placebo p values are close at 0.01 and 0.02.</p>
+<p>It will sometimes happen that the proportion of placebos significant at 5% stays considerably above 5% regardless of the cluster number. In that case increasing, or sometimes decreasing, the number of principal components <code>num_pc</code> by one or two will usually give a satisfactory placebo value.</p>
+<p>Below the table are a number of diagnostics and descriptive statistics. Most important is the Moran statistic, the Z-score of the null hypothesis that the correlation between each residual and its nearest neighbours is zero. We use 5 neighbours here: altering this does not alter the results materially. In our experience, the Moran statistic is usually well below 2 or substantially above it.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<p>In deciding whether to use a familiar HC standard error or a large cluster one we have adopted the rule of thumb that if this has a low Moran statistic and a 5% placebo value close to 0.05 it should be used, given its tighter confidence intervals. Otherwise a BCH cluster below 0.08 is picked. This allows a degree of size-power trade-off where an increase in the rejection rate can be counterbalanced by a narrowing of confidence intervals.</p>
+<p>Below the Moran statistic are the spatial parameters. R2 gives the explanatory power of the regression of the treatment on the spatial basis variables. Unusually here it is very low: typically the treatment and outcome share common spatial trends, making any non-spurious relationship between them impossible to extract from the data. Next is the structure <span class="math inline">\rho</span> of the residuals and then the effective range expressed as a fraction of the maximum distance between points.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<p>Here it can be seen that both structure and range are xx. Finally the degree of the tensor and the number of principal components used to approximate the outcome are reported.</p>
 </section>
 <section id="run-a-synthetic-outcome-test" class="level2">
 <h2 class="anchored" data-anchor-id="run-a-synthetic-outcome-test">3. Run a Synthetic Outcome Test</h2>
 <p>Following the placebo test, the next step is to calculate the synthetic outcome p-value: What is the significance level of the null hypothesis that the outcome is determined by trending noise of a specified form?</p>
+<p>An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of values from 3 to 5 to allow reader’s to see how the regression is behaving.</p>
 <p>We assume that the outcome is generated as a quadratic in longitude and latitude with residuals again being generated by a spatial noise process with the same exponential parameters: here there is a structure of 0.37 and effective range of 0.1.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth_bch</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">3</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">50</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel=</span>T)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-cache="true">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">5</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel=</span>T)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
  
 
   
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tinytable_w62xo9apwlvh445mji3q</title>
+    <title>tinytable_7zjn33btkgvmu6hiplc0</title>
     <style>
-.table td.tinytable_css_d15nwb5gdgpp0ymx8v05, .table th.tinytable_css_d15nwb5gdgpp0ymx8v05 {   padding-left: 1em; }
-.table td.tinytable_css_ddn5yg33n34abaswsmrn, .table th.tinytable_css_ddn5yg33n34abaswsmrn {    text-align: center; }
-.table td.tinytable_css_k8ahxed8bil0kfo8i89h, .table th.tinytable_css_k8ahxed8bil0kfo8i89h {    font-weight: bold; text-align: left; }
-.table td.tinytable_css_45sszhdu0qmvyyn7zmak, .table th.tinytable_css_45sszhdu0qmvyyn7zmak {    font-weight: bold; }
+.table td.tinytable_css_mg3e12c5mz9tu5hbn3yz, .table th.tinytable_css_mg3e12c5mz9tu5hbn3yz {   padding-left: 1em; }
+.table td.tinytable_css_1sua29ew27jkqdjilrty, .table th.tinytable_css_1sua29ew27jkqdjilrty {    text-align: center; }
+.table td.tinytable_css_kpk9y57mm7qwn442c7v8, .table th.tinytable_css_kpk9y57mm7qwn442c7v8 {    font-weight: bold; text-align: left; }
+.table td.tinytable_css_ak8rgcp3v75s3jeahh01, .table th.tinytable_css_ak8rgcp3v75s3jeahh01 {    font-weight: bold; }
     </style>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -412,7 +477,7 @@ window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u8
 
   
     <div class="container">
-      <table class="table table-striped" id="tinytable_w62xo9apwlvh445mji3q" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table table-striped" id="tinytable_7zjn33btkgvmu6hiplc0" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <thead>
         
               <tr>
@@ -423,57 +488,57 @@ window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u8
                 <th scope="col">CI</th>
               </tr>
         </thead>
-        <tfoot><tr><td colspan="5">Moran=3.34, Structure=0.89, Effective Range=0.1, R2=0.36.</td></tr>
-<tr><td colspan="5">Splines=4, PCs=3.</td></tr>
+        <tfoot><tr><td colspan="5">Moran=21.5, Structure=0.91, Effective Range=0.35, R2=0.33.</td></tr>
+<tr><td colspan="5">Splines=4, PCs=5.</td></tr>
 <tr><td colspan="5">Estimated and synthetic outcome p values for different cluster numbers.
                 R2 gives the explanatory power of a regression of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
         <tbody>
                 <tr>
                   <td>.</td>
-                  <td>0.4 </td>
-                  <td>0.6 </td>
-                  <td>4.7</td>
-                  <td>[-3.34, 1.34]</td>
+                  <td>0   </td>
+                  <td>0   </td>
+                  <td>0.67</td>
+                  <td>[-1.34, -0.66]</td>
                 </tr>
                 <tr>
                   <td>3</td>
-                  <td>0.45</td>
-                  <td>0.62</td>
-                  <td>9.2</td>
-                  <td>[-5.61, 3.61]</td>
+                  <td>0.01</td>
+                  <td>0   </td>
+                  <td>0.86</td>
+                  <td>[-1.43, -0.57]</td>
                 </tr>
                 <tr>
                   <td>4</td>
-                  <td>0.38</td>
-                  <td>0.58</td>
-                  <td>6.2</td>
-                  <td>[-4.12, 2.12]</td>
+                  <td>0.02</td>
+                  <td>0.02</td>
+                  <td>1.29</td>
+                  <td>[-1.64, -0.36]</td>
                 </tr>
                 <tr>
                   <td>5</td>
-                  <td>0.39</td>
-                  <td>0.56</td>
-                  <td>5.8</td>
-                  <td>[-3.89, 1.89]</td>
+                  <td>0.01</td>
+                  <td>0.01</td>
+                  <td>1.16</td>
+                  <td>[-1.58, -0.42]</td>
                 </tr>
                 <tr>
                   <td>6</td>
-                  <td>0.51</td>
-                  <td>0.68</td>
-                  <td>7.2</td>
-                  <td>[-4.61, 2.61]</td>
+                  <td>0.01</td>
+                  <td>0.01</td>
+                  <td>1.19</td>
+                  <td>[-1.59, -0.41]</td>
                 </tr>
         </tbody>
       </table>
     </div>
 
     <script>
-      function styleCell_tinytable_ga7ho8x6lsp3sywwk8op(i, j, css_id) {
-        var table = document.getElementById("tinytable_w62xo9apwlvh445mji3q");
+      function styleCell_tinytable_ba55scpyx04dk5ai8u4b(i, j, css_id) {
+        var table = document.getElementById("tinytable_7zjn33btkgvmu6hiplc0");
         table.rows[i].cells[j].classList.add(css_id);
       }
-      function insertSpanRow_h93xa8bmr28e3n2a33ju(i, colspan, content) {
-        var table = document.getElementById('tinytable_w62xo9apwlvh445mji3q');
+      function insertSpanRow_ghfc948368vznex214aj(i, colspan, content) {
+        var table = document.getElementById('tinytable_7zjn33btkgvmu6hiplc0');
         var newRow = table.insertRow(i);
         var newCell = newRow.insertCell(0);
         newCell.setAttribute("colspan", colspan);
@@ -481,8 +546,8 @@ window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u8
         // this may be unsafe, but innerText does not interpret <br>
         newCell.innerHTML = content;
       }
-      function spanCell_tinytable_ga7ho8x6lsp3sywwk8op(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_w62xo9apwlvh445mji3q");
+      function spanCell_tinytable_ba55scpyx04dk5ai8u4b(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_7zjn33btkgvmu6hiplc0");
         const targetRow = table.rows[i];
         const targetCell = targetRow.cells[j];
         for (let r = 0; r < rowspan; r++) {
@@ -509,33 +574,33 @@ window.addEventListener('load', function () { styleCell_tinytable_0za93b0cour7u8
         targetCell.colSpan = colspan;
       }
 
-window.addEventListener('load', function () { insertSpanRow_h93xa8bmr28e3n2a33ju(2, 5, 'BCH') });
-window.addEventListener('load', function () { insertSpanRow_h93xa8bmr28e3n2a33ju(1, 5, 'HC') });
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(2, 0, 'tinytable_css_d15nwb5gdgpp0ymx8v05') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(4, 0, 'tinytable_css_d15nwb5gdgpp0ymx8v05') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(5, 0, 'tinytable_css_d15nwb5gdgpp0ymx8v05') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(6, 0, 'tinytable_css_d15nwb5gdgpp0ymx8v05') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(7, 0, 'tinytable_css_d15nwb5gdgpp0ymx8v05') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(-1, 0, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(-1, 1, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(-1, 2, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(-1, 3, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(-1, 4, 'tinytable_css_ddn5yg33n34abaswsmrn') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(1, 0, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(3, 0, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(1, 1, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(3, 1, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(1, 2, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(3, 2, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(1, 3, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(3, 3, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(1, 4, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(3, 4, 'tinytable_css_k8ahxed8bil0kfo8i89h') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(0, 0, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(0, 1, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(0, 2, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(0, 3, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
-window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sywwk8op(0, 4, 'tinytable_css_45sszhdu0qmvyyn7zmak') })
+window.addEventListener('load', function () { insertSpanRow_ghfc948368vznex214aj(2, 5, 'BCH') });
+window.addEventListener('load', function () { insertSpanRow_ghfc948368vznex214aj(1, 5, 'HC') });
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(2, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(4, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(5, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(6, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(7, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 1, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 2, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 3, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 4, 'tinytable_css_1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 0, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 0, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 1, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 1, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 2, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 2, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 3, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 3, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 4, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 4, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
     </script>
 
   
@@ -548,33 +613,33 @@ window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sy
 <section id="estimate-the-spatial-basis-regression" class="level2">
 <h2 class="anchored" data-anchor-id="estimate-the-spatial-basis-regression">4. Estimate the Spatial Basis Regression</h2>
 <p>The fact that the placebo and synthetic outcome significance levels closely match the regression one gives us considerable confidence in the reliability of the regression estimate. We therefore estimate a regression with 4 principal components of a 4x4 spline, and compute standard errors using 3 k-medoids clusters.</p>
-<p>For comparison we also include a regression with no spatial adjustment where standard errors are clustered by state.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>CK<span class="ot">=</span><span class="fu">CK_regression</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>,<span class="at">pc_num=</span><span class="dv">3</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">clusters=</span><span class="dv">3</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>Clust<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">cluster=</span> <span class="sc">~</span>state)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>modelsummary<span class="sc">::</span><span class="fu">modelsummary</span>(<span class="fu">list</span>(<span class="at">Clustered=</span>Clust, <span class="at">Basis=</span>CK),</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"conf.int"</span>,<span class="st">"p = {p.value}"</span>),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*"</span>), <span class="co">#omit basis and intercept</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">fmt=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>For comparison we also include a regression with no spatial adjustment where standard errors are clustered by state, the standard practice in such studies.</p>
+<div class="cell" data-cache="true">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>CK<span class="ot">=</span><span class="fu">CK_regression</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>,<span class="at">pc_num=</span><span class="dv">5</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">clusters=</span><span class="dv">3</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>Clust<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">cluster=</span> <span class="sc">~</span>state)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>modelsummary<span class="sc">::</span><span class="fu">modelsummary</span>(<span class="fu">list</span>(<span class="at">Clustered=</span>Clust, <span class="at">Basis=</span>CK),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"conf.int"</span>,<span class="st">"p = {p.value}"</span>),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*"</span>), <span class="co">#omit basis and intercept</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">fmt=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
  
 
   
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tinytable_wskziu8isloh8j87ac7r</title>
+    <title>tinytable_z6ybjmtg3ey7ie9b9dac</title>
     <style>
-.table td.tinytable_css_gu30gjmp7nk1kch257zx, .table th.tinytable_css_gu30gjmp7nk1kch257zx {    border-bottom: solid 0.1em #d3d8dc; }
-.table td.tinytable_css_k12hchqmp3v25xtyvdvt, .table th.tinytable_css_k12hchqmp3v25xtyvdvt {    text-align: left; }
-.table td.tinytable_css_fh1liazxu9irf6bo2n1x, .table th.tinytable_css_fh1liazxu9irf6bo2n1x {    text-align: center; }
-.table td.tinytable_css_c0ur4825zz2k1k8fyja4, .table th.tinytable_css_c0ur4825zz2k1k8fyja4 {    text-align: center; }
-.table td.tinytable_css_f14bogmufbcd48fq7mkg, .table th.tinytable_css_f14bogmufbcd48fq7mkg {    border-bottom: solid 0.05em black; }
+.table td.tinytable_css_kez7iyy879b8u8hkvorv, .table th.tinytable_css_kez7iyy879b8u8hkvorv {    border-bottom: solid 0.1em #d3d8dc; }
+.table td.tinytable_css_hv043e32shos2m6w0ne9, .table th.tinytable_css_hv043e32shos2m6w0ne9 {    text-align: left; }
+.table td.tinytable_css_lkt035zhdj0arwdjpr8x, .table th.tinytable_css_lkt035zhdj0arwdjpr8x {    text-align: center; }
+.table td.tinytable_css_1ygto1exujiz2mzb0fke, .table th.tinytable_css_1ygto1exujiz2mzb0fke {    text-align: center; }
+.table td.tinytable_css_3wzk4if43ufjyozcnjby, .table th.tinytable_css_3wzk4if43ufjyozcnjby {    border-bottom: solid 0.05em black; }
     </style>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -592,7 +657,7 @@ window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sy
 
   
     <div class="container">
-      <table class="table table-borderless" id="tinytable_wskziu8isloh8j87ac7r" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table table-borderless" id="tinytable_z6ybjmtg3ey7ie9b9dac" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <thead>
         
               <tr>
@@ -605,55 +670,55 @@ window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sy
         <tbody>
                 <tr>
                   <td>racial_seg</td>
-                  <td>-0.03         </td>
-                  <td>-0.05        </td>
+                  <td>-0.09         </td>
+                  <td>-0.13         </td>
                 </tr>
                 <tr>
                   <td>          </td>
-                  <td>[-0.16, 0.10] </td>
-                  <td>[-0.26, 0.17]</td>
+                  <td>[-0.16, -0.02]</td>
+                  <td>[-0.18, -0.07]</td>
                 </tr>
                 <tr>
                   <td>          </td>
-                  <td>p = 0.59      </td>
-                  <td>p = 0.45     </td>
+                  <td>p = 0.01      </td>
+                  <td>p = &lt;0.01     </td>
                 </tr>
                 <tr>
                   <td>single_mom</td>
-                  <td>-0.71         </td>
-                  <td>-0.56        </td>
+                  <td>-0.75         </td>
+                  <td>-0.54         </td>
                 </tr>
                 <tr>
                   <td>          </td>
-                  <td>[-0.91, -0.50]</td>
-                  <td>[-1.51, 0.38]</td>
+                  <td>[-0.91, -0.59]</td>
+                  <td>[-0.97, -0.11]</td>
                 </tr>
                 <tr>
                   <td>          </td>
                   <td>p = &lt;0.01     </td>
-                  <td>p = 0.12     </td>
+                  <td>p = 0.03      </td>
                 </tr>
                 <tr>
                   <td>Num.Obs.  </td>
-                  <td>100           </td>
-                  <td>100          </td>
+                  <td>709           </td>
+                  <td>709           </td>
                 </tr>
                 <tr>
                   <td>R2        </td>
-                  <td>0.605         </td>
-                  <td>0.691        </td>
+                  <td>0.590         </td>
+                  <td>0.767         </td>
                 </tr>
         </tbody>
       </table>
     </div>
 
     <script>
-      function styleCell_tinytable_tpu3ioigrubc8a9o922g(i, j, css_id) {
-        var table = document.getElementById("tinytable_wskziu8isloh8j87ac7r");
+      function styleCell_tinytable_chk7yytoz8snag05nuig(i, j, css_id) {
+        var table = document.getElementById("tinytable_z6ybjmtg3ey7ie9b9dac");
         table.rows[i].cells[j].classList.add(css_id);
       }
       function insertSpanRow(i, colspan, content) {
-        var table = document.getElementById('tinytable_wskziu8isloh8j87ac7r');
+        var table = document.getElementById('tinytable_z6ybjmtg3ey7ie9b9dac');
         var newRow = table.insertRow(i);
         var newCell = newRow.insertCell(0);
         newCell.setAttribute("colspan", colspan);
@@ -661,8 +726,8 @@ window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sy
         // this may be unsafe, but innerText does not interpret <br>
         newCell.innerHTML = content;
       }
-      function spanCell_tinytable_tpu3ioigrubc8a9o922g(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_wskziu8isloh8j87ac7r");
+      function spanCell_tinytable_chk7yytoz8snag05nuig(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_z6ybjmtg3ey7ie9b9dac");
         const targetRow = table.rows[i];
         const targetCell = targetRow.cells[j];
         for (let r = 0; r < rowspan; r++) {
@@ -689,39 +754,39 @@ window.addEventListener('load', function () { styleCell_tinytable_ga7ho8x6lsp3sy
         targetCell.colSpan = colspan;
       }
 
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(0, 0, 'tinytable_css_gu30gjmp7nk1kch257zx') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(0, 1, 'tinytable_css_gu30gjmp7nk1kch257zx') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(0, 2, 'tinytable_css_gu30gjmp7nk1kch257zx') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(0, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(1, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(2, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(3, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(4, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(5, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(6, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(7, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(8, 0, 'tinytable_css_k12hchqmp3v25xtyvdvt') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(0, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(1, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(2, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(3, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(4, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(5, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(6, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(7, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(8, 1, 'tinytable_css_fh1liazxu9irf6bo2n1x') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(0, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(1, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(2, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(3, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(4, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(5, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(6, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(7, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(8, 2, 'tinytable_css_c0ur4825zz2k1k8fyja4') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(6, 0, 'tinytable_css_f14bogmufbcd48fq7mkg') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(6, 1, 'tinytable_css_f14bogmufbcd48fq7mkg') })
-window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a9o922g(6, 2, 'tinytable_css_f14bogmufbcd48fq7mkg') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 0, 'tinytable_css_kez7iyy879b8u8hkvorv') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 1, 'tinytable_css_kez7iyy879b8u8hkvorv') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 2, 'tinytable_css_kez7iyy879b8u8hkvorv') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(1, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(2, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(3, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(4, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(5, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(7, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(8, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(1, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(2, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(3, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(4, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(5, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(7, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(8, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(1, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(2, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(3, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(4, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(5, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(7, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(8, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 0, 'tinytable_css_3wzk4if43ufjyozcnjby') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 1, 'tinytable_css_3wzk4if43ufjyozcnjby') })
+window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 2, 'tinytable_css_3wzk4if43ufjyozcnjby') })
     </script>
 
   
@@ -729,12 +794,22 @@ window.addEventListener('load', function () { styleCell_tinytable_tpu3ioigrubc8a
 
 </div>
 </div>
+<p>Here we use <code>modelsummary</code> to tabulate the results but the output will work with any other standard <code>R</code> table package.</p>
 <p>It can be seen here that, despite the strong spatial trends in the data, adding a spline basis and using only three clusters does not alter the results markedly compared with naive clustering by state.</p>
 
 
 </section>
 
-</main> <!-- /main -->
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>The exponential is a special case of the Matern function with smoothness parameter of 0.5, and in principle the optimal smoothing parameter can be chosen by maximum likelihood. In practice this makes little difference: as smoothness increases the estimated range <span class="math inline">\theta</span> falls, leaving correlation more or less unchanged.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>For large datasets, estimating the Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting <code>k_medoids=FALSE</code> and <code>exact_cholesky=FALSE</code> in the <code>placebo</code> command.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>See Table xx in Conley-Kelly.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>The 95th percentile of distance is in fact used to prevent distortion from outliers.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
