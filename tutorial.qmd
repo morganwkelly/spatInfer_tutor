@@ -11,28 +11,27 @@ execute:
   cache: true
 ---
 
-The purpose of `spatInfer` is to estimate regressions with spatial data that are robust to the long range trends and medium range autocorrelation that are a feature of spatial observations. Specifically, a spatial basis is added to the regression and standard errors are estimated by a large cluster feature. A feature of `spatInfer` is its simple workflow, requiring only four commands.
+The purpose of `spatInfer` is to estimate regressions with spatial data that are robust to the long range trends and medium range autocorrelation that are a feature of spatial observations. Specifically, a spatial basis is added to the regression and standard errors are estimated using large clusters. A feature of `spatInfer` is its simple workflow, requiring a sequence of only four commands.
 
-This tutorial gives an example of the use of `spatInfer` based on a subset of data from Chetty et al's examination of income mobility across US cities. This consists of the outcome, intergenerational mobility, the treatment of interest racial segregation, and a control in the form of commuting distance. The longitude and latitude of each observation is included in the data. These must be named `X` and `Y`.
+This tutorial gives an example of the use of `spatInfer` based on a subset of data from Chetty et al's examination of income mobility across US cities. This consists of the outcome, intergenerational mobility, the treatment of interest racial segregation, and a control in the form of single parent households. The longitude and latitude of each observation is included in the data. These must be named `X` and `Y`.
 
 The four steps in estimating a spatial basis regression with large cluster inference are
 
-1.  Estimate the optimal spatial basis parameters.
+1.  Estimate the optimal spatial basis.
 
-2.  Use a spatial noise placebo to select the number of clusters for standard error estimation and estimate a placebo significance level of the treatment.
+2.  Generate a spatial noise placebo to select the number of clusters for standard error estimation and estimate the placebo significance level of the treatment.
 
 3.  Generate synthetic outcomes to test the null hypothesis that the outcome is spatial noise, independent of the treatment.
 
 4.  Estimate a spatial basis regression using the parameters estimated in the first two steps.
 
-We begin by loading the `spatInfer` library and the data frame called `opportunity`. This is a 250 observation subset from the data used by Chetty et al to examine intergenerational mobility in US cities
+We begin by loading the `spatInfer` library and the data frame called `opportunity`.
 
 ```{r}
 library(spatInfer)
 
 data(opportunity)
-#set.seed(123)
-#opportunity=opportunity |> dplyr::slice_sample(n=100)
+
 ```
 
 ## 1. Choose the Spatial Basis
@@ -44,13 +43,22 @@ We apply the simplest basis possible: a $k \times k$ tensor of linear b-splines 
 The treatment of interest is placed as the first on the right hand side. If several are of concern the procedure can be repeated using each as the first entry.
 
 ```{r fig-basis, fig.height=5, fig.width=6, Cache=FALSE}
-optimal_basis(mobility~racial_seg+single_mom, opportunity,
+optimal_basis(mobility~racial_seg+single_mom, 
+              opportunity,
               max_splines=5)
 ```
 
 It can be seen here that the optimal combination is the first xx principal components of a xx spline. It is notable that this very small number of spatial controls explains xx% of variability in the outcome. Knowing the location of a place lets you make a decent guess about the likely degree of intergenerational mobility there, before knowing anything about its other characteristics.
 
 The predicted outcomes using this xx spline are shown by the command yy. It shows the strong regional trend from xx to xx.
+
+```{r fig-tensor, fig.height=6, fig.width=7, Cache=FALSE}
+plot_basis(mobility~racial_seg+single_mom, opportunity,
+              splines=4)
+```
+
+You can then plot the fitted spline to examine the geographical pattern of the outcome. The figure here is a view of the US from the southeast.
+
 
 ## 2. Run Placebo Test
 
