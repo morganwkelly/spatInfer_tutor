@@ -232,39 +232,22 @@ Figure&nbsp;1
 </div>
 </div>
 </div>
-<p>It can be seen here that the optimal combination is the first xx principal components of a xx spline. It is notable that this very small number of spatial controls explains xx% of variability in the outcome. Knowing the location of a place lets you make a decent guess about the likely degree of intergenerational mobility there, before knowing anything about its other characteristics.</p>
-<p>The predicted outcomes using this xx spline are shown by the command yy. It shows the strong regional trend from xx to xx.</p>
-<div class="cell" data-cache="false">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_basis</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">splines=</span><span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div id="fig-tensor" class="quarto-figure quarto-figure-center quarto-float anchored" width="672">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-tensor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="tutorial_files/figure-html/fig-tensor-1.png" id="fig-tensor" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-tensor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<p>You can then plot the fitted spline to examine the geographical pattern of the outcome. The figure here is a view of the US from the southeast.</p>
+<p>It can be seen here that the optimal combination is the first 11 principal components of a 4x4 spline. It is notable that this very small number of spatial controls explains 55% of variability in the outcome. Knowing only the location of a place lets you make a decent guess about the likely degree of intergenerational mobility there, without knowing anything about its other characteristics.</p>
 </section>
 <section id="run-placebo-test" class="level2">
 <h2 class="anchored" data-anchor-id="run-placebo-test">2. Run Placebo Test</h2>
-<p>Having chosen a spatial basis, we now need to choose the optimal number of clusters for the residuals. If too many are chosen, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.</p>
-<p>The placebos are constructed to have the same spatial structure as the treatment, here racial segregation. First, the treatment is regressed on the spatial basis terms selected in Step 1. The correlation between residuals is assumed to decay exponentially so that the correlation between two at distance <span class="math inline">h</span> apart is <span class="math inline">\rho \exp (- \theta / h)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The parameters <span class="math inline">\rho</span> and <span class="math inline">\theta</span> are referred to as the structure and range of the correlation. Effective range is <span class="math inline">2 \theta</span>: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the <code>fields</code> library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.</p>
-<p>These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t statistic) than the treatment. The second is that the placebos act as a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient. This allows us to choose the optimal number of clusters where points are assigned to clusters using k-medoids.</p>
-<p>The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving. <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>Having chosen a spatial basis, we now need to choose an optimal number of clusters for the residuals. If there are too many, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.</p>
+<p>The placebos are constructed to have the same spatial structure as the treatment, here racial segregation. First, the treatment is regressed on the spatial basis terms selected in Step 1. The spatial correlation between the detrended residuals is assumed to decay exponentially so that the correlation between two at distance <span class="math inline">h</span> apart is <span class="math inline">\rho \exp (- \theta / h)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The parameters <span class="math inline">\rho</span> and <span class="math inline">\theta</span> are referred to as the structure and range of the correlation. Effective range is <span class="math inline">2 \theta</span>: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the <code>fields</code> library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.</p>
+<p>These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment.</p>
+<p>The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient.</p>
+<p>Standard errors are estimated using the large cluster procedure of Bester, Conley and Hansen, where observations are partitioned into <span class="math inline">c</span> large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of <span class="math inline">c</span> to be picked.</p>
+<p>The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by <code>optimal_basis</code>, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving. <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">5</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel=</span>T</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                 )</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
  
 
@@ -307,8 +290,8 @@ Figure&nbsp;2
                 <th scope="col">CI</th>
               </tr>
         </thead>
-        <tfoot><tr><td colspan="6">Moran=21.5, Structure=0.4, Effective Range=0.1, R2=0.07.</td></tr>
-<tr><td colspan="6">Splines=4, PCs=5.</td></tr>
+        <tfoot><tr><td colspan="6">Moran=21.56, Structure=0.37, Effective Range=0.1, R2=0.08.</td></tr>
+<tr><td colspan="6">Splines=4, PCs=11.</td></tr>
 <tr><td colspan="6">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
                 with confidence intervals. R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
         <tbody>
@@ -317,40 +300,40 @@ Figure&nbsp;2
                   <td>0   </td>
                   <td>0   </td>
                   <td>0.23</td>
-                  <td>0.67</td>
-                  <td>[-1.34, -0.66]</td>
+                  <td>0.63</td>
+                  <td>[-1.32, -0.68]</td>
                 </tr>
                 <tr>
                   <td>3</td>
                   <td>0.01</td>
-                  <td>0.01</td>
-                  <td>0.06</td>
-                  <td>0.86</td>
-                  <td>[-1.43, -0.57]</td>
+                  <td>0.02</td>
+                  <td>0.07</td>
+                  <td>1.05</td>
+                  <td>[-1.52, -0.48]</td>
                 </tr>
                 <tr>
                   <td>4</td>
                   <td>0.02</td>
                   <td>0.03</td>
                   <td>0.09</td>
-                  <td>1.29</td>
-                  <td>[-1.64, -0.36]</td>
+                  <td>1.32</td>
+                  <td>[-1.66, -0.34]</td>
                 </tr>
                 <tr>
                   <td>5</td>
                   <td>0.01</td>
-                  <td>0.02</td>
-                  <td>0.1 </td>
+                  <td>0.03</td>
+                  <td>0.13</td>
                   <td>1.16</td>
                   <td>[-1.58, -0.42]</td>
                 </tr>
                 <tr>
                   <td>6</td>
+                  <td>0   </td>
                   <td>0.01</td>
-                  <td>0.01</td>
-                  <td>0.09</td>
-                  <td>1.19</td>
-                  <td>[-1.59, -0.41]</td>
+                  <td>0.1 </td>
+                  <td>1.07</td>
+                  <td>[-1.53, -0.47]</td>
                 </tr>
         </tbody>
       </table>
@@ -459,11 +442,11 @@ window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5
 <p>An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of values from 3 to 5 to allow reader’s to see how the regression is behaving.</p>
 <p>We assume that the outcome is generated as a quadratic in longitude and latitude with residuals again being generated by a spatial noise process with the same exponential parameters: here there is a structure of 0.37 and effective range of 0.1.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">5</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel=</span>T)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">5</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel=</span>T)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
  
 
@@ -631,18 +614,18 @@ window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5
 <p>The fact that the placebo and synthetic outcome significance levels closely match the regression one gives us considerable confidence in the reliability of the regression estimate. We therefore estimate a regression with 4 principal components of a 4x4 spline, and compute standard errors using 3 k-medoids clusters.</p>
 <p>For comparison we also include a regression with no spatial adjustment where standard errors are clustered by state, the standard practice in such studies.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>CK<span class="ot">=</span><span class="fu">CK_regression</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>,<span class="at">pc_num=</span><span class="dv">5</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">clusters=</span><span class="dv">3</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>Clust<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">cluster=</span> <span class="sc">~</span>state)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>modelsummary<span class="sc">::</span><span class="fu">modelsummary</span>(<span class="fu">list</span>(<span class="at">Clustered=</span>Clust, <span class="at">Basis=</span>CK),</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"conf.int"</span>,<span class="st">"p = {p.value}"</span>),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*"</span>), <span class="co">#omit basis and intercept</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">fmt=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>CK<span class="ot">=</span><span class="fu">CK_regression</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>,<span class="at">pc_num=</span><span class="dv">5</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">clusters=</span><span class="dv">3</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>Clust<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">cluster=</span> <span class="sc">~</span>state)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>modelsummary<span class="sc">::</span><span class="fu">modelsummary</span>(<span class="fu">list</span>(<span class="at">Clustered=</span>Clust, <span class="at">Basis=</span>CK),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"conf.int"</span>,<span class="st">"p = {p.value}"</span>),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*"</span>), <span class="co">#omit basis and intercept</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">fmt=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
  
 
@@ -821,7 +804,7 @@ window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag
 
 <ol>
 <li id="fn1"><p>The exponential is a special case of the Matern function with smoothness parameter of 0.5, and in principle the optimal smoothing parameter can be chosen by maximum likelihood. In practice this makes little difference: as smoothness increases the estimated range <span class="math inline">\theta</span> falls, leaving correlation more or less unchanged.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>For large datasets, estimating the Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting <code>k_medoids=FALSE</code> and <code>exact_cholesky=FALSE</code> in the <code>placebo</code> command.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting <code>k_medoids=FALSE</code> and <code>exact_cholesky=FALSE</code> in the <code>placebo</code> command.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>See Table xx in Conley-Kelly.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn4"><p>The 95th percentile of distance is in fact used to prevent distortion from outliers.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>

@@ -48,37 +48,30 @@ optimal_basis(mobility~racial_seg+single_mom,
               max_splines=5)
 ```
 
-It can be seen here that the optimal combination is the first xx principal components of a xx spline. It is notable that this very small number of spatial controls explains xx% of variability in the outcome. Knowing the location of a place lets you make a decent guess about the likely degree of intergenerational mobility there, before knowing anything about its other characteristics.
-
-The predicted outcomes using this xx spline are shown by the command yy. It shows the strong regional trend from xx to xx.
-
-```{r fig-tensor, fig.height=6, fig.width=7, Cache=FALSE}
-plot_basis(mobility~racial_seg+single_mom, opportunity,
-              splines=4)
-```
-
-You can then plot the fitted spline to examine the geographical pattern of the outcome. The figure here is a view of the US from the southeast.
-
+It can be seen here that the optimal combination is the first 11 principal components of a 4x4 spline. It is notable that this very small number of spatial controls explains 55% of variability in the outcome. Knowing only the location of a place lets you make a decent guess about the likely degree of intergenerational mobility there, without knowing anything about its other characteristics.
 
 ## 2. Run Placebo Test
 
-Having chosen a spatial basis, we now need to choose the optimal number of clusters for the residuals. If too many are chosen, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.
+Having chosen a spatial basis, we now need to choose an optimal number of clusters for the residuals. If there are too many, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.
 
-The placebos are constructed to have the same spatial structure as the treatment, here racial segregation. First, the treatment is regressed on the spatial basis terms selected in Step 1. The correlation between residuals is assumed to decay exponentially so that the correlation between two at distance $h$ apart is $\rho \exp (- \theta / h)$.[^1] The parameters $\rho$ and $\theta$ are referred to as the structure and range of the correlation. Effective range is $2 \theta$: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the `fields` library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.
+The placebos are constructed to have the same spatial structure as the treatment, here racial segregation. First, the treatment is regressed on the spatial basis terms selected in Step 1. The spatial correlation between the detrended residuals is assumed to decay exponentially so that the correlation between two at distance $h$ apart is $\rho \exp (- \theta / h)$.[^1] The parameters $\rho$ and $\theta$ are referred to as the structure and range of the correlation. Effective range is $2 \theta$: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the `fields` library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.
 
 [^1]: The exponential is a special case of the Matern function with smoothness parameter of 0.5, and in principle the optimal smoothing parameter can be chosen by maximum likelihood. In practice this makes little difference: as smoothness increases the estimated range $\theta$ falls, leaving correlation more or less unchanged.
 
-These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t statistic) than the treatment. The second is that the placebos act as a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient. This allows us to choose the optimal number of clusters where points are assigned to clusters using k-medoids.
+These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment. 
 
-The placebo test is implemented by the command \`placebo\`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving. [^2]
+The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient. 
 
-[^2]: For large datasets, estimating the Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command.
+Standard errors are estimated using the large cluster procedure of Bester, Conley and Hansen, where observations are partitioned into $c$ large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of $c$ to be picked.
+
+The placebo test is implemented by the command \`placebo\`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving. [^2]
+
+[^2]: For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command.
 
 ```{r placebo,Cache=TRUE}
 plbo=placebo(mobility~racial_seg+single_mom, opportunity,
-                 splines=4, pc_num=5,
-                 nSim=1000,
-                 Parallel=T
+                 splines=4, pc_num=11,
+                 nSim=1000
                  )
 placebo_table(plbo)
 
