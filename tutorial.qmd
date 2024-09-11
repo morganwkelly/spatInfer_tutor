@@ -11,7 +11,7 @@ execute:
   cache: true
 ---
 
-The purpose of `spatInfer` is to estimate regressions with spatial data that are robust to the long range trends and medium range autocorrelation that are a feature of spatial observations. Specifically, a spatial basis is added to the regression and standard errors are estimated using large clusters. A feature of `spatInfer` is its simple workflow, requiring a sequence of only four commands.
+The purpose of `spatInfer` is to estimate regressions that are robust to the long range trends and medium range autocorrelation that are a feature of spatial observations. Specifically, a spatial basis is added to the regression and standard errors are estimated using large clusters. A feature of `spatInfer` is its simple workflow, requiring a sequence of only four commands.
 
 This tutorial gives an example of the use of `spatInfer` based on a subset of data from Chetty et al's examination of income mobility across US cities. This consists of the outcome, intergenerational mobility, the treatment of interest racial segregation, and a control in the form of single parent households. The longitude and latitude of each observation is included in the data. These must be named `X` and `Y`.
 
@@ -58,20 +58,21 @@ The placebos are constructed to have the same spatial structure as the treatment
 
 [^1]: The exponential is a special case of the Matern function with smoothness parameter of 0.5, and in principle the optimal smoothing parameter can be chosen by maximum likelihood. In practice this makes little difference: as smoothness increases the estimated range $\theta$ falls, leaving correlation more or less unchanged.
 
-These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment. 
+These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment.
 
-The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient. 
+The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient.
 
 Standard errors are estimated using the large cluster procedure of Bester, Conley and Hansen, where observations are partitioned into $c$ large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of $c$ to be picked.
 
 The placebo test is implemented by the command \`placebo\`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving. [^2]
 
-[^2]: For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command.
+[^2]: For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
 
 ```{r placebo,Cache=TRUE}
 plbo=placebo(mobility~racial_seg+single_mom, opportunity,
-                 splines=4, pc_num=11,
-                 nSim=1000
+               splines=4, pc_num=11,
+               nSim=1000,
+               Parallel = T
                  )
 placebo_table(plbo)
 
@@ -79,13 +80,13 @@ placebo_table(plbo)
 
 Placebo generates a table where the top row uses heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are large cluster (Bester-Conley-Hansen) standard errors, starting with three and going up to six. The second column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.
 
-The next column gives the placebo p-value: the proportion of simulations where the placebo had a lower p-value than the real treatment. 
+The next column gives the placebo p-value: the proportion of simulations where the placebo had a lower p-value than the real treatment.
 
-Following this, and highlighted in orange, is the percentage of simulations where the placebo is significant at 5%. If this is markedly higher than 5% it suggests that the inference method employed was inadequate. In practice a value in the range of 0.05 to 0.07 or 0.08 indicates satisfactory performance. 
+Following this, and highlighted in orange, is the percentage of simulations where the placebo is significant at 5%. If this is markedly higher than 5% it suggests that the inference method employed was inadequate. In practice a value in the range of 0.05 to 0.07 or 0.08 indicates satisfactory performance.
 
-The next column gives the width of the confidence interval associated with each cluster and allows an informal size-power tradeoff: increasing the proportion above 5% to, say, 8% is desirable if it leads to a marked narrowing of the confidence interval. In this case here, 3 clusters gives 7\% of simulations significant at 5\% suggesting that this is a reasonable number: by contrast 23\% of HC simulations are significant. The placebo p-value of 0.02 is close to the regression estimate of 0.01 and the confidence interval for the parameter is $[-1.52,-1.48]$, narrower than that for other large clusters.
+The next column gives the width of the confidence interval associated with each cluster and allows an informal size-power tradeoff: increasing the proportion above 5% to, say, 8% is desirable if it leads to a marked narrowing of the confidence interval. In this case here, 3 clusters gives 7% of simulations significant at 5% suggesting that this is a reasonable number: by contrast 23% of HC simulations are significant. The placebo p-value of 0.02 is close to the regression estimate of 0.01 and the confidence interval for the parameter is $[-1.52,-1.48]$, narrower than that for other large clusters.
 
-It will sometimes happen that the proportion of placebos significant at 5\% stays considerably above 5\% regardless of the cluster number. In that case systematically increasing, or sometimes decreasing, the number of principal components `num_pc` by one or two will usually give a satisfactory placebo value.
+It will sometimes happen that the proportion of placebos significant at 5% stays considerably above 5% regardless of the cluster number. In that case systematically increasing, or sometimes decreasing, the number of principal components `num_pc` by one or two will usually give a satisfactory placebo value.
 
 Below the Table are a number of diagnostics and descriptive statistics. Most important is the Moran statistic, the Z-score of the null hypothesis that the correlation between each residual and its nearest neighbours is zero. We use 5 neighbours here: altering this does not alter the results materially. In our experience, the Moran statistic is usually well below 2 or substantially above it.[^3]
 
@@ -110,7 +111,8 @@ We assume that the outcome is generated as a quadratic in longitude and latitude
 ```{r synth,Cache=TRUE}
 synt_bch=synth(mobility~racial_seg+single_mom,  opportunity,
                  splines=4, pc_num=5,
-                  nSim=1000)
+                 nSim=1000,
+                 Parallel = T)
 synth_table(synt_bch)
 ```
 
@@ -140,3 +142,28 @@ modelsummary::modelsummary(list(Clustered=Clust, Basis=Basis),
 Here we use `modelsummary` to tabulate the results but the output will work with any other standard `R` table package.
 
 It can be seen here that, despite the strong spatial trends in the data, adding a spline basis and using only three clusters does not alter the results markedly compared with naive clustering by state.
+
+## IM Inference
+
+Besides BCH standard errors, there is another spatial inferential method based on large clusters due to Ibragimov and Mueller. This involves running the regression of interest on each cluster and collecting the estimated coefficients of the treatment $\hat{\beta}_c$ for each cluster $c$. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Once again the optimal number of clusters is chosen by the fraction of placebo regressions that are significant at 5%.
+
+```{r placebo_im,Cache=TRUE}
+plbo_im=placebo_im(mobility~racial_seg+single_mom, opportunity,
+                 splines=4, pc_num=5,
+                 nSim=1000,
+                 Parallel = T
+                 )
+placebo_table(plbo_im,adjust="IM")
+
+```
+
+Once the optimal number of clusters has been selected, we can carry out a synthetic outcome test as before.
+
+```{r synth_im,Cache=TRUE}
+syn_im=synth_im(mobility~racial_seg+single_mom, opportunity,
+                  splines=4,
+                  pc_num=11,
+                  nSim=1000,
+                  Parallel=T)
+synth_table(syn_im,"IM")
+```
