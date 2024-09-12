@@ -17,13 +17,21 @@ This tutorial gives an example of the use of `spatInfer` based on a subset of da
 
 The four steps in estimating a spatial basis regression with large cluster inference are
 
-1.  Estimate the optimal spatial basis.
+-   Estimate the optimal spatial basis.
 
-2.  Generate a spatial noise placebo to select the number of clusters for standard error estimation and estimate the placebo significance level of the treatment.
+-   Generate a spatial noise placebo to select the number of clusters for standard error estimation and estimate the placebo significance level of the treatment.
 
-3.  Generate synthetic outcomes to test the null hypothesis that the outcome is spatial noise, independent of the treatment.
+-   Generate synthetic outcomes to test the null hypothesis that the outcome is spatial noise, independent of the treatment.
 
-4.  Estimate a spatial basis regression using the parameters estimated in the first two steps.
+-   Estimate a spatial basis regression using the parameters estimated in the first two steps.
+
+The first step is to download spatInfer
+
+```{r download, eval=FALSE}
+
+devtools::install_github("morganwkelly/spatInfer")
+
+```
 
 We begin by loading the `spatInfer` library and the data frame called `opportunity`.
 
@@ -64,15 +72,14 @@ The second is that the placebos provide a Monte Carlo simulation to evaluate the
 
 Standard errors are estimated using the large cluster procedure of Bester, Conley and Hansen, where observations are partitioned into $c$ large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of $c$ to be picked.
 
-The placebo test is implemented by the command \`placebo\`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving. [^2]
+The placebo test is implemented by the command \`placebo\`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving.[^2]
 
-[^2]: For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
+[^2]: The placebo and synthetic outcome tests run in parallel by default. If you encounter problems you should set the option `Parallel=FALSE` in each command. For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
 
 ```{r placebo,Cache=TRUE}
 plbo=placebo(mobility~racial_seg+single_mom, opportunity,
                splines=4, pc_num=11,
-               nSim=1000,
-               Parallel = T
+               nSim=1000
                  )
 placebo_table(plbo)
 
@@ -94,9 +101,7 @@ Below the Table are a number of diagnostics and descriptive statistics. Most imp
 
 In deciding whether to use a familiar HC standard error or a large cluster one we have adopted the rule of thumb that if this has a low Moran statistic and a 5% placebo value close to 0.05 it should be used, given its tighter confidence intervals. Otherwise a BCH cluster below 0.08 is picked.
 
-Below the Moran statistic are the spatial parameters. R2 gives the explanatory power of the regression of the treatment on the spatial basis variables. Unusually here it is very low: typically the treatment and outcome share common spatial trends, making any non-spurious relationship between them difficult to extract from the data. Next is the structure $\rho$ of the residuals and then the effective range expressed as a fraction of the maximum distance between points.[^4]
-
-[^4]: To be precise: the 95th percentile of distance. This prevents distortion from spatial outliers.
+Below the Moran statistic are the spatial parameters. R2 gives the explanatory power of the regression of the treatment on the spatial basis variables. Unusually here it is very low: typically the treatment and outcome share common spatial trends, making any non-spurious relationship between them difficult to extract from the data. Next is the structure $\rho$ of the residuals and then the effective range expressed as a fraction of the 95th percentile of distance between points.
 
 Here it can be seen that structure and effective range are 0.37 and 0.1 respectively. A correlation range of 0.1 might not sound dramatic by time series standards. However, with spatial data there are far more points within that range causing small correlations to add up to a large number. Finally the degree of the tensor and the number of principal components used to approximate the outcome are reported.
 
@@ -110,9 +115,8 @@ We assume that the outcome is generated as a quadratic in longitude and latitude
 
 ```{r synth,Cache=TRUE}
 synt_bch=synth(mobility~racial_seg+single_mom,  opportunity,
-                 splines=4, pc_num=5,
-                 nSim=1000,
-                 Parallel = T)
+                 splines=4, pc_num=11,
+                 nSim=1000)
 synth_table(synt_bch)
 ```
 
@@ -126,7 +130,7 @@ For comparison we also include a regression with no spatial adjustment where sta
 
 ```{r regression,Cache=TRUE}
 Basis=basis_regression(mobility~racial_seg+single_mom,  opportunity,
-                 splines=4,pc_num=5,
+                 splines=4,pc_num=11,
                  clusters=3)
 
 Clust=fixest::feols(mobility~racial_seg+single_mom,  opportunity,
@@ -147,23 +151,23 @@ It can be seen here that, despite the strong spatial trends in the data, adding 
 
 Besides BCH standard errors, there is another spatial inferential method based on large clusters due to Ibragimov and Mueller. This involves running the regression of interest on each cluster and collecting the estimated coefficients of the treatment $\hat{\beta}_c$ for each cluster $c$. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Once again the optimal number of clusters is chosen by the fraction of placebo regressions that are significant at 5%.
 
-```{r placebo_im,Cache=TRUE}
+```{r placebo_im,Cache=TRUE,message=FALSE}
 plbo_im=placebo_im(mobility~racial_seg+single_mom, opportunity,
-                 splines=4, pc_num=5,
-                 nSim=1000,
-                 Parallel = T
+                 splines=4, pc_num=11,
+                 nSim=1000
                  )
-placebo_table(plbo_im,adjust="IM")
+placebo_table(plbo_im)
 
 ```
 
-Once the optimal number of clusters has been selected, we can carry out a synthetic outcome test as before.
+It can be seen here that the optimal number of clusters has now risen to 4. The placebo significance is similar to before at 0.04 but the confidence interval is a good deal wider. Once the optimal number of clusters has been selected, we can carry out a synthetic outcome test as before.
 
-```{r synth_im,Cache=TRUE}
+```{r synth_im,Cache=TRUE,message=FALSE}
 syn_im=synth_im(mobility~racial_seg+single_mom, opportunity,
                   splines=4,
                   pc_num=11,
-                  nSim=1000,
-                  Parallel=T)
-synth_table(syn_im,"IM")
+                  nSim=1000)
+synth_table(syn_im)
 ```
+
+Again the synthetic outcome test has a significance level close to that from BCH.

@@ -199,17 +199,21 @@ window.Quarto = {
 <p>The purpose of <code>spatInfer</code> is to estimate regressions that are robust to the long range trends and medium range autocorrelation that are a feature of spatial observations. Specifically, a spatial basis is added to the regression and standard errors are estimated using large clusters. A feature of <code>spatInfer</code> is its simple workflow, requiring a sequence of only four commands.</p>
 <p>This tutorial gives an example of the use of <code>spatInfer</code> based on a subset of data from Chetty et al’s examination of income mobility across US cities. This consists of the outcome, intergenerational mobility, the treatment of interest racial segregation, and a control in the form of single parent households. The longitude and latitude of each observation is included in the data. These must be named <code>X</code> and <code>Y</code>.</p>
 <p>The four steps in estimating a spatial basis regression with large cluster inference are</p>
-<ol type="1">
+<ul>
 <li><p>Estimate the optimal spatial basis.</p></li>
 <li><p>Generate a spatial noise placebo to select the number of clusters for standard error estimation and estimate the placebo significance level of the treatment.</p></li>
 <li><p>Generate synthetic outcomes to test the null hypothesis that the outcome is spatial noise, independent of the treatment.</p></li>
 <li><p>Estimate a spatial basis regression using the parameters estimated in the first two steps.</p></li>
-</ol>
+</ul>
+<p>The first step is to download spatInfer</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"morganwkelly/spatInfer"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>We begin by loading the <code>spatInfer</code> library and the data frame called <code>opportunity</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatInfer)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(opportunity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatInfer)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(opportunity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="choose-the-spatial-basis" class="level2">
 <h2 class="anchored" data-anchor-id="choose-the-spatial-basis">1. Choose the Spatial Basis</h2>
@@ -217,9 +221,9 @@ window.Quarto = {
 <p>We apply the simplest basis possible: a <span class="math inline">k \times k</span> tensor of linear b-splines and, to minimize the loss of degrees of freedom, we select the first <span class="math inline">p</span> principal components of the tensor. The first command `optimal_basis` chooses the combination of <span class="math inline">k</span> and <span class="math inline">p</span> that minimizes a Bayes Information Criterion. To make the diagram legible, select the maximum basis degree that you want to examine. As with most commands in <code>R</code> it starts with the regression formula and the name of the dataset. Here we will regress intergenerational mobility on racial segregation, the treatment of interest here, using the fraction of household with children headed by a lone parent.</p>
 <p>The treatment of interest is placed as the first on the right hand side. If several are of concern the procedure can be repeated using each as the first entry.</p>
 <div class="cell" data-cache="false">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">optimal_basis</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>              opportunity,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">max_splines=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">optimal_basis</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>              opportunity,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">max_splines=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-basis" class="quarto-figure quarto-figure-center quarto-float anchored" width="576">
 <figure class="quarto-float quarto-float-fig figure">
@@ -242,48 +246,95 @@ Figure&nbsp;1
 <p>These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment.</p>
 <p>The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient.</p>
 <p>Standard errors are estimated using the large cluster procedure of Bester, Conley and Hansen, where observations are partitioned into <span class="math inline">c</span> large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of <span class="math inline">c</span> to be picked.</p>
-<p>The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by <code>optimal_basis</code>, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving. <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by <code>optimal_basis</code>, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">Parallel =</span> T</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">nSim=</span><span class="dv">1000</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                 )</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
- 
+<!-- preamble start -->
 
-  
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tinytable_5hv1yclan42zsmk5i7ot</title>
-    <style>
-.table td.tinytable_css_1sua29ew27jkqdjilrty, .table th.tinytable_css_1sua29ew27jkqdjilrty {   padding-left: 1em; }
-.table td.tinytable_css_y8s4oyc3c4006zk51k7r, .table th.tinytable_css_y8s4oyc3c4006zk51k7r {    text-align: center; }
-.table td.tinytable_css_ak8rgcp3v75s3jeahh01, .table th.tinytable_css_ak8rgcp3v75s3jeahh01 {    font-weight: bold; text-align: left; }
-.table td.tinytable_css_0j4ahoqqhdm0i962a27l, .table th.tinytable_css_0j4ahoqqhdm0i962a27l {    font-weight: bold; }
-.table td.tinytable_css_ctogplay1uyprfcjp3lr, .table th.tinytable_css_ctogplay1uyprfcjp3lr {    color: orange; }
-    </style>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      },
-      svg: {
-        fontCache: 'global'
+      function styleCell_dlaym4y761rb29og54re(i, j, css_id) {
+        var table = document.getElementById("tinytable_dlaym4y761rb29og54re");
+        table.rows[i].cells[j].classList.add(css_id);
       }
-    };
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_dlaym4y761rb29og54re');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_dlaym4y761rb29og54re(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_dlaym4y761rb29og54re");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 1, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 2, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 3, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 4, 'tinytable_css_id8ns0ra2tat3boieow183') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 5, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 6, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(1, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(1, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(2, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(2, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(3, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(3, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(4, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(4, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(5, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(5, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 0, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 1, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 2, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 3, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 4, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 5, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 6, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
     </script>
-  
 
-  
+    <style>
+    .table td.tinytable_css_id1sua29ew27jkqdjilrty, .table th.tinytable_css_id1sua29ew27jkqdjilrty {  font-weight: bold; }
+    .table td.tinytable_css_id8ns0ra2tat3boieow183, .table th.tinytable_css_id8ns0ra2tat3boieow183 {  color: orange;  font-weight: bold; }
+    .table td.tinytable_css_idkpk9y57mm7qwn442c7v8, .table th.tinytable_css_idkpk9y57mm7qwn442c7v8 {  color: orange; }
+    .table td.tinytable_css_idy8s4oyc3c4006zk51k7r, .table th.tinytable_css_idy8s4oyc3c4006zk51k7r {  text-align: left; }
+    </style>
     <div class="container">
-      <table class="table table-striped" id="tinytable_5hv1yclan42zsmk5i7ot" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table table-striped" id="tinytable_dlaym4y761rb29og54re" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <thead>
         
               <tr>
+                <th scope="col">Adj</th>
                 <th scope="col">Clusters</th>
                 <th scope="col">Est p</th>
                 <th scope="col">Plac p</th>
@@ -292,12 +343,13 @@ Figure&nbsp;1
                 <th scope="col">CI</th>
               </tr>
         </thead>
-        <tfoot><tr><td colspan="6">Moran=21.56, Structure=0.37, Effective Range=0.1, R2=0.08.</td></tr>
-<tr><td colspan="6">Splines=4, PCs=11.</td></tr>
-<tr><td colspan="6">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
+        <tfoot><tr><td colspan="7">Moran=21.56, Structure=0.37, Effective Range=0.1, R2=0.08.</td></tr>
+<tr><td colspan="7">Splines=4, PCs=11.</td></tr>
+<tr><td colspan="7">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
                 with confidence intervals. R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
         <tbody>
                 <tr>
+                  <td>HC </td>
                   <td>.</td>
                   <td>0   </td>
                   <td>0   </td>
@@ -306,6 +358,7 @@ Figure&nbsp;1
                   <td>[-1.32, -0.68]</td>
                 </tr>
                 <tr>
+                  <td>BCH</td>
                   <td>3</td>
                   <td>0.01</td>
                   <td>0.02</td>
@@ -314,6 +367,7 @@ Figure&nbsp;1
                   <td>[-1.52, -0.48]</td>
                 </tr>
                 <tr>
+                  <td>   </td>
                   <td>4</td>
                   <td>0.02</td>
                   <td>0.03</td>
@@ -322,6 +376,7 @@ Figure&nbsp;1
                   <td>[-1.66, -0.34]</td>
                 </tr>
                 <tr>
+                  <td>   </td>
                   <td>5</td>
                   <td>0.01</td>
                   <td>0.03</td>
@@ -330,6 +385,7 @@ Figure&nbsp;1
                   <td>[-1.58, -0.42]</td>
                 </tr>
                 <tr>
+                  <td>   </td>
                   <td>6</td>
                   <td>0   </td>
                   <td>0.01</td>
@@ -340,93 +396,7 @@ Figure&nbsp;1
         </tbody>
       </table>
     </div>
-
-    <script>
-      function styleCell_tinytable_1u9le7ycxqs3b5jg2fix(i, j, css_id) {
-        var table = document.getElementById("tinytable_5hv1yclan42zsmk5i7ot");
-        table.rows[i].cells[j].classList.add(css_id);
-      }
-      function insertSpanRow_mg3e12c5mz9tu5hbn3yz(i, colspan, content) {
-        var table = document.getElementById('tinytable_5hv1yclan42zsmk5i7ot');
-        var newRow = table.insertRow(i);
-        var newCell = newRow.insertCell(0);
-        newCell.setAttribute("colspan", colspan);
-        // newCell.innerText = content;
-        // this may be unsafe, but innerText does not interpret <br>
-        newCell.innerHTML = content;
-      }
-      function spanCell_tinytable_1u9le7ycxqs3b5jg2fix(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_5hv1yclan42zsmk5i7ot");
-        const targetRow = table.rows[i];
-        const targetCell = targetRow.cells[j];
-        for (let r = 0; r < rowspan; r++) {
-          // Only start deleting cells to the right for the first row (r == 0)
-          if (r === 0) {
-            // Delete cells to the right of the target cell in the first row
-            for (let c = colspan - 1; c > 0; c--) {
-              if (table.rows[i + r].cells[j + c]) {
-                table.rows[i + r].deleteCell(j + c);
-              }
-            }
-          }
-          // For rows below the first, delete starting from the target column
-          if (r > 0) {
-            for (let c = colspan - 1; c >= 0; c--) {
-              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
-                table.rows[i + r].deleteCell(j);
-              }
-            }
-          }
-        }
-        // Set rowspan and colspan of the target cell
-        targetCell.rowSpan = rowspan;
-        targetCell.colSpan = colspan;
-      }
-
-window.addEventListener('load', function () { insertSpanRow_mg3e12c5mz9tu5hbn3yz(2, 6, 'BCH') });
-window.addEventListener('load', function () { insertSpanRow_mg3e12c5mz9tu5hbn3yz(1, 6, 'HC') });
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(2, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(4, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(5, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(6, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(7, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 0, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 1, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 2, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 3, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 4, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 5, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 5, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 5, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 0, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 1, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 2, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 3, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 4, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 5, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(2, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(4, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(5, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(6, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(7, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-    </script>
-
-  
-
-
+<!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
 <p>Placebo generates a table where the top row uses heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are large cluster (Bester-Conley-Hansen) standard errors, starting with three and going up to six. The second column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.</p>
@@ -436,7 +406,7 @@ window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5
 <p>It will sometimes happen that the proportion of placebos significant at 5% stays considerably above 5% regardless of the cluster number. In that case systematically increasing, or sometimes decreasing, the number of principal components <code>num_pc</code> by one or two will usually give a satisfactory placebo value.</p>
 <p>Below the Table are a number of diagnostics and descriptive statistics. Most important is the Moran statistic, the Z-score of the null hypothesis that the correlation between each residual and its nearest neighbours is zero. We use 5 neighbours here: altering this does not alter the results materially. In our experience, the Moran statistic is usually well below 2 or substantially above it.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
 <p>In deciding whether to use a familiar HC standard error or a large cluster one we have adopted the rule of thumb that if this has a low Moran statistic and a 5% placebo value close to 0.05 it should be used, given its tighter confidence intervals. Otherwise a BCH cluster below 0.08 is picked.</p>
-<p>Below the Moran statistic are the spatial parameters. R2 gives the explanatory power of the regression of the treatment on the spatial basis variables. Unusually here it is very low: typically the treatment and outcome share common spatial trends, making any non-spurious relationship between them difficult to extract from the data. Next is the structure <span class="math inline">\rho</span> of the residuals and then the effective range expressed as a fraction of the maximum distance between points.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<p>Below the Moran statistic are the spatial parameters. R2 gives the explanatory power of the regression of the treatment on the spatial basis variables. Unusually here it is very low: typically the treatment and outcome share common spatial trends, making any non-spurious relationship between them difficult to extract from the data. Next is the structure <span class="math inline">\rho</span> of the residuals and then the effective range expressed as a fraction of the 95th percentile of distance between points.</p>
 <p>Here it can be seen that structure and effective range are 0.37 and 0.1 respectively. A correlation range of 0.1 might not sound dramatic by time series standards. However, with spatial data there are far more points within that range causing small correlations to add up to a large number. Finally the degree of the tensor and the number of principal components used to approximate the outcome are reported.</p>
 </section>
 <section id="run-a-synthetic-outcome-test" class="level2">
@@ -445,102 +415,20 @@ window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5
 <p>An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of values from 3 to 5 to allow readers to judge the robustness of the results.</p>
 <p>We assume that the outcome is generated as a quadratic in longitude and latitude. Noise is generated with using maximum likelihood estimates of the residuals’ spatial parameters: here there is a structure of 0.91 and effective range of 0.35.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">5</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel =</span> T)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
- 
-
-  
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tinytable_7zjn33btkgvmu6hiplc0</title>
-    <style>
-.table td.tinytable_css_mg3e12c5mz9tu5hbn3yz, .table th.tinytable_css_mg3e12c5mz9tu5hbn3yz {   padding-left: 1em; }
-.table td.tinytable_css_1sua29ew27jkqdjilrty, .table th.tinytable_css_1sua29ew27jkqdjilrty {    text-align: center; }
-.table td.tinytable_css_kpk9y57mm7qwn442c7v8, .table th.tinytable_css_kpk9y57mm7qwn442c7v8 {    font-weight: bold; text-align: left; }
-.table td.tinytable_css_ak8rgcp3v75s3jeahh01, .table th.tinytable_css_ak8rgcp3v75s3jeahh01 {    font-weight: bold; }
-    </style>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      },
-      svg: {
-        fontCache: 'global'
-      }
-    };
-    </script>
-  
-
-  
-    <div class="container">
-      <table class="table table-striped" id="tinytable_7zjn33btkgvmu6hiplc0" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <thead>
-        
-              <tr>
-                <th scope="col">Clusters</th>
-                <th scope="col">Est p</th>
-                <th scope="col">Synth p</th>
-                <th scope="col">CI Width</th>
-                <th scope="col">CI</th>
-              </tr>
-        </thead>
-        <tfoot><tr><td colspan="5">Moran=21.5, Structure=0.91, Effective Range=0.35, R2=0.33.</td></tr>
-<tr><td colspan="5">N=709, Splines=4, PCs=5.</td></tr>
-<tr><td colspan="5">Estimated and synthetic outcome p values for different cluster numbers.
-                R2 gives the explanatory power of a regression of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
-        <tbody>
-                <tr>
-                  <td>.</td>
-                  <td>0   </td>
-                  <td>0   </td>
-                  <td>0.67</td>
-                  <td>[-1.34, -0.66]</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>0.01</td>
-                  <td>0   </td>
-                  <td>0.86</td>
-                  <td>[-1.43, -0.57]</td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>0.02</td>
-                  <td>0.02</td>
-                  <td>1.29</td>
-                  <td>[-1.64, -0.36]</td>
-                </tr>
-                <tr>
-                  <td>5</td>
-                  <td>0.01</td>
-                  <td>0.01</td>
-                  <td>1.16</td>
-                  <td>[-1.58, -0.42]</td>
-                </tr>
-                <tr>
-                  <td>6</td>
-                  <td>0.01</td>
-                  <td>0.01</td>
-                  <td>1.19</td>
-                  <td>[-1.59, -0.41]</td>
-                </tr>
-        </tbody>
-      </table>
-    </div>
+<!-- preamble start -->
 
     <script>
-      function styleCell_tinytable_ba55scpyx04dk5ai8u4b(i, j, css_id) {
-        var table = document.getElementById("tinytable_7zjn33btkgvmu6hiplc0");
+      function styleCell_dlaym4y761rb29og54re(i, j, css_id) {
+        var table = document.getElementById("tinytable_dlaym4y761rb29og54re");
         table.rows[i].cells[j].classList.add(css_id);
       }
-      function insertSpanRow_ghfc948368vznex214aj(i, colspan, content) {
-        var table = document.getElementById('tinytable_7zjn33btkgvmu6hiplc0');
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_dlaym4y761rb29og54re');
         var newRow = table.insertRow(i);
         var newCell = newRow.insertCell(0);
         newCell.setAttribute("colspan", colspan);
@@ -548,8 +436,8 @@ window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5
         // this may be unsafe, but innerText does not interpret <br>
         newCell.innerHTML = content;
       }
-      function spanCell_tinytable_ba55scpyx04dk5ai8u4b(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_7zjn33btkgvmu6hiplc0");
+      function spanCell_dlaym4y761rb29og54re(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_dlaym4y761rb29og54re");
         const targetRow = table.rows[i];
         const targetCell = targetRow.cells[j];
         for (let r = 0; r < rowspan; r++) {
@@ -575,39 +463,86 @@ window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5
         targetCell.rowSpan = rowspan;
         targetCell.colSpan = colspan;
       }
-
-window.addEventListener('load', function () { insertSpanRow_ghfc948368vznex214aj(2, 5, 'BCH') });
-window.addEventListener('load', function () { insertSpanRow_ghfc948368vznex214aj(1, 5, 'HC') });
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(2, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(4, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(5, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(6, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(7, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 1, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 2, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 3, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 4, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 0, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 0, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 1, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 1, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 2, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 2, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 3, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 3, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 4, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 4, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(1, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(2, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(3, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(4, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(5, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 0, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 1, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 2, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 3, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 4, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 5, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
     </script>
 
-  
-
-
+    <style>
+    .table td.tinytable_css_idghfc948368vznex214aj, .table th.tinytable_css_idghfc948368vznex214aj {  font-weight: bold; }
+    .table td.tinytable_css_idmg3e12c5mz9tu5hbn3yz, .table th.tinytable_css_idmg3e12c5mz9tu5hbn3yz {  text-align: left; }
+    </style>
+    <div class="container">
+      <table class="table table-striped" id="tinytable_dlaym4y761rb29og54re" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <thead>
+        
+              <tr>
+                <th scope="col">Adj</th>
+                <th scope="col">Clusters</th>
+                <th scope="col">Est p</th>
+                <th scope="col">Synth p</th>
+                <th scope="col">CI Width</th>
+                <th scope="col">CI</th>
+              </tr>
+        </thead>
+        <tfoot><tr><td colspan="6">Moran=21.56, Structure=0.91, Effective Range=0.35, R2=0.33.</td></tr>
+<tr><td colspan="6">N=709, Splines=4, PCs=11.</td></tr>
+<tr><td colspan="6">Estimated and synthetic outcome p values for different cluster numbers.
+                R2 gives the explanatory power of a regression of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
+        <tbody>
+                <tr>
+                  <td>HC </td>
+                  <td>.</td>
+                  <td>0   </td>
+                  <td>0   </td>
+                  <td>0.63</td>
+                  <td>[-1.32, -0.68]</td>
+                </tr>
+                <tr>
+                  <td>BCH</td>
+                  <td>3</td>
+                  <td>0.01</td>
+                  <td>0.01</td>
+                  <td>1.05</td>
+                  <td>[-1.52, -0.48]</td>
+                </tr>
+                <tr>
+                  <td>   </td>
+                  <td>4</td>
+                  <td>0.02</td>
+                  <td>0.02</td>
+                  <td>1.32</td>
+                  <td>[-1.66, -0.34]</td>
+                </tr>
+                <tr>
+                  <td>   </td>
+                  <td>5</td>
+                  <td>0.01</td>
+                  <td>0.02</td>
+                  <td>1.16</td>
+                  <td>[-1.58, -0.42]</td>
+                </tr>
+                <tr>
+                  <td>   </td>
+                  <td>6</td>
+                  <td>0   </td>
+                  <td>0.01</td>
+                  <td>1.07</td>
+                  <td>[-1.53, -0.47]</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
 <p>For the three clusters chosen by the placebo test, the synthetic outcome significance level is 0.02, identical to the placebo one.</p>
@@ -617,49 +552,101 @@ window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5
 <p>The fact that the placebo and synthetic outcome significance levels closely match the regression one gives us considerable confidence in the reliability of the regression estimate. We therefore estimate a regression with 11 principal components of a 4x4 spline, and compute standard errors using 3 k-medoids clusters.</p>
 <p>For comparison we also include a regression with no spatial adjustment where standard errors are clustered by state, the standard practice in such studies.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Basis<span class="ot">=</span><span class="fu">basis_regression</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>,<span class="at">pc_num=</span><span class="dv">5</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">clusters=</span><span class="dv">3</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>Clust<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">cluster=</span> <span class="sc">~</span>state)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>modelsummary<span class="sc">::</span><span class="fu">modelsummary</span>(<span class="fu">list</span>(<span class="at">Clustered=</span>Clust, <span class="at">Basis=</span>Basis),</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"conf.int"</span>,<span class="st">"p = {p.value}"</span>),</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*"</span>), <span class="co">#omit basis and intercept</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">fmt=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Basis<span class="ot">=</span><span class="fu">basis_regression</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>,<span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">clusters=</span><span class="dv">3</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>Clust<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">cluster=</span> <span class="sc">~</span>state)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>modelsummary<span class="sc">::</span><span class="fu">modelsummary</span>(<span class="fu">list</span>(<span class="at">Clustered=</span>Clust, <span class="at">Basis=</span>Basis),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"conf.int"</span>,<span class="st">"p = {p.value}"</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*"</span>), <span class="co">#omit basis and intercept</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">fmt=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
- 
+<!-- preamble start -->
 
-  
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tinytable_z6ybjmtg3ey7ie9b9dac</title>
-    <style>
-.table td.tinytable_css_kez7iyy879b8u8hkvorv, .table th.tinytable_css_kez7iyy879b8u8hkvorv {    border-bottom: solid 0.1em #d3d8dc; }
-.table td.tinytable_css_hv043e32shos2m6w0ne9, .table th.tinytable_css_hv043e32shos2m6w0ne9 {    text-align: left; }
-.table td.tinytable_css_lkt035zhdj0arwdjpr8x, .table th.tinytable_css_lkt035zhdj0arwdjpr8x {    text-align: center; }
-.table td.tinytable_css_1ygto1exujiz2mzb0fke, .table th.tinytable_css_1ygto1exujiz2mzb0fke {    text-align: center; }
-.table td.tinytable_css_3wzk4if43ufjyozcnjby, .table th.tinytable_css_3wzk4if43ufjyozcnjby {    border-bottom: solid 0.05em black; }
-    </style>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      },
-      svg: {
-        fontCache: 'global'
+      function styleCell_sznp57hp9bgb2xm8w0se(i, j, css_id) {
+        var table = document.getElementById("tinytable_sznp57hp9bgb2xm8w0se");
+        table.rows[i].cells[j].classList.add(css_id);
       }
-    };
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_sznp57hp9bgb2xm8w0se');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_sznp57hp9bgb2xm8w0se(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_sznp57hp9bgb2xm8w0se");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(0, 0, 'tinytable_css_idzphkigktn2n0c1niobmb') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(0, 1, 'tinytable_css_id2fht6motnoem7j0vkhy9') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(0, 2, 'tinytable_css_id2fht6motnoem7j0vkhy9') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(1, 0, 'tinytable_css_idz63bet720prexkcz80np') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(1, 1, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(1, 2, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(2, 0, 'tinytable_css_idz63bet720prexkcz80np') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(2, 1, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(2, 2, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(3, 0, 'tinytable_css_idz63bet720prexkcz80np') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(3, 1, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(3, 2, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(4, 0, 'tinytable_css_idz63bet720prexkcz80np') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(4, 1, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(4, 2, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(5, 0, 'tinytable_css_idz63bet720prexkcz80np') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(5, 1, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(5, 2, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(6, 0, 'tinytable_css_id5lsecdepypot5h4uimky') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(6, 1, 'tinytable_css_idatt6iy71bc8b8wxbnmnn') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(6, 2, 'tinytable_css_idatt6iy71bc8b8wxbnmnn') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(7, 0, 'tinytable_css_idz63bet720prexkcz80np') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(7, 1, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(7, 2, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(8, 0, 'tinytable_css_idz63bet720prexkcz80np') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(8, 1, 'tinytable_css_idtcfs514uq17yszsokmtj') })
+window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(8, 2, 'tinytable_css_idtcfs514uq17yszsokmtj') })
     </script>
-  
 
-  
+    <style>
+    .table td.tinytable_css_idzphkigktn2n0c1niobmb, .table th.tinytable_css_idzphkigktn2n0c1niobmb {  text-align: left;  border-bottom: solid 0.1em #d3d8dc; }
+    .table td.tinytable_css_id2fht6motnoem7j0vkhy9, .table th.tinytable_css_id2fht6motnoem7j0vkhy9 {  text-align: center;  border-bottom: solid 0.1em #d3d8dc; }
+    .table td.tinytable_css_idz63bet720prexkcz80np, .table th.tinytable_css_idz63bet720prexkcz80np {  text-align: left; }
+    .table td.tinytable_css_idtcfs514uq17yszsokmtj, .table th.tinytable_css_idtcfs514uq17yszsokmtj {  text-align: center; }
+    .table td.tinytable_css_id5lsecdepypot5h4uimky, .table th.tinytable_css_id5lsecdepypot5h4uimky {  border-bottom: solid 0.05em black;  text-align: left; }
+    .table td.tinytable_css_idatt6iy71bc8b8wxbnmnn, .table th.tinytable_css_idatt6iy71bc8b8wxbnmnn {  border-bottom: solid 0.05em black;  text-align: center; }
+    </style>
     <div class="container">
-      <table class="table table-borderless" id="tinytable_z6ybjmtg3ey7ie9b9dac" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table table-borderless" id="tinytable_sznp57hp9bgb2xm8w0se" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <thead>
         
               <tr>
@@ -678,27 +665,27 @@ window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5
                 <tr>
                   <td>          </td>
                   <td>[-0.16, -0.02]</td>
-                  <td>[-0.18, -0.07]</td>
+                  <td>[-0.20, -0.06]</td>
                 </tr>
                 <tr>
                   <td>          </td>
                   <td>p = 0.01      </td>
-                  <td>p = &lt;0.01     </td>
+                  <td>p = 0.01      </td>
                 </tr>
                 <tr>
                   <td>single_mom</td>
                   <td>-0.75         </td>
-                  <td>-0.54         </td>
+                  <td>-0.53         </td>
                 </tr>
                 <tr>
                   <td>          </td>
                   <td>[-0.91, -0.59]</td>
-                  <td>[-0.97, -0.11]</td>
+                  <td>[-1.02, -0.05]</td>
                 </tr>
                 <tr>
                   <td>          </td>
                   <td>p = &lt;0.01     </td>
-                  <td>p = 0.03      </td>
+                  <td>p = 0.04      </td>
                 </tr>
                 <tr>
                   <td>Num.Obs.  </td>
@@ -708,92 +695,12 @@ window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5
                 <tr>
                   <td>R2        </td>
                   <td>0.590         </td>
-                  <td>0.767         </td>
+                  <td>0.784         </td>
                 </tr>
         </tbody>
       </table>
     </div>
-
-    <script>
-      function styleCell_tinytable_chk7yytoz8snag05nuig(i, j, css_id) {
-        var table = document.getElementById("tinytable_z6ybjmtg3ey7ie9b9dac");
-        table.rows[i].cells[j].classList.add(css_id);
-      }
-      function insertSpanRow(i, colspan, content) {
-        var table = document.getElementById('tinytable_z6ybjmtg3ey7ie9b9dac');
-        var newRow = table.insertRow(i);
-        var newCell = newRow.insertCell(0);
-        newCell.setAttribute("colspan", colspan);
-        // newCell.innerText = content;
-        // this may be unsafe, but innerText does not interpret <br>
-        newCell.innerHTML = content;
-      }
-      function spanCell_tinytable_chk7yytoz8snag05nuig(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_z6ybjmtg3ey7ie9b9dac");
-        const targetRow = table.rows[i];
-        const targetCell = targetRow.cells[j];
-        for (let r = 0; r < rowspan; r++) {
-          // Only start deleting cells to the right for the first row (r == 0)
-          if (r === 0) {
-            // Delete cells to the right of the target cell in the first row
-            for (let c = colspan - 1; c > 0; c--) {
-              if (table.rows[i + r].cells[j + c]) {
-                table.rows[i + r].deleteCell(j + c);
-              }
-            }
-          }
-          // For rows below the first, delete starting from the target column
-          if (r > 0) {
-            for (let c = colspan - 1; c >= 0; c--) {
-              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
-                table.rows[i + r].deleteCell(j);
-              }
-            }
-          }
-        }
-        // Set rowspan and colspan of the target cell
-        targetCell.rowSpan = rowspan;
-        targetCell.colSpan = colspan;
-      }
-
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 0, 'tinytable_css_kez7iyy879b8u8hkvorv') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 1, 'tinytable_css_kez7iyy879b8u8hkvorv') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 2, 'tinytable_css_kez7iyy879b8u8hkvorv') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(1, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(2, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(3, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(4, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(5, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(7, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(8, 0, 'tinytable_css_hv043e32shos2m6w0ne9') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(1, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(2, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(3, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(4, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(5, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(7, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(8, 1, 'tinytable_css_lkt035zhdj0arwdjpr8x') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(0, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(1, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(2, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(3, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(4, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(5, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(7, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(8, 2, 'tinytable_css_1ygto1exujiz2mzb0fke') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 0, 'tinytable_css_3wzk4if43ufjyozcnjby') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 1, 'tinytable_css_3wzk4if43ufjyozcnjby') })
-window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag05nuig(6, 2, 'tinytable_css_3wzk4if43ufjyozcnjby') })
-    </script>
-
-  
-
-
+<!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
 <p>Here we use <code>modelsummary</code> to tabulate the results but the output will work with any other standard <code>R</code> table package.</p>
@@ -803,110 +710,21 @@ window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag
 <h2 class="anchored" data-anchor-id="im-inference">IM Inference</h2>
 <p>Besides BCH standard errors, there is another spatial inferential method based on large clusters due to Ibragimov and Mueller. This involves running the regression of interest on each cluster and collecting the estimated coefficients of the treatment <span class="math inline">\hat{\beta}_c</span> for each cluster <span class="math inline">c</span>. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Once again the optimal number of clusters is chosen by the fraction of placebo regressions that are significant at 5%.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>plbo_im<span class="ot">=</span><span class="fu">placebo_im</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">5</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">Parallel =</span> T</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_im,<span class="at">adjust=</span><span class="st">"IM"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>plbo_im<span class="ot">=</span><span class="fu">placebo_im</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                 )</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_im)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
- 
-
-  
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tinytable_5hv1yclan42zsmk5i7ot</title>
-    <style>
-.table td.tinytable_css_1sua29ew27jkqdjilrty, .table th.tinytable_css_1sua29ew27jkqdjilrty {   padding-left: 1em; }
-.table td.tinytable_css_y8s4oyc3c4006zk51k7r, .table th.tinytable_css_y8s4oyc3c4006zk51k7r {    text-align: center; }
-.table td.tinytable_css_ak8rgcp3v75s3jeahh01, .table th.tinytable_css_ak8rgcp3v75s3jeahh01 {    font-weight: bold; text-align: left; }
-.table td.tinytable_css_0j4ahoqqhdm0i962a27l, .table th.tinytable_css_0j4ahoqqhdm0i962a27l {    font-weight: bold; }
-.table td.tinytable_css_ctogplay1uyprfcjp3lr, .table th.tinytable_css_ctogplay1uyprfcjp3lr {    color: orange; }
-    </style>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      },
-      svg: {
-        fontCache: 'global'
-      }
-    };
-    </script>
-  
-
-  
-    <div class="container">
-      <table class="table table-striped" id="tinytable_5hv1yclan42zsmk5i7ot" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <thead>
-        
-              <tr>
-                <th scope="col">Clusters</th>
-                <th scope="col">Est p</th>
-                <th scope="col">Plac p</th>
-                <th scope="col">Plac 5%</th>
-                <th scope="col">CI Width</th>
-                <th scope="col">CI</th>
-              </tr>
-        </thead>
-        <tfoot><tr><td colspan="6">Moran=21.5, Structure=0.4, Effective Range=0.1, R2=0.07.</td></tr>
-<tr><td colspan="6">Splines=4, PCs=5.</td></tr>
-<tr><td colspan="6">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
-                with confidence intervals. R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
-        <tbody>
-                <tr>
-                  <td>.</td>
-                  <td>0   </td>
-                  <td>0   </td>
-                  <td>0.23</td>
-                  <td>0.67</td>
-                  <td>[-1.34, -0.66]</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>0.09</td>
-                  <td>0.09</td>
-                  <td>0.04</td>
-                  <td>2.81</td>
-                  <td>[-2.41, 0.41] </td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>0.03</td>
-                  <td>0.03</td>
-                  <td>0.05</td>
-                  <td>1.67</td>
-                  <td>[-1.84, -0.16]</td>
-                </tr>
-                <tr>
-                  <td>5</td>
-                  <td>0.02</td>
-                  <td>0.01</td>
-                  <td>0.02</td>
-                  <td>1.53</td>
-                  <td>[-1.76, -0.24]</td>
-                </tr>
-                <tr>
-                  <td>6</td>
-                  <td>0.03</td>
-                  <td>0.02</td>
-                  <td>0.03</td>
-                  <td>1.76</td>
-                  <td>[-1.88, -0.12]</td>
-                </tr>
-        </tbody>
-      </table>
-    </div>
+<!-- preamble start -->
 
     <script>
-      function styleCell_tinytable_1u9le7ycxqs3b5jg2fix(i, j, css_id) {
-        var table = document.getElementById("tinytable_5hv1yclan42zsmk5i7ot");
+      function styleCell_dlaym4y761rb29og54re(i, j, css_id) {
+        var table = document.getElementById("tinytable_dlaym4y761rb29og54re");
         table.rows[i].cells[j].classList.add(css_id);
       }
-      function insertSpanRow_mg3e12c5mz9tu5hbn3yz(i, colspan, content) {
-        var table = document.getElementById('tinytable_5hv1yclan42zsmk5i7ot');
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_dlaym4y761rb29og54re');
         var newRow = table.insertRow(i);
         var newCell = newRow.insertCell(0);
         newCell.setAttribute("colspan", colspan);
@@ -914,8 +732,8 @@ window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag
         // this may be unsafe, but innerText does not interpret <br>
         newCell.innerHTML = content;
       }
-      function spanCell_tinytable_1u9le7ycxqs3b5jg2fix(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_5hv1yclan42zsmk5i7ot");
+      function spanCell_dlaym4y761rb29og54re(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_dlaym4y761rb29og54re");
         const targetRow = table.rows[i];
         const targetCell = targetRow.cells[j];
         for (let r = 0; r < rowspan; r++) {
@@ -941,143 +759,183 @@ window.addEventListener('load', function () { styleCell_tinytable_chk7yytoz8snag
         targetCell.rowSpan = rowspan;
         targetCell.colSpan = colspan;
       }
-
-window.addEventListener('load', function () { insertSpanRow_mg3e12c5mz9tu5hbn3yz(2, 6, 'IM') });
-window.addEventListener('load', function () { insertSpanRow_mg3e12c5mz9tu5hbn3yz(1, 6, 'HC') });
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(2, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(4, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(5, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(6, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(7, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 0, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 1, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 2, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 3, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 4, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(-1, 5, 'tinytable_css_y8s4oyc3c4006zk51k7r') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 5, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 5, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 0, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 1, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 2, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 3, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 4, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 5, 'tinytable_css_0j4ahoqqhdm0i962a27l') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(0, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(1, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(2, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(3, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(4, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(5, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(6, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
-window.addEventListener('load', function () { styleCell_tinytable_1u9le7ycxqs3b5jg2fix(7, 3, 'tinytable_css_ctogplay1uyprfcjp3lr') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 1, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 2, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 3, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 4, 'tinytable_css_id8ns0ra2tat3boieow183') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 5, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 6, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(1, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(1, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(2, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(2, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(3, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(3, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(4, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(4, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(5, 0, 'tinytable_css_id1sua29ew27jkqdjilrty') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(5, 4, 'tinytable_css_idkpk9y57mm7qwn442c7v8') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 0, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 1, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 2, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 3, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 4, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 5, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 6, 'tinytable_css_idy8s4oyc3c4006zk51k7r') })
     </script>
 
-  
-
-
-</div>
-</div>
-<p>Once the optimal number of clusters has been selected, we can carry out a synthetic outcome test as before.</p>
-<div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>syn_im<span class="ot">=</span><span class="fu">synth_im</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">4</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">11</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">Parallel=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).
-The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variable 'PC11' has been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).
-The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variable 'PC11' has been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).
-The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).
-The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The variables 'PC8', 'PC9', 'PC10' and 'PC11' have been removed because of collinearity (see $collin.var).</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(syn_im,<span class="st">"IM"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
- 
-
-  
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tinytable_7zjn33btkgvmu6hiplc0</title>
     <style>
-.table td.tinytable_css_mg3e12c5mz9tu5hbn3yz, .table th.tinytable_css_mg3e12c5mz9tu5hbn3yz {   padding-left: 1em; }
-.table td.tinytable_css_1sua29ew27jkqdjilrty, .table th.tinytable_css_1sua29ew27jkqdjilrty {    text-align: center; }
-.table td.tinytable_css_kpk9y57mm7qwn442c7v8, .table th.tinytable_css_kpk9y57mm7qwn442c7v8 {    font-weight: bold; text-align: left; }
-.table td.tinytable_css_ak8rgcp3v75s3jeahh01, .table th.tinytable_css_ak8rgcp3v75s3jeahh01 {    font-weight: bold; }
+    .table td.tinytable_css_id1sua29ew27jkqdjilrty, .table th.tinytable_css_id1sua29ew27jkqdjilrty {  font-weight: bold; }
+    .table td.tinytable_css_id8ns0ra2tat3boieow183, .table th.tinytable_css_id8ns0ra2tat3boieow183 {  color: orange;  font-weight: bold; }
+    .table td.tinytable_css_idkpk9y57mm7qwn442c7v8, .table th.tinytable_css_idkpk9y57mm7qwn442c7v8 {  color: orange; }
+    .table td.tinytable_css_idy8s4oyc3c4006zk51k7r, .table th.tinytable_css_idy8s4oyc3c4006zk51k7r {  text-align: left; }
     </style>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      },
-      svg: {
-        fontCache: 'global'
-      }
-    };
-    </script>
-  
-
-  
     <div class="container">
-      <table class="table table-striped" id="tinytable_7zjn33btkgvmu6hiplc0" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table table-striped" id="tinytable_dlaym4y761rb29og54re" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <thead>
         
               <tr>
+                <th scope="col">Adj</th>
+                <th scope="col">Clusters</th>
+                <th scope="col">Est p</th>
+                <th scope="col">Plac p</th>
+                <th scope="col">Plac 5%</th>
+                <th scope="col">CI Width</th>
+                <th scope="col">CI</th>
+              </tr>
+        </thead>
+        <tfoot><tr><td colspan="7">Moran=21.56, Structure=0.37, Effective Range=0.1, R2=0.08.</td></tr>
+<tr><td colspan="7">Splines=4, PCs=11.</td></tr>
+<tr><td colspan="7">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
+                with confidence intervals. R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
+        <tbody>
+                <tr>
+                  <td>HC</td>
+                  <td>.</td>
+                  <td>0   </td>
+                  <td>0   </td>
+                  <td>0.23</td>
+                  <td>0.63</td>
+                  <td>[-1.32, -0.68]</td>
+                </tr>
+                <tr>
+                  <td>IM</td>
+                  <td>3</td>
+                  <td>0.11</td>
+                  <td>0.1 </td>
+                  <td>0.05</td>
+                  <td>3.07</td>
+                  <td>[-2.54, 0.54] </td>
+                </tr>
+                <tr>
+                  <td>  </td>
+                  <td>4</td>
+                  <td>0.03</td>
+                  <td>0.04</td>
+                  <td>0.06</td>
+                  <td>1.72</td>
+                  <td>[-1.86, -0.14]</td>
+                </tr>
+                <tr>
+                  <td>  </td>
+                  <td>5</td>
+                  <td>0.18</td>
+                  <td>0.1 </td>
+                  <td>0.02</td>
+                  <td>3.44</td>
+                  <td>[-2.72, 0.72] </td>
+                </tr>
+                <tr>
+                  <td>  </td>
+                  <td>6</td>
+                  <td>0.15</td>
+                  <td>0.1 </td>
+                  <td>0.02</td>
+                  <td>3.01</td>
+                  <td>[-2.5, 0.5]   </td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+<p>It can be seen here that the optimal number of clusters has now risen to 4. The placebo significance is similar to before at 0.04 but the confidence interval is a good deal wider. Once the optimal number of clusters has been selected, we can carry out a synthetic outcome test as before.</p>
+<div class="cell" data-cache="true">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>syn_im<span class="ot">=</span><span class="fu">synth_im</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">4</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(syn_im)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<!-- preamble start -->
+
+    <script>
+      function styleCell_dlaym4y761rb29og54re(i, j, css_id) {
+        var table = document.getElementById("tinytable_dlaym4y761rb29og54re");
+        table.rows[i].cells[j].classList.add(css_id);
+      }
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_dlaym4y761rb29og54re');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_dlaym4y761rb29og54re(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_dlaym4y761rb29og54re");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(0, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(1, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(2, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(3, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(4, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(5, 0, 'tinytable_css_idghfc948368vznex214aj') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 0, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 1, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 2, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 3, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 4, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 5, 'tinytable_css_idmg3e12c5mz9tu5hbn3yz') })
+    </script>
+
+    <style>
+    .table td.tinytable_css_idghfc948368vznex214aj, .table th.tinytable_css_idghfc948368vznex214aj {  font-weight: bold; }
+    .table td.tinytable_css_idmg3e12c5mz9tu5hbn3yz, .table th.tinytable_css_idmg3e12c5mz9tu5hbn3yz {  text-align: left; }
+    </style>
+    <div class="container">
+      <table class="table table-striped" id="tinytable_dlaym4y761rb29og54re" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <thead>
+        
+              <tr>
+                <th scope="col">Adj</th>
                 <th scope="col">Clusters</th>
                 <th scope="col">Est p</th>
                 <th scope="col">Synth p</th>
@@ -1085,12 +943,13 @@ The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed be
                 <th scope="col">CI</th>
               </tr>
         </thead>
-        <tfoot><tr><td colspan="5">Moran=21.56, Structure=0.91, Effective Range=0.35, R2=0.33.</td></tr>
-<tr><td colspan="5">N=709, Splines=4, PCs=11.</td></tr>
-<tr><td colspan="5">Estimated and synthetic outcome p values for different cluster numbers.
+        <tfoot><tr><td colspan="6">Moran=21.56, Structure=0.91, Effective Range=0.35, R2=0.33.</td></tr>
+<tr><td colspan="6">N=709, Splines=4, PCs=11.</td></tr>
+<tr><td colspan="6">Estimated and synthetic outcome p values for different cluster numbers.
                 R2 gives the explanatory power of a regression of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
         <tbody>
                 <tr>
+                  <td>HC</td>
                   <td>.</td>
                   <td>0   </td>
                   <td>0   </td>
@@ -1098,6 +957,7 @@ The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed be
                   <td>[-1.32, -0.68]</td>
                 </tr>
                 <tr>
+                  <td>IM</td>
                   <td>3</td>
                   <td>0.11</td>
                   <td>0.12</td>
@@ -1105,6 +965,7 @@ The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed be
                   <td>[-2.54, 0.54] </td>
                 </tr>
                 <tr>
+                  <td>  </td>
                   <td>4</td>
                   <td>0.03</td>
                   <td>0.03</td>
@@ -1112,6 +973,7 @@ The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed be
                   <td>[-1.86, -0.14]</td>
                 </tr>
                 <tr>
+                  <td>  </td>
                   <td>5</td>
                   <td>0.18</td>
                   <td>0.09</td>
@@ -1119,6 +981,7 @@ The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed be
                   <td>[-2.72, 0.72] </td>
                 </tr>
                 <tr>
+                  <td>  </td>
                   <td>6</td>
                   <td>0.15</td>
                   <td>0.07</td>
@@ -1128,83 +991,10 @@ The variables 'PC6', 'PC7', 'PC8', 'PC9', 'PC10' and 'PC11' have been removed be
         </tbody>
       </table>
     </div>
-
-    <script>
-      function styleCell_tinytable_ba55scpyx04dk5ai8u4b(i, j, css_id) {
-        var table = document.getElementById("tinytable_7zjn33btkgvmu6hiplc0");
-        table.rows[i].cells[j].classList.add(css_id);
-      }
-      function insertSpanRow_ghfc948368vznex214aj(i, colspan, content) {
-        var table = document.getElementById('tinytable_7zjn33btkgvmu6hiplc0');
-        var newRow = table.insertRow(i);
-        var newCell = newRow.insertCell(0);
-        newCell.setAttribute("colspan", colspan);
-        // newCell.innerText = content;
-        // this may be unsafe, but innerText does not interpret <br>
-        newCell.innerHTML = content;
-      }
-      function spanCell_tinytable_ba55scpyx04dk5ai8u4b(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_7zjn33btkgvmu6hiplc0");
-        const targetRow = table.rows[i];
-        const targetCell = targetRow.cells[j];
-        for (let r = 0; r < rowspan; r++) {
-          // Only start deleting cells to the right for the first row (r == 0)
-          if (r === 0) {
-            // Delete cells to the right of the target cell in the first row
-            for (let c = colspan - 1; c > 0; c--) {
-              if (table.rows[i + r].cells[j + c]) {
-                table.rows[i + r].deleteCell(j + c);
-              }
-            }
-          }
-          // For rows below the first, delete starting from the target column
-          if (r > 0) {
-            for (let c = colspan - 1; c >= 0; c--) {
-              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
-                table.rows[i + r].deleteCell(j);
-              }
-            }
-          }
-        }
-        // Set rowspan and colspan of the target cell
-        targetCell.rowSpan = rowspan;
-        targetCell.colSpan = colspan;
-      }
-
-window.addEventListener('load', function () { insertSpanRow_ghfc948368vznex214aj(2, 5, 'IM') });
-window.addEventListener('load', function () { insertSpanRow_ghfc948368vznex214aj(1, 5, 'HC') });
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(2, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(4, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(5, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(6, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(7, 0, 'tinytable_css_mg3e12c5mz9tu5hbn3yz') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 0, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 1, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 2, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 3, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(-1, 4, 'tinytable_css_1sua29ew27jkqdjilrty') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 0, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 0, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 1, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 1, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 2, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 2, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 3, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 3, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(1, 4, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(3, 4, 'tinytable_css_kpk9y57mm7qwn442c7v8') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 0, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 1, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 2, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 3, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5ai8u4b(0, 4, 'tinytable_css_ak8rgcp3v75s3jeahh01') })
-    </script>
-
-  
-
-
+<!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
+<p>Again the synthetic outcome test has a significance level close to that from BCH.</p>
 
 
 </section>
@@ -1214,9 +1004,8 @@ window.addEventListener('load', function () { styleCell_tinytable_ba55scpyx04dk5
 
 <ol>
 <li id="fn1"><p>The exponential is a special case of the Matern function with smoothness parameter of 0.5, and in principle the optimal smoothing parameter can be chosen by maximum likelihood. In practice this makes little difference: as smoothness increases the estimated range <span class="math inline">\theta</span> falls, leaving correlation more or less unchanged.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting <code>k_medoids=FALSE</code> and <code>exact_cholesky=FALSE</code> in the <code>placebo</code> command. The latter requires the <code>BRISC</code> package.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>The placebo and synthetic outcome tests run in parallel by default. If you encounter problems you should set the option <code>Parallel=FALSE</code> in each command. For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting <code>k_medoids=FALSE</code> and <code>exact_cholesky=FALSE</code> in the <code>placebo</code> command. The latter requires the <code>BRISC</code> package.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>See Table 3 in Conley and Kelly.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>To be precise: the 95th percentile of distance. This prevents distortion from spatial outliers.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
