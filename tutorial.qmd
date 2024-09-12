@@ -58,6 +58,16 @@ optimal_basis(mobility~racial_seg+single_mom,
 
 It can be seen here that the optimal combination is the first 11 principal components of a 4x4 spline. It is notable that this very small number of spatial controls explains 55% of variability in the outcome. Knowing only the location of a place lets you make a decent guess about the likely degree of intergenerational mobility there, without knowing anything about its other characteristics.
 
+It is useful to plot the tensor surface of intergenerational mobility to see how simple it is. The viewpoint is from the southeast of the US and the angular surface reflects the fact that a product of linear B-splines (series of overlapping triangles) is used.
+
+```{r fig-spline, fig.height=5, fig.width=6, Cache=FALSE}
+
+plot_basis(mobility~racial_seg+single_mom,
+           opportunity,
+           splines=4, 
+           Title="Tensor Surface of Intergenerational Mobility")
+```
+
 ## 2. Run Placebo Test
 
 Having chosen a spatial basis, we now need to choose an optimal number of clusters for the residuals. If there are too many, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.

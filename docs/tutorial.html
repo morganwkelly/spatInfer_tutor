@@ -238,6 +238,25 @@ Figure&nbsp;1
 </div>
 </div>
 <p>It can be seen here that the optimal combination is the first 11 principal components of a 4x4 spline. It is notable that this very small number of spatial controls explains 55% of variability in the outcome. Knowing only the location of a place lets you make a decent guess about the likely degree of intergenerational mobility there, without knowing anything about its other characteristics.</p>
+<p>It is useful to plot the tensor surface of intergenerational mobility to see how simple it is. The viewpoint is from the southeast of the US and the angular surface reflects the fact that a product of linear B-splines (series of overlapping triangles) is used.</p>
+<div class="cell" data-cache="false">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_basis</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>           opportunity,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">splines=</span><span class="dv">4</span>, </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">Title=</span><span class="st">"Tensor Surface of Intergenerational Mobility"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-spline" class="quarto-figure quarto-figure-center quarto-float anchored" width="576">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-spline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="tutorial_files/figure-html/fig-spline-1.png" id="fig-spline" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-spline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="run-placebo-test" class="level2">
 <h2 class="anchored" data-anchor-id="run-placebo-test">2. Run Placebo Test</h2>
@@ -248,11 +267,11 @@ Figure&nbsp;1
 <p>Standard errors are estimated using the large cluster procedure of Bester, Conley and Hansen, where observations are partitioned into <span class="math inline">c</span> large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of <span class="math inline">c</span> to be picked.</p>
 <p>The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by <code>optimal_basis</code>, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">nSim=</span><span class="dv">1000</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">nSim=</span><span class="dv">1000</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                 )</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <!-- preamble start -->
 
@@ -415,10 +434,10 @@ window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 
 <p>An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of values from 3 to 5 to allow readers to judge the robustness of the results.</p>
 <p>We assume that the outcome is generated as a quadratic in longitude and latitude. Noise is generated with using maximum likelihood estimates of the residuals’ spatial parameters: here there is a structure of 0.91 and effective range of 0.35.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <!-- preamble start -->
 
@@ -552,18 +571,18 @@ window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 
 <p>The fact that the placebo and synthetic outcome significance levels closely match the regression one gives us considerable confidence in the reliability of the regression estimate. We therefore estimate a regression with 11 principal components of a 4x4 spline, and compute standard errors using 3 k-medoids clusters.</p>
 <p>For comparison we also include a regression with no spatial adjustment where standard errors are clustered by state, the standard practice in such studies.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Basis<span class="ot">=</span><span class="fu">basis_regression</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>,<span class="at">pc_num=</span><span class="dv">11</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">clusters=</span><span class="dv">3</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>Clust<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">cluster=</span> <span class="sc">~</span>state)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>modelsummary<span class="sc">::</span><span class="fu">modelsummary</span>(<span class="fu">list</span>(<span class="at">Clustered=</span>Clust, <span class="at">Basis=</span>Basis),</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"conf.int"</span>,<span class="st">"p = {p.value}"</span>),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*"</span>), <span class="co">#omit basis and intercept</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">fmt=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Basis<span class="ot">=</span><span class="fu">basis_regression</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>,<span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">clusters=</span><span class="dv">3</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>Clust<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom,  opportunity,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">cluster=</span> <span class="sc">~</span>state)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>modelsummary<span class="sc">::</span><span class="fu">modelsummary</span>(<span class="fu">list</span>(<span class="at">Clustered=</span>Clust, <span class="at">Basis=</span>Basis),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"conf.int"</span>,<span class="st">"p = {p.value}"</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*"</span>), <span class="co">#omit basis and intercept</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">fmt=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <!-- preamble start -->
 
@@ -710,11 +729,11 @@ window.addEventListener('load', function () { styleCell_sznp57hp9bgb2xm8w0se(8, 
 <h2 class="anchored" data-anchor-id="im-inference">IM Inference</h2>
 <p>Besides BCH standard errors, there is another spatial inferential method based on large clusters due to Ibragimov and Mueller. This involves running the regression of interest on each cluster and collecting the estimated coefficients of the treatment <span class="math inline">\hat{\beta}_c</span> for each cluster <span class="math inline">c</span>. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Once again the optimal number of clusters is chosen by the fraction of placebo regressions that are significant at 5%.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>plbo_im<span class="ot">=</span><span class="fu">placebo_im</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_im)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>plbo_im<span class="ot">=</span><span class="fu">placebo_im</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">splines=</span><span class="dv">4</span>, <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">nSim=</span><span class="dv">1000</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                 )</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_im)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <!-- preamble start -->
 
@@ -863,11 +882,11 @@ window.addEventListener('load', function () { styleCell_dlaym4y761rb29og54re(6, 
 </div>
 <p>It can be seen here that the optimal number of clusters has now risen to 4. The placebo significance is similar to before at 0.04 but the confidence interval is a good deal wider. Once the optimal number of clusters has been selected, we can carry out a synthetic outcome test as before.</p>
 <div class="cell" data-cache="true">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>syn_im<span class="ot">=</span><span class="fu">synth_im</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">4</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">11</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(syn_im)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>syn_im<span class="ot">=</span><span class="fu">synth_im</span>(mobility<span class="sc">~</span>racial_seg<span class="sc">+</span>single_mom, opportunity,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">4</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">11</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(syn_im)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <!-- preamble start -->
 
