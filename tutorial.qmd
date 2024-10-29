@@ -13,8 +13,6 @@ execute:
 
 The purpose of `spatInfer` is to estimate regressions that are robust to the long range trends and medium range autocorrelation that are a feature of spatial observations. Specifically, a spatial basis is added to the regression and standard errors are estimated using large clusters. A feature of `spatInfer` is its simple workflow, requiring a sequence of only four commands.
 
-This tutorial gives an example of the use of `spatInfer` based on the variables in Table VI from Chetty et al's examination of income mobility across US cities. This consists of the outcome, absolute upward mobility, the treatment of interest fraction of single mothers, and four other controls: fraction short commute, Gini bottom 99%, high school dropout rate, and social capital index. The longitude and latitude of each observation is included in the data. These must be named `X` and `Y`.
-
 The four steps in estimating a spatial basis regression with large cluster inference are
 
 -   Estimate the optimal spatial basis.
@@ -46,26 +44,28 @@ data(opportunity)
 
 ```
 
+The example we will use here is based on the second column of Table VI in Chetty et al's examination of income mobility across US cities. This consists of the outcome, absolute upward mobility, the treatment of interest fraction of single mothers, and four other controls: fraction short commute, Gini bottom 99%, high school dropout rate, and social capital index. Observations for Alaska and Hawaii are omitted to allow meaningful spatial correlations to be estimated. The longitude and latitude of each observation are included in the data. These must be named `X` and `Y`.
+
 ## 1. Choose the Spatial Basis
 
-The first step is to estimate the optimal spatial basis that best explains the outcome variable. The spatial basis serves both to remove long range structure from the data (acting like a systematic version of the polynomials in longitude and latitude, or continental dummies often employed in spatial regressions) and to improve inference by allowing smaller clusters of residuals.
+The first step is to estimate the optimal spatial basis that best explains the outcome variable. The spatial basis serves both to remove long range structure from the data (acting like a systematic version of the 49 state dummies included in the original regression) and to improve inference by allowing smaller clusters of residuals.
 
-We apply the simplest basis possible: a $k \times k$ tensor of linear b-splines and, to minimize the loss of degrees of freedom, we select the first $p$ principal components of the tensor. The first command \`optimal_basis\` chooses the combination of $k$ and $p$ that minimizes a Bayes Information Criterion. To make the diagram legible, select the maximum basis degree that you want to examine. As with most commands in `R` it starts with the regression formula and the name of the dataset. Here we will regress mobility on five variables used in Table VI of Chetty et al.
+We apply the simplest basis possible: a $k \times k$ tensor of linear b-splines and, to minimize the loss of degrees of freedom, we select the first $p$ principal components of the tensor. The first command \`optimal_basis\` chooses the combination of $k$ and $p$ that minimizes a Bayes Information Criterion. To make the diagram legible, select the maximum basis degree that you want to examine. As with most commands in `R` it starts with the regression formula and the name of the dataset. Here we will regress mobility on five variables used in Table VI of Chetty et al: the choice of right hand side variables does not matter at this stage.
 
 The treatment of interest is placed as the first on the right hand side. If several are of concern the procedure can be repeated using each as the first entry.
 
-```{r fig-basis, fig.height=5, fig.width=6, Cache=FALSE}
+```{r fig-basis,fig.cap="Spline surface of social mobility."}
 
 optimal_basis(mobility~single_mothers+short_commute+
                 gini+dropout_rate+social_cap+dropout_na,  opportunity,
  max_splines=7)
 ```
 
-It can be seen here that the optimal combination is the first 11 principal components of a 4x4 spline. It is notable that this very small number of spatial controls explains 60% of variability in the outcome. Knowing only the location of a place lets you make a decent guess about the likely degree of mobility there, without knowing anything about its other characteristics.
+It can be seen here that the optimal combination is the first 15 principal components of a 6x6 spline. It is notable that this very small number of spatial controls explains 60% of variability in the outcome, compared with 64% obtained by using the 49 state dummies of the original study. Knowing only the location of a place lets you make a decent guess about the likely degree of mobility there, without knowing anything about its other characteristics.
 
-It is useful to plot the tensor surface of intergenerational mobility to see how geometrically simple it is. The viewpoint is from the southeast of the US and the angular surface reflects the fact that a product of linear B-splines (series of overlapping triangles) is used.
+It is useful to plot the tensor surface of intergenerational mobility to see how geometrically simple it is. In The viewpoint is from the southeast of the US and the angular surface reflects the fact that a product of linear B-splines (series of overlapping triangles) is used.
 
-```{r fig-spline, fig.height=5, fig.width=6, Cache=FALSE}
+```{r, fig.cap="Spline surface of social mobility."}
 
 plot_basis(
   mobility~single_mothers+short_commute+
@@ -79,9 +79,9 @@ Title="6x6 Tensor Surface of Mobility"
 
 Having chosen a spatial basis, we now need to choose an optimal number of clusters for the residuals. If there are too many, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.
 
-The placebos are constructed to have the same spatial structure as the treatment, here racial segregation. First, the treatment is regressed on the spatial basis terms selected in Step 1. The spatial correlation between the detrended residuals is assumed to decay exponentially so that the correlation between two at distance $h$ apart is $\rho \exp (- \theta / h)$.[^1] The parameters $\rho$ and $\theta$ are referred to as the structure and range of the correlation. Effective range is $2 \theta$: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the `fields` library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.
+The placebos are constructed to have the same spatial structure as the treatment, here single mothers. First, the treatment is regressed on the spatial basis terms selected in Step 1. The spatial correlation between the detrended residuals is assumed to decay exponentially so that the correlation between two at distance $h$ apart is $\rho \exp (- \theta / h)$.[^1] The parameters $\rho$ and $\theta$ are referred to as the structure and range of the correlation. Effective range is $2 \theta$: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the `fields` library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.
 
-[^1]: The exponential is a special case of the Matern function with smoothness parameter of 0.5, and in principle the optimal smoothing parameter can be chosen by maximum likelihood. In practice this makes little difference: as smoothness increases the estimated range $\theta$ falls, leaving correlation more or less unchanged.
+[^1]: The exponential kernel is a special case of the Matern function with smoothness parameter of 0.5, and in principle the optimal smoothing parameter can be chosen by maximum likelihood. In practice this makes little difference: as smoothness increases the estimated range $\theta$ falls, leaving correlation more or less unchanged.
 
 These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment.
 
@@ -89,9 +89,9 @@ The second is that the placebos provide a Monte Carlo simulation to evaluate the
 
 Standard errors are estimated using the large cluster procedure of Bester, Conley and Hansen, where observations are partitioned into $c$ large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of $c$ to be picked.
 
-The placebo test is implemented by the command \`placebo\`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you should start with around 200 which will quickly give you a good idea of how your data are behaving.[^2]
+The placebo test is implemented by the command \`placebo\`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving.[^2]
 
-[^2]: The placebo and synthetic outcome tests run in parallel by default. If you encounter problems you should set the option `Parallel=FALSE` in each command. For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
+[^2]: The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option `Parallel=FALSE` in each command. For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
 
 ```{r placebo,Cache=TRUE}
 
@@ -112,7 +112,7 @@ The next column gives the placebo p-value: the proportion of simulations where t
 
 Following this, and highlighted in orange, is the percentage of simulations where the placebo is significant at 5%. If this is markedly higher than 5% it suggests that the inference method employed was inadequate. In practice a value in the range of 0.05 to 0.07 or 0.08 indicates satisfactory performance.
 
-The next column gives the width of the confidence interval associated with each cluster and allows an informal size-power tradeoff: increasing the proportion above 5% to, say, 8% is desirable if it leads to a marked narrowing of the confidence interval. In this case here, 5 or 6 clusters give very similar values with 6% of simulations significant at 5% suggesting that these are reasonable numbers: by contrast 13% of HC simulations are significant. We will report regression results for both below. For six clusters the placebo p-value of 0.01 equals the regression estimate of 0.01 and the confidence interval for the parameter is $[-1.66,-0.34]$.
+The next column gives the width of the confidence interval associated with each cluster and allows an informal size-power tradeoff: increasing the proportion above 5% to, say, 7% is desirable if it leads to a marked narrowing of the confidence interval. In this case here, 5 or 6 clusters give very similar values with 6% of simulations significant at 5% suggesting that these are reasonable numbers: by contrast 13% of HC simulations are significant. We will report regression results for both below. For six clusters the placebo p-value of 0.01 equals the regression estimate of 0.01 and the confidence interval for the parameter is \[-1.66,-0.34\].
 
 It will sometimes happen that the proportion of placebos significant at 5% stays considerably above 5% regardless of the cluster number. In that case systematically increasing, or sometimes decreasing, the number of principal components `num_pc` by one or two will usually give a satisfactory placebo value.
 
@@ -130,7 +130,7 @@ Here it can be seen that structure and effective range are 0.96 and 0.05 respect
 
 Following the placebo test, the next step is to calculate the synthetic outcome p-value: Can we reject the null hypothesis that the outcome is trending spatial noise, and therefore independent of the treatment?
 
-An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of values from 3 to 5 or more to allow readers to judge the robustness of the results.
+An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of cluster values from 3 to 5 or more to allow readers to judge the robustness of the results.
 
 We assume that the outcome is generated as a quadratic in longitude and latitude. Noise is generated using maximum likelihood estimates of the residuals' spatial parameters: here there is a structure of 0.88 and an effective range of 0.15.
 
@@ -151,7 +151,9 @@ For the five or six clusters chosen by the placebo test, the synthetic outcome s
 
 The fact that the placebo and synthetic outcome significance levels closely match the regression one gives us considerable confidence in the reliability of the regression estimate. We therefore estimate a regression with 15 principal components of a 6x6 spline, and compute standard errors using both five and six k-medoids clusters.
 
-For comparison we also include the original regression with no spatial spatial basis and residuals clustered by state. Because t-statistics for BCH regressions are not readily interpretable given their low degrees of freedom (for instance, the 5% significance level for 5 clusters is 2.8), we report confidence intervals and p-values.
+For comparison we also include the original regression with state dummies and residuals clustered by state. The state dummies act as a spatial basis in this regression with 48 variables as opposed to the 15 used in the basis regressions.
+
+Because t-statistics for BCH regressions are not readily interpretable given their low degrees of freedom (for instance, the 5% significance level for 5 clusters is 2.8), the Table reports confidence intervals and p-values.
 
 ```{r regression,Cache=TRUE}
 
@@ -163,26 +165,26 @@ Basis_6=basis_regression(mobility~single_mothers+short_commute+gini+dropout_rate
 splines=6,pc_num=15,
 clusters=6)
 
-Original=fixest::feols(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na, opportunity,
+Original=fixest::feols(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na+state_id, opportunity,
 cluster= ~state_id)
 
 modelsummary(list(Clustered=Original, 
                  `Basis 5`=Basis_5,
                  `Basis 6`=Basis_6),
 statistic = c("conf.int","p = {p.value}"),
-coef_omit = c("Intercept|PC*|dropout_na"), #omit basis and intercept
+coef_omit = c("Intercept|PC*|dropout_na|state*"), #omit basis and intercept
 gof_map = c("nobs", "r.squared"),
 fmt=2,
 notes="Clustered is a standard regression estimate without a spatial basis and clustered by state. Basis 5 and 6 use 11 principal components of a 6x6 linear b-spline basis, with 5 and 6 k-medoids clusters respectively.")
 ```
 
-Next we can plot confidence intervals for the regressions. It is evident that the confidence intervals for single mothers have grown substantially wider, and that the effects of commuting distance and, especially, social capital have fallen considerably.
+Next we can plot confidence intervals for the regressions. It is evident that the confidence interval for single mothers has grown substantially wider, and that the effects of commuting distance and, especially, social capital have fallen considerably.
 
-```{r}
+```{r modelplot,fig.cap="95% confidence intervals for clustered and spatial basis regressions."}
 modelplot(list(Clustered=Original, 
                              `Basis 5`=Basis_5,
                                 `Basis 6`=Basis_6),
-                           coef_omit = c("Intercept|PC*|dropout_na")
+                           coef_omit = c("Intercept|PC*|dropout_na|state*")
                            )+
   geom_vline(xintercept=0,color="red",linewidth=0.25,linetype=3)
 ```
@@ -213,7 +215,7 @@ syn_im=synth_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_c
 synth_table(syn_im)
 ```
 
-Given that the IM confidence interval is considerably wider than the BCH one ( $[-1.56,-0.44]$ here, compared with $[-0.88,-0.13]$) as is usually the case, the similar p-values arise because its central value is far lower than the BCH one. If we repeat the exercise for the other variables, short commute again has similar p-values to BCH and a high but wide interval. The other three variables have wide intervals centred near zero.
+Given that the IM confidence interval is considerably wider than the BCH one ( \[-1.56,-0.44\] here, compared with \[-0.88,-0.13\]) as is usually the case, the similar p-values arise because its central value is far lower than the BCH one. If we repeat the exercise for the other variables, short commute again has similar p-values to BCH and a high but wide interval. The other three variables have wide intervals centred near zero.
 
 ```{r}
 x <- data.frame(
@@ -224,5 +226,5 @@ x <- data.frame(
   CI=c("[-1.56,-0.44]","[0.33,1.67]","[-3.14,1.14]","[-2.98,0.98]","[-8.52,10.52]")
 )
 
-tt(x,notes="Regression, placebo, and synthetic p-values along with confidence intervals using IM inference.")
+tt(x,caption="Regression, placebo, and synthetic p-values along with confidence intervals using IM inference.")
 ```
