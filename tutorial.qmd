@@ -65,7 +65,7 @@ It can be seen here that the optimal combination is the first 15 principal compo
 
 It is useful to plot the tensor surface of intergenerational mobility to see how geometrically simple it is. In The viewpoint is from the southeast of the US and the angular surface reflects the fact that a product of linear B-splines (series of overlapping triangles) is used.
 
-```{r, fig.cap="Spline surface of social mobility."}
+```{r fig-spline, fig.cap="Spline surface of social mobility."}
 
 plot_basis(
   mobility~single_mothers+short_commute+
@@ -180,7 +180,8 @@ notes="Clustered is a standard regression estimate without a spatial basis and c
 
 Next we can plot confidence intervals for the regressions. It is evident that the confidence interval for single mothers has grown substantially wider, and that the effects of commuting distance and, especially, social capital have fallen considerably.
 
-```{r modelplot,fig.cap="95% confidence intervals for clustered and spatial basis regressions."}
+```{r modelplot,fig.cap="Confidence intervals for clustered and spatial basis regressions."}
+
 modelplot(list(Clustered=Original, 
                              `Basis 5`=Basis_5,
                                 `Basis 6`=Basis_6),
