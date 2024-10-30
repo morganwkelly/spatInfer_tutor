@@ -32,7 +32,7 @@ The first step is to download spatInfer.
 
 ```
 
-We begin by loading the `spatInfer` library and the data frame called `opportunity`. This includes the variables used in the second column Table VI in @chetty2014land which examines the determinants of intergenerational income mobility across US cities. Specifically, it regresses absolute upward mobility on five variables: fraction of single mothers, fraction short commute, Gini bottom 99%, high school dropout rate, and social capital index. Observations for Alaska and Hawaii are omitted to allow meaningful spatial correlations to be estimated. The longitude and latitude of each observation are included in the data. These must be named `X` and `Y`.
+We begin by loading the `spatInfer` library and the data frame called `opportunity`. This includes the variables used in the second column of Table VI in @chetty2014land which examines the determinants of intergenerational income mobility across US cities. Specifically, it regresses absolute upward mobility on five variables: fraction of single mothers, fraction short commute, Gini bottom 99%, high school dropout rate, and social capital index. Observations for Alaska and Hawaii are omitted to allow meaningful spatial correlations to be estimated. The longitude and latitude of each observation are included in the data. These must be named `X` and `Y`.
 
 ```{r, message=F}
 library(spatInfer)
