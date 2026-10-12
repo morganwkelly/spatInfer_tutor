@@ -287,12 +287,12 @@ Figure&nbsp;2: Spline surface of social mobility.
 <p>These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment.</p>
 <p>The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient.</p>
 <p>Standard errors are estimated using the large cluster procedure of <span class="citation" data-cites="BCH11">Bester, Conley, and Hansen (<a href="#ref-BCH11" role="doc-biblioref">2011</a>)</span>, where observations are partitioned into <span class="math inline">c</span> large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of <span class="math inline">c</span> to be picked.</p>
-<p>The placebo test is implemented by the command <code>placebo</code>. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by <code>optimal_basis</code>, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>The placebo test is implemented by the command <code>placebo</code>. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by <code>optimal_basis</code>, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving. The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option <code>Parallel=FALSE</code> in each command.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <div class="cell" data-cache="true">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">10</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">max_clus =</span> <span class="dv">7</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>       )</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
@@ -302,23 +302,23 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_2cf518dec0y44taw8zgp = TinyTable.createTableFunctions("tinytable_2cf518dec0y44taw8zgp");
+      const tableFns_1kiyubhjdbsy4f469ef7 = TinyTable.createTableFunctions("tinytable_1kiyubhjdbsy4f469ef7");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_nhly560aiqmamtsona0o',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_s6yccuk10npx27r600x7',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_lhfr6745km8e5seepkh0',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_1d3xpbuv5g2m4rz8tdv0',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_65eutoyrs7cvlnbezh68',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_st30uqi8927auf108ttm',}, 
+          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_s9ue9m4xvha0u7zer3uk',}, 
+          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_yp4bxr3gjgx7c6njtu9q',}, 
+          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_e4jlo6koky9b2cbxt8jz',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_ousi4bfdas5r3iizxjlp',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_ol2bkt8m5ooy09kr6rg5',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_fff7yvaiqebejz6uh36w',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_2cf518dec0y44taw8zgp.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_1kiyubhjdbsy4f469ef7.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -327,15 +327,15 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_2cf518dec0y44taw8zgp td.tinytable_css_nhly560aiqmamtsona0o, #tinytable_2cf518dec0y44taw8zgp th.tinytable_css_nhly560aiqmamtsona0o { color: #FFA500 }
-    #tinytable_2cf518dec0y44taw8zgp td.tinytable_css_s6yccuk10npx27r600x7, #tinytable_2cf518dec0y44taw8zgp th.tinytable_css_s6yccuk10npx27r600x7 { color: #FFA500; background-color: #ededed }
-    #tinytable_2cf518dec0y44taw8zgp td.tinytable_css_lhfr6745km8e5seepkh0, #tinytable_2cf518dec0y44taw8zgp th.tinytable_css_lhfr6745km8e5seepkh0 { font-weight: bold; color: #FFA500 }
-    #tinytable_2cf518dec0y44taw8zgp td.tinytable_css_1d3xpbuv5g2m4rz8tdv0, #tinytable_2cf518dec0y44taw8zgp th.tinytable_css_1d3xpbuv5g2m4rz8tdv0 { background-color: #ededed }
-    #tinytable_2cf518dec0y44taw8zgp td.tinytable_css_65eutoyrs7cvlnbezh68, #tinytable_2cf518dec0y44taw8zgp th.tinytable_css_65eutoyrs7cvlnbezh68 { font-weight: bold; background-color: #ededed }
-    #tinytable_2cf518dec0y44taw8zgp td.tinytable_css_st30uqi8927auf108ttm, #tinytable_2cf518dec0y44taw8zgp th.tinytable_css_st30uqi8927auf108ttm { font-weight: bold }
+    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_s9ue9m4xvha0u7zer3uk, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_s9ue9m4xvha0u7zer3uk { color: #FFA500 }
+    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_yp4bxr3gjgx7c6njtu9q, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_yp4bxr3gjgx7c6njtu9q { color: #FFA500; background-color: #ededed }
+    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_e4jlo6koky9b2cbxt8jz, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_e4jlo6koky9b2cbxt8jz { font-weight: bold; color: #FFA500 }
+    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_ousi4bfdas5r3iizxjlp, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_ousi4bfdas5r3iizxjlp { background-color: #ededed }
+    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_ol2bkt8m5ooy09kr6rg5, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_ol2bkt8m5ooy09kr6rg5 { font-weight: bold; background-color: #ededed }
+    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_fff7yvaiqebejz6uh36w, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_fff7yvaiqebejz6uh36w { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_2cf518dec0y44taw8zgp" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_1kiyubhjdbsy4f469ef7" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -358,7 +358,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="2">.</td>
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
-                  <td data-row="1" data-col="5">0.2</td>
+                  <td data-row="1" data-col="5">0.13</td>
                   <td data-row="1" data-col="6">0.28</td>
                   <td data-row="1" data-col="7">[-1.14, -0.86]</td>
                 </tr>
@@ -366,8 +366,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="1">BCH</td>
                   <td data-row="2" data-col="2">3</td>
                   <td data-row="2" data-col="3">0.075</td>
-                  <td data-row="2" data-col="4">0</td>
-                  <td data-row="2" data-col="5">0</td>
+                  <td data-row="2" data-col="4">0.09</td>
+                  <td data-row="2" data-col="5">0.057</td>
                   <td data-row="2" data-col="6">2.49</td>
                   <td data-row="2" data-col="7">[-2.25, 0.25]</td>
                 </tr>
@@ -375,8 +375,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">4</td>
                   <td data-row="3" data-col="3">0.038</td>
-                  <td data-row="3" data-col="4">0</td>
-                  <td data-row="3" data-col="5">0</td>
+                  <td data-row="3" data-col="4">0.058</td>
+                  <td data-row="3" data-col="5">0.076</td>
                   <td data-row="3" data-col="6">1.8</td>
                   <td data-row="3" data-col="7">[-1.9, -0.1]</td>
                 </tr>
@@ -384,8 +384,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">5</td>
                   <td data-row="4" data-col="3">0.02</td>
-                  <td data-row="4" data-col="4">0.1</td>
-                  <td data-row="4" data-col="5">0.1</td>
+                  <td data-row="4" data-col="4">0.015</td>
+                  <td data-row="4" data-col="5">0.062</td>
                   <td data-row="4" data-col="6">1.48</td>
                   <td data-row="4" data-col="7">[-1.74, -0.26]</td>
                 </tr>
@@ -393,8 +393,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">6</td>
                   <td data-row="5" data-col="3">0.012</td>
-                  <td data-row="5" data-col="4">0</td>
-                  <td data-row="5" data-col="5">0.2</td>
+                  <td data-row="5" data-col="4">0.013</td>
+                  <td data-row="5" data-col="5">0.06</td>
                   <td data-row="5" data-col="6">1.33</td>
                   <td data-row="5" data-col="7">[-1.66, -0.34]</td>
                 </tr>
@@ -402,8 +402,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">7</td>
                   <td data-row="6" data-col="3">0.003</td>
-                  <td data-row="6" data-col="4">0</td>
-                  <td data-row="6" data-col="5">0</td>
+                  <td data-row="6" data-col="4">0.008</td>
+                  <td data-row="6" data-col="5">0.08</td>
                   <td data-row="6" data-col="6">1.01</td>
                   <td data-row="6" data-col="7">[-1.51, -0.49]</td>
                 </tr>
@@ -430,7 +430,7 @@ Figure&nbsp;2: Spline surface of social mobility.
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">10</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">max_clus =</span> <span class="dv">7</span>)</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -439,20 +439,20 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_4hb2kah3sh8woljsnjuz = TinyTable.createTableFunctions("tinytable_4hb2kah3sh8woljsnjuz");
+      const tableFns_k858zjp6reclc7niamkl = TinyTable.createTableFunctions("tinytable_k858zjp6reclc7niamkl");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_m8e9i56go96vfhpc1mwd',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_xf0agfzfc7j2941zwvaz',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_yalmyyruj3pf4dspvepn',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_rfejj835ko2jj9t1mad2',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_36dy70ifot9eqzfie36b',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_hmizhum3avx6gswimdwh',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_4hb2kah3sh8woljsnjuz.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_k858zjp6reclc7niamkl.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -461,12 +461,12 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_4hb2kah3sh8woljsnjuz td.tinytable_css_m8e9i56go96vfhpc1mwd, #tinytable_4hb2kah3sh8woljsnjuz th.tinytable_css_m8e9i56go96vfhpc1mwd { background-color: #ededed }
-    #tinytable_4hb2kah3sh8woljsnjuz td.tinytable_css_xf0agfzfc7j2941zwvaz, #tinytable_4hb2kah3sh8woljsnjuz th.tinytable_css_xf0agfzfc7j2941zwvaz { font-weight: bold; background-color: #ededed }
-    #tinytable_4hb2kah3sh8woljsnjuz td.tinytable_css_yalmyyruj3pf4dspvepn, #tinytable_4hb2kah3sh8woljsnjuz th.tinytable_css_yalmyyruj3pf4dspvepn { font-weight: bold }
+    #tinytable_k858zjp6reclc7niamkl td.tinytable_css_rfejj835ko2jj9t1mad2, #tinytable_k858zjp6reclc7niamkl th.tinytable_css_rfejj835ko2jj9t1mad2 { background-color: #ededed }
+    #tinytable_k858zjp6reclc7niamkl td.tinytable_css_36dy70ifot9eqzfie36b, #tinytable_k858zjp6reclc7niamkl th.tinytable_css_36dy70ifot9eqzfie36b { font-weight: bold; background-color: #ededed }
+    #tinytable_k858zjp6reclc7niamkl td.tinytable_css_hmizhum3avx6gswimdwh, #tinytable_k858zjp6reclc7niamkl th.tinytable_css_hmizhum3avx6gswimdwh { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_4hb2kah3sh8woljsnjuz" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_k858zjp6reclc7niamkl" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -495,7 +495,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="1">BCH</td>
                   <td data-row="2" data-col="2">3</td>
                   <td data-row="2" data-col="3">0.075</td>
-                  <td data-row="2" data-col="4">0.1</td>
+                  <td data-row="2" data-col="4">0.14</td>
                   <td data-row="2" data-col="5">2.49</td>
                   <td data-row="2" data-col="6">[-2.25, 0.25]</td>
                 </tr>
@@ -503,7 +503,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">4</td>
                   <td data-row="3" data-col="3">0.038</td>
-                  <td data-row="3" data-col="4">0</td>
+                  <td data-row="3" data-col="4">0.059</td>
                   <td data-row="3" data-col="5">1.8</td>
                   <td data-row="3" data-col="6">[-1.9, -0.1]</td>
                 </tr>
@@ -511,7 +511,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">5</td>
                   <td data-row="4" data-col="3">0.02</td>
-                  <td data-row="4" data-col="4">0.1</td>
+                  <td data-row="4" data-col="4">0.041</td>
                   <td data-row="4" data-col="5">1.48</td>
                   <td data-row="4" data-col="6">[-1.74, -0.26]</td>
                 </tr>
@@ -519,7 +519,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">6</td>
                   <td data-row="5" data-col="3">0.012</td>
-                  <td data-row="5" data-col="4">0.1</td>
+                  <td data-row="5" data-col="4">0.041</td>
                   <td data-row="5" data-col="5">1.33</td>
                   <td data-row="5" data-col="6">[-1.66, -0.34]</td>
                 </tr>
@@ -527,7 +527,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">7</td>
                   <td data-row="6" data-col="3">0.003</td>
-                  <td data-row="6" data-col="4">0</td>
+                  <td data-row="6" data-col="4">0.011</td>
                   <td data-row="6" data-col="5">1.01</td>
                   <td data-row="6" data-col="6">[-1.51, -0.49]</td>
                 </tr>
@@ -751,7 +751,7 @@ Figure&nbsp;2: Spline surface of social mobility.
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plbo_im<span class="ot">=</span><span class="fu">placebo_im</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">10</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">max_clus =</span> <span class="dv">7</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                 )</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_im)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -760,23 +760,23 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_5bc8i3s62m28uc08u2sp = TinyTable.createTableFunctions("tinytable_5bc8i3s62m28uc08u2sp");
+      const tableFns_umrojtrw1wzd6aenuvdn = TinyTable.createTableFunctions("tinytable_umrojtrw1wzd6aenuvdn");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_zghjiyg1h2e4rfrvyz73',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_4wyt5gqd59yf30xpixjk',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_fpcfserp57bveclc039w',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_jovq2runyqxp9utj21st',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_c8eqaoav2kh0cyh2lxkb',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_o1wzkjvkyrhmv6bbhcj8',}, 
+          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_f46taind8poufq2n1i90',}, 
+          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_i79xpi517m5jror0vr3x',}, 
+          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_n6dyj4fj7ba2ga5jx4wk',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_8y1x0c2llhrf0hb9g61a',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_53tzhbpl5tyxkxctn9m0',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_scjrgr1f3i0krf0va9vm',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_5bc8i3s62m28uc08u2sp.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_umrojtrw1wzd6aenuvdn.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -785,15 +785,15 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_5bc8i3s62m28uc08u2sp td.tinytable_css_zghjiyg1h2e4rfrvyz73, #tinytable_5bc8i3s62m28uc08u2sp th.tinytable_css_zghjiyg1h2e4rfrvyz73 { color: #FFA500 }
-    #tinytable_5bc8i3s62m28uc08u2sp td.tinytable_css_4wyt5gqd59yf30xpixjk, #tinytable_5bc8i3s62m28uc08u2sp th.tinytable_css_4wyt5gqd59yf30xpixjk { color: #FFA500; background-color: #ededed }
-    #tinytable_5bc8i3s62m28uc08u2sp td.tinytable_css_fpcfserp57bveclc039w, #tinytable_5bc8i3s62m28uc08u2sp th.tinytable_css_fpcfserp57bveclc039w { font-weight: bold; color: #FFA500 }
-    #tinytable_5bc8i3s62m28uc08u2sp td.tinytable_css_jovq2runyqxp9utj21st, #tinytable_5bc8i3s62m28uc08u2sp th.tinytable_css_jovq2runyqxp9utj21st { background-color: #ededed }
-    #tinytable_5bc8i3s62m28uc08u2sp td.tinytable_css_c8eqaoav2kh0cyh2lxkb, #tinytable_5bc8i3s62m28uc08u2sp th.tinytable_css_c8eqaoav2kh0cyh2lxkb { font-weight: bold; background-color: #ededed }
-    #tinytable_5bc8i3s62m28uc08u2sp td.tinytable_css_o1wzkjvkyrhmv6bbhcj8, #tinytable_5bc8i3s62m28uc08u2sp th.tinytable_css_o1wzkjvkyrhmv6bbhcj8 { font-weight: bold }
+    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_f46taind8poufq2n1i90, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_f46taind8poufq2n1i90 { color: #FFA500 }
+    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_i79xpi517m5jror0vr3x, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_i79xpi517m5jror0vr3x { color: #FFA500; background-color: #ededed }
+    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_n6dyj4fj7ba2ga5jx4wk, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_n6dyj4fj7ba2ga5jx4wk { font-weight: bold; color: #FFA500 }
+    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_8y1x0c2llhrf0hb9g61a, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_8y1x0c2llhrf0hb9g61a { background-color: #ededed }
+    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_53tzhbpl5tyxkxctn9m0, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_53tzhbpl5tyxkxctn9m0 { font-weight: bold; background-color: #ededed }
+    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_scjrgr1f3i0krf0va9vm, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_scjrgr1f3i0krf0va9vm { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_5bc8i3s62m28uc08u2sp" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_umrojtrw1wzd6aenuvdn" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -816,7 +816,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="2">.</td>
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
-                  <td data-row="1" data-col="5">0.2</td>
+                  <td data-row="1" data-col="5">0.13</td>
                   <td data-row="1" data-col="6">0.28</td>
                   <td data-row="1" data-col="7">[-1.14, -0.86]</td>
                 </tr>
@@ -824,8 +824,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="1">IM</td>
                   <td data-row="2" data-col="2">3</td>
                   <td data-row="2" data-col="3">0.057</td>
-                  <td data-row="2" data-col="4">0</td>
-                  <td data-row="2" data-col="5">0</td>
+                  <td data-row="2" data-col="4">0.053</td>
+                  <td data-row="2" data-col="5">0.046</td>
                   <td data-row="2" data-col="6">2.14</td>
                   <td data-row="2" data-col="7">[-2.07, 0.07]</td>
                 </tr>
@@ -833,8 +833,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">4</td>
                   <td data-row="3" data-col="3">0.023</td>
-                  <td data-row="3" data-col="4">0</td>
-                  <td data-row="3" data-col="5">0</td>
+                  <td data-row="3" data-col="4">0.024</td>
+                  <td data-row="3" data-col="5">0.046</td>
                   <td data-row="3" data-col="6">1.48</td>
                   <td data-row="3" data-col="7">[-1.74, -0.26]</td>
                 </tr>
@@ -842,8 +842,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">5</td>
                   <td data-row="4" data-col="3">0.008</td>
-                  <td data-row="4" data-col="4">0</td>
-                  <td data-row="4" data-col="5">0.1</td>
+                  <td data-row="4" data-col="4">0.004</td>
+                  <td data-row="4" data-col="5">0.054</td>
                   <td data-row="4" data-col="6">1.13</td>
                   <td data-row="4" data-col="7">[-1.56, -0.44]</td>
                 </tr>
@@ -851,8 +851,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">6</td>
                   <td data-row="5" data-col="3">0.003</td>
-                  <td data-row="5" data-col="4">0.1</td>
-                  <td data-row="5" data-col="5">0.1</td>
+                  <td data-row="5" data-col="4">0.002</td>
+                  <td data-row="5" data-col="5">0.042</td>
                   <td data-row="5" data-col="6">0.93</td>
                   <td data-row="5" data-col="7">[-1.46, -0.54]</td>
                 </tr>
@@ -860,8 +860,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">7</td>
                   <td data-row="6" data-col="3">0.002</td>
-                  <td data-row="6" data-col="4">0</td>
-                  <td data-row="6" data-col="5">0</td>
+                  <td data-row="6" data-col="4">0.002</td>
+                  <td data-row="6" data-col="5">0.054</td>
                   <td data-row="6" data-col="6">0.93</td>
                   <td data-row="6" data-col="7">[-1.46, -0.54]</td>
                 </tr>
@@ -876,7 +876,7 @@ Figure&nbsp;2: Spline surface of social mobility.
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>syn_im<span class="ot">=</span><span class="fu">synth_im</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">10</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">max_clus =</span> <span class="dv">7</span>)</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(syn_im)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
@@ -884,20 +884,20 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_vud0bc7lx5ch8axxonzu = TinyTable.createTableFunctions("tinytable_vud0bc7lx5ch8axxonzu");
+      const tableFns_1u07m0b1pi3hjn5tfvi2 = TinyTable.createTableFunctions("tinytable_1u07m0b1pi3hjn5tfvi2");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_wdia9sc1gxyfccndi1d1',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_lkt7k7e1sejsqm6vwhm0',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_sk8j462ucd4bosocditr',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_4qpfrk0oz8d75tvzyc9s',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_mvw4iap29f8lo04ronkr',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_v1hap2m6r29p6s3w21oz',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_vud0bc7lx5ch8axxonzu.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_1u07m0b1pi3hjn5tfvi2.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -906,12 +906,12 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_vud0bc7lx5ch8axxonzu td.tinytable_css_wdia9sc1gxyfccndi1d1, #tinytable_vud0bc7lx5ch8axxonzu th.tinytable_css_wdia9sc1gxyfccndi1d1 { background-color: #ededed }
-    #tinytable_vud0bc7lx5ch8axxonzu td.tinytable_css_lkt7k7e1sejsqm6vwhm0, #tinytable_vud0bc7lx5ch8axxonzu th.tinytable_css_lkt7k7e1sejsqm6vwhm0 { font-weight: bold; background-color: #ededed }
-    #tinytable_vud0bc7lx5ch8axxonzu td.tinytable_css_sk8j462ucd4bosocditr, #tinytable_vud0bc7lx5ch8axxonzu th.tinytable_css_sk8j462ucd4bosocditr { font-weight: bold }
+    #tinytable_1u07m0b1pi3hjn5tfvi2 td.tinytable_css_4qpfrk0oz8d75tvzyc9s, #tinytable_1u07m0b1pi3hjn5tfvi2 th.tinytable_css_4qpfrk0oz8d75tvzyc9s { background-color: #ededed }
+    #tinytable_1u07m0b1pi3hjn5tfvi2 td.tinytable_css_mvw4iap29f8lo04ronkr, #tinytable_1u07m0b1pi3hjn5tfvi2 th.tinytable_css_mvw4iap29f8lo04ronkr { font-weight: bold; background-color: #ededed }
+    #tinytable_1u07m0b1pi3hjn5tfvi2 td.tinytable_css_v1hap2m6r29p6s3w21oz, #tinytable_1u07m0b1pi3hjn5tfvi2 th.tinytable_css_v1hap2m6r29p6s3w21oz { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_vud0bc7lx5ch8axxonzu" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_1u07m0b1pi3hjn5tfvi2" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -940,7 +940,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="1">IM</td>
                   <td data-row="2" data-col="2">3</td>
                   <td data-row="2" data-col="3">0.057</td>
-                  <td data-row="2" data-col="4">0.1</td>
+                  <td data-row="2" data-col="4">0.055</td>
                   <td data-row="2" data-col="5">2.14</td>
                   <td data-row="2" data-col="6">[-2.07, 0.07]</td>
                 </tr>
@@ -948,7 +948,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">4</td>
                   <td data-row="3" data-col="3">0.023</td>
-                  <td data-row="3" data-col="4">0.1</td>
+                  <td data-row="3" data-col="4">0.022</td>
                   <td data-row="3" data-col="5">1.48</td>
                   <td data-row="3" data-col="6">[-1.74, -0.26]</td>
                 </tr>
@@ -956,7 +956,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">5</td>
                   <td data-row="4" data-col="3">0.008</td>
-                  <td data-row="4" data-col="4">0</td>
+                  <td data-row="4" data-col="4">0.007</td>
                   <td data-row="4" data-col="5">1.13</td>
                   <td data-row="4" data-col="6">[-1.56, -0.44]</td>
                 </tr>
@@ -964,7 +964,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">6</td>
                   <td data-row="5" data-col="3">0.003</td>
-                  <td data-row="5" data-col="4">0</td>
+                  <td data-row="5" data-col="4">0.002</td>
                   <td data-row="5" data-col="5">0.93</td>
                   <td data-row="5" data-col="6">[-1.46, -0.54]</td>
                 </tr>
@@ -972,7 +972,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">7</td>
                   <td data-row="6" data-col="3">0.002</td>
-                  <td data-row="6" data-col="4">0</td>
+                  <td data-row="6" data-col="4">0.004</td>
                   <td data-row="6" data-col="5">0.93</td>
                   <td data-row="6" data-col="6">[-1.46, -0.54]</td>
                 </tr>
@@ -1085,7 +1085,7 @@ Figure&nbsp;2: Spline surface of social mobility.
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>plbo_scpc<span class="ot">=</span><span class="fu">placebo_scpc</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">10</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">avc =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.1</span>, <span class="at">by =</span> <span class="fl">0.02</span>),</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                 )</span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_scpc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1094,23 +1094,23 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_lxaxqzw6g6hijb4hm58d = TinyTable.createTableFunctions("tinytable_lxaxqzw6g6hijb4hm58d");
+      const tableFns_fgsmr5fbof0khnmtny53 = TinyTable.createTableFunctions("tinytable_fgsmr5fbof0khnmtny53");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_u9olvznzk78iwcyeruht',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_x4nvara6isuwimwxej1n',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_42yyl5l48yq4njdaukf2',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_34cd8f0mg5qmhpxtqrrs',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_els66dpk6uerusp3hh1c',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_msg2z5y2cbj47lgppkyr',}, 
+          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_ivpxsbg1il9gkc4olgmp',}, 
+          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_42kwmgockcdglg0j56qg',}, 
+          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_ih0vkzsyaphrlw14aqjm',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_nhtydcd4wuxo5q6jdfqw',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_eo8d6mhv7v9e61gnqlmp',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_0qhcem4kzxv0vpspi5wt',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_lxaxqzw6g6hijb4hm58d.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_fgsmr5fbof0khnmtny53.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -1119,15 +1119,15 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_lxaxqzw6g6hijb4hm58d td.tinytable_css_u9olvznzk78iwcyeruht, #tinytable_lxaxqzw6g6hijb4hm58d th.tinytable_css_u9olvznzk78iwcyeruht { color: #FFA500 }
-    #tinytable_lxaxqzw6g6hijb4hm58d td.tinytable_css_x4nvara6isuwimwxej1n, #tinytable_lxaxqzw6g6hijb4hm58d th.tinytable_css_x4nvara6isuwimwxej1n { color: #FFA500; background-color: #ededed }
-    #tinytable_lxaxqzw6g6hijb4hm58d td.tinytable_css_42yyl5l48yq4njdaukf2, #tinytable_lxaxqzw6g6hijb4hm58d th.tinytable_css_42yyl5l48yq4njdaukf2 { font-weight: bold; color: #FFA500 }
-    #tinytable_lxaxqzw6g6hijb4hm58d td.tinytable_css_34cd8f0mg5qmhpxtqrrs, #tinytable_lxaxqzw6g6hijb4hm58d th.tinytable_css_34cd8f0mg5qmhpxtqrrs { background-color: #ededed }
-    #tinytable_lxaxqzw6g6hijb4hm58d td.tinytable_css_els66dpk6uerusp3hh1c, #tinytable_lxaxqzw6g6hijb4hm58d th.tinytable_css_els66dpk6uerusp3hh1c { font-weight: bold; background-color: #ededed }
-    #tinytable_lxaxqzw6g6hijb4hm58d td.tinytable_css_msg2z5y2cbj47lgppkyr, #tinytable_lxaxqzw6g6hijb4hm58d th.tinytable_css_msg2z5y2cbj47lgppkyr { font-weight: bold }
+    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_ivpxsbg1il9gkc4olgmp, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_ivpxsbg1il9gkc4olgmp { color: #FFA500 }
+    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_42kwmgockcdglg0j56qg, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_42kwmgockcdglg0j56qg { color: #FFA500; background-color: #ededed }
+    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_ih0vkzsyaphrlw14aqjm, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_ih0vkzsyaphrlw14aqjm { font-weight: bold; color: #FFA500 }
+    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_nhtydcd4wuxo5q6jdfqw, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_nhtydcd4wuxo5q6jdfqw { background-color: #ededed }
+    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_eo8d6mhv7v9e61gnqlmp, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_eo8d6mhv7v9e61gnqlmp { font-weight: bold; background-color: #ededed }
+    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_0qhcem4kzxv0vpspi5wt, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_0qhcem4kzxv0vpspi5wt { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_lxaxqzw6g6hijb4hm58d" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_fgsmr5fbof0khnmtny53" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -1151,7 +1151,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="2">.</td>
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
-                  <td data-row="1" data-col="5">0.2</td>
+                  <td data-row="1" data-col="5">0.13</td>
                   <td data-row="1" data-col="6">0.28</td>
                   <td data-row="1" data-col="7">[-1.14, -0.86]</td>
                 </tr>
@@ -1159,8 +1159,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="1">SCPC</td>
                   <td data-row="2" data-col="2">0.02</td>
                   <td data-row="2" data-col="3">0.003</td>
-                  <td data-row="2" data-col="4">0</td>
-                  <td data-row="2" data-col="5">0</td>
+                  <td data-row="2" data-col="4">0.001</td>
+                  <td data-row="2" data-col="5">0.052</td>
                   <td data-row="2" data-col="6">1.08</td>
                   <td data-row="2" data-col="7">[-1.54, -0.46]</td>
                 </tr>
@@ -1168,8 +1168,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">0.04</td>
                   <td data-row="3" data-col="3">0.009</td>
-                  <td data-row="3" data-col="4">0</td>
-                  <td data-row="3" data-col="5">0.1</td>
+                  <td data-row="3" data-col="4">0.007</td>
+                  <td data-row="3" data-col="5">0.046</td>
                   <td data-row="3" data-col="6">1.3</td>
                   <td data-row="3" data-col="7">[-1.65, -0.35]</td>
                 </tr>
@@ -1177,8 +1177,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">0.06</td>
                   <td data-row="4" data-col="3">0.013</td>
-                  <td data-row="4" data-col="4">0</td>
-                  <td data-row="4" data-col="5">0</td>
+                  <td data-row="4" data-col="4">0.008</td>
+                  <td data-row="4" data-col="5">0.03</td>
                   <td data-row="4" data-col="6">1.43</td>
                   <td data-row="4" data-col="7">[-1.71, -0.29]</td>
                 </tr>
@@ -1186,8 +1186,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">0.08</td>
                   <td data-row="5" data-col="3">0.023</td>
-                  <td data-row="5" data-col="4">0</td>
-                  <td data-row="5" data-col="5">0</td>
+                  <td data-row="5" data-col="4">0.008</td>
+                  <td data-row="5" data-col="5">0.026</td>
                   <td data-row="5" data-col="6">1.61</td>
                   <td data-row="5" data-col="7">[-1.8, -0.2]</td>
                 </tr>
@@ -1195,8 +1195,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">0.1</td>
                   <td data-row="6" data-col="3">0.03</td>
-                  <td data-row="6" data-col="4">0</td>
-                  <td data-row="6" data-col="5">0</td>
+                  <td data-row="6" data-col="4">0.008</td>
+                  <td data-row="6" data-col="5">0.021</td>
                   <td data-row="6" data-col="6">1.72</td>
                   <td data-row="6" data-col="7">[-1.86, -0.14]</td>
                 </tr>
@@ -1211,7 +1211,7 @@ Figure&nbsp;2: Spline surface of social mobility.
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>syn_scpc<span class="ot">=</span><span class="fu">synth_scpc</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">10</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">avc =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.1</span>, <span class="at">by =</span> <span class="fl">0.02</span>),</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                 )</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(syn_scpc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1220,20 +1220,20 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_5ozqtjvkjc3gr9klchnm = TinyTable.createTableFunctions("tinytable_5ozqtjvkjc3gr9klchnm");
+      const tableFns_24au2zrshrlsqznoabzv = TinyTable.createTableFunctions("tinytable_24au2zrshrlsqznoabzv");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_e3j8ktnzkcz45xbgr42q',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_8xh3wyvb2kbm6yu36vy6',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_sgxbo9bgugub3ktof1ij',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_am1r7xyzu18ta1rgm446',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_3y32wyto2szpurxv8vxy',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_mu8ax0rmfhxci6h5jk9t',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_5ozqtjvkjc3gr9klchnm.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_24au2zrshrlsqznoabzv.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -1242,12 +1242,12 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_5ozqtjvkjc3gr9klchnm td.tinytable_css_e3j8ktnzkcz45xbgr42q, #tinytable_5ozqtjvkjc3gr9klchnm th.tinytable_css_e3j8ktnzkcz45xbgr42q { background-color: #ededed }
-    #tinytable_5ozqtjvkjc3gr9klchnm td.tinytable_css_8xh3wyvb2kbm6yu36vy6, #tinytable_5ozqtjvkjc3gr9klchnm th.tinytable_css_8xh3wyvb2kbm6yu36vy6 { font-weight: bold; background-color: #ededed }
-    #tinytable_5ozqtjvkjc3gr9klchnm td.tinytable_css_sgxbo9bgugub3ktof1ij, #tinytable_5ozqtjvkjc3gr9klchnm th.tinytable_css_sgxbo9bgugub3ktof1ij { font-weight: bold }
+    #tinytable_24au2zrshrlsqznoabzv td.tinytable_css_am1r7xyzu18ta1rgm446, #tinytable_24au2zrshrlsqznoabzv th.tinytable_css_am1r7xyzu18ta1rgm446 { background-color: #ededed }
+    #tinytable_24au2zrshrlsqznoabzv td.tinytable_css_3y32wyto2szpurxv8vxy, #tinytable_24au2zrshrlsqznoabzv th.tinytable_css_3y32wyto2szpurxv8vxy { font-weight: bold; background-color: #ededed }
+    #tinytable_24au2zrshrlsqznoabzv td.tinytable_css_mu8ax0rmfhxci6h5jk9t, #tinytable_24au2zrshrlsqznoabzv th.tinytable_css_mu8ax0rmfhxci6h5jk9t { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_5ozqtjvkjc3gr9klchnm" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_24au2zrshrlsqznoabzv" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -1276,7 +1276,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="1">SCPC</td>
                   <td data-row="2" data-col="2">0.02</td>
                   <td data-row="2" data-col="3">0.003</td>
-                  <td data-row="2" data-col="4">0</td>
+                  <td data-row="2" data-col="4">0.003</td>
                   <td data-row="2" data-col="5">1.08</td>
                   <td data-row="2" data-col="6">[-1.54, -0.46]</td>
                 </tr>
@@ -1284,7 +1284,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">0.04</td>
                   <td data-row="3" data-col="3">0.009</td>
-                  <td data-row="3" data-col="4">0</td>
+                  <td data-row="3" data-col="4">0.005</td>
                   <td data-row="3" data-col="5">1.3</td>
                   <td data-row="3" data-col="6">[-1.65, -0.35]</td>
                 </tr>
@@ -1292,7 +1292,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">0.06</td>
                   <td data-row="4" data-col="3">0.013</td>
-                  <td data-row="4" data-col="4">0</td>
+                  <td data-row="4" data-col="4">0.011</td>
                   <td data-row="4" data-col="5">1.43</td>
                   <td data-row="4" data-col="6">[-1.71, -0.29]</td>
                 </tr>
@@ -1300,7 +1300,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">0.08</td>
                   <td data-row="5" data-col="3">0.023</td>
-                  <td data-row="5" data-col="4">0</td>
+                  <td data-row="5" data-col="4">0.016</td>
                   <td data-row="5" data-col="5">1.61</td>
                   <td data-row="5" data-col="6">[-1.8, -0.2]</td>
                 </tr>
@@ -1308,7 +1308,7 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">0.1</td>
                   <td data-row="6" data-col="3">0.03</td>
-                  <td data-row="6" data-col="4">0</td>
+                  <td data-row="6" data-col="4">0.018</td>
                   <td data-row="6" data-col="5">1.72</td>
                   <td data-row="6" data-col="6">[-1.86, -0.14]</td>
                 </tr>
@@ -1344,7 +1344,7 @@ Müller, Ulrich K., and Mark W. Watson. 2022. <span>“Spatial Correlation Robus
 
 <ol>
 <li id="fn1"><p>The exponential kernel is a special case of the Matern function with smoothness parameter of 0.5, and in principle the optimal smoothing parameter can be chosen by maximum likelihood. In practice this makes little difference: as smoothness increases the estimated range <span class="math inline">\theta</span> falls, leaving correlation more or less unchanged.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option <code>Parallel=FALSE</code> in each command. For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting <code>k_medoids=FALSE</code> and <code>exact_cholesky=FALSE</code> in the <code>placebo</code> command. The latter requires the <code>BRISC</code> package.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting <code>k_medoids=FALSE</code> and <code>exact_cholesky=FALSE</code> in the <code>placebo</code> command. The latter requires the <code>BRISC</code> package.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>See Table 3 in Conley and Kelly.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
