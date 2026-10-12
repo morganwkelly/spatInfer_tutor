@@ -6,3 +6,4 @@
 /.quarto/
 /tutorial_cache/
 /old/
+**/*.quarto_ipynb

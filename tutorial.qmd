@@ -28,7 +28,7 @@ The first step is to download spatInfer.
 
 ```{r download, eval=FALSE}
 
-# devtools::install_github("morganwkelly/spatInfer")
+# pak::pkg_install("morganwkelly/spatInfer")
 
 ```
 
@@ -88,16 +88,16 @@ The second is that the placebos provide a Monte Carlo simulation to evaluate the
 
 Standard errors are estimated using the large cluster procedure of @BCH11, where observations are partitioned into $c$ large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of $c$ to be picked.
 
-The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving.[^2]
+The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving. The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option `Parallel=FALSE` in each command.[^2]
 
-[^2]: The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option `Parallel=FALSE` in each command. For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
+[^2]: For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
 
 ```{r placebo,Cache=TRUE}
 
 plbo=placebo(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=1000,
+                  nSim=10,
                   max_clus = 7
        )
 
@@ -134,7 +134,7 @@ It is assumed that the outcome is generated in the simplest manner possible: as 
 synt_bch=synth(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=1000,
+                  nSim=10,
                   max_clus = 7)
 
 synth_table(synt_bch)
@@ -185,7 +185,7 @@ modelplot(list(Clustered=Original,
   geom_vline(xintercept=0,color="red",linewidth=0.25,linetype=3)
 ```
 
-## IM Inference
+## 5. IM Inference {#sec-im-inference}
 
 Besides BCH standard errors, there is another spatial inferential method based on large clusters due to @rIuM10. This involves running the regression of interest on each cluster and collecting the estimated coefficients of the treatment $\hat{\beta}_c$ for each cluster $c$. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Once again the optimal number of clusters is chosen by the fraction of placebo regressions that are significant at 5%.
 
@@ -193,7 +193,7 @@ Besides BCH standard errors, there is another spatial inferential method based o
 plbo_im=placebo_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=1000,
+                  nSim=10,
                   max_clus = 7
                  )
 placebo_table(plbo_im)
@@ -206,12 +206,12 @@ It can be seen that with five clusters, the proportion of placebo regressions si
 syn_im=synth_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=1000,
+                  nSim=10,
                   max_clus = 7)
 synth_table(syn_im)
 ```
 
-Given that the IM confidence interval is considerably wider than the BCH one ( \[-1.56,-0.44\] here as opposed to \[-0.88,-0.13\]) as is usually the case, the similar p-values arise because its central value is far lower than the BCH one. If we repeat the exercise for the other variables, short commute again has similar p-values to BCH and a high but wide interval. The other three variables have wide intervals centred near zero.
+Given that the IM confidence interval is somewhat narrower than the BCH one ( \[-1.56,-0.44\] here as opposed to \[-0.1.66,-0.34\]) and its central value is somewhat larger in absolute terms than the BCH one. If we repeat the exercise for the other variables, short commute again has similar p-values to BCH and a higher but wider interval. The other three variables have wide intervals centred near zero.
 
 ```{r}
 x <- data.frame(
@@ -223,4 +223,32 @@ x <- data.frame(
 )
 
 tt(x,caption="Regression, placebo, and synthetic p-values along with confidence intervals using IM inference.")
+```
+
+## 6. Mueller-Watson SCPC
+
+Next we implement the SCPC estimator of @uMmW21. Here the placebo test is concerned to choose the optimal value of the `avc` parameter: the default runs from 0.2 to 0.1. Here the test picks a low value of 0.02 but that is not always the case. Due to the speed of the underlying command, thhese tests take a long time to run.
+
+```{r placebo_scpc,Cache=TRUE,message=FALSE}
+plbo_scpc=placebo_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
+                  splines=6,
+                  pc_num=15,
+                  nSim=10,
+                  avc = seq(0.02, 0.1, by = 0.02),
+                 )
+placebo_table(plbo_scpc)
+
+```
+
+The confidence interval here is somewhat tighter than BCH: 1.1 versus 1.3 but the same as IM. Next we run a synthetic control test
+
+```{r synth_scpc,Cache=TRUE,message=FALSE}
+syn_scpc=synth_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
+                  splines=6,
+                  pc_num=15,
+                  nSim=10,
+                  avc = seq(0.02, 0.1, by = 0.02),
+                 )
+synth_table(syn_scpc)
+
 ```
