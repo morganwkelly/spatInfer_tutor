@@ -97,7 +97,7 @@ The placebo test is implemented by the command `placebo`. Again this starts off 
 plbo=placebo(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=10,
+                  nSim=1000,
                   max_clus = 7
        )
 
@@ -134,7 +134,7 @@ It is assumed that the outcome is generated in the simplest manner possible: as 
 synt_bch=synth(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=10,
+                  nSim=1000,
                   max_clus = 7)
 
 synth_table(synt_bch)
@@ -193,7 +193,7 @@ Besides BCH standard errors, there is another spatial inferential method based o
 plbo_im=placebo_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=10,
+                  nSim=1000,
                   max_clus = 7
                  )
 placebo_table(plbo_im)
@@ -206,7 +206,7 @@ It can be seen that with five clusters, the proportion of placebo regressions si
 syn_im=synth_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=10,
+                  nSim=1000,
                   max_clus = 7)
 synth_table(syn_im)
 ```
@@ -233,7 +233,7 @@ Next we implement the SCPC estimator of @uMmW21. Here the placebo test is concer
 plbo_scpc=placebo_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=10,
+                  nSim=1000,
                   avc = seq(0.02, 0.1, by = 0.02),
                  )
 placebo_table(plbo_scpc)
@@ -246,7 +246,7 @@ The confidence interval here is somewhat tighter than BCH: 1.1 versus 1.3 but th
 syn_scpc=synth_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
-                  nSim=10,
+                  nSim=1000,
                   avc = seq(0.02, 0.1, by = 0.02),
                  )
 synth_table(syn_scpc)
