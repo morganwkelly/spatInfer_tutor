@@ -225,9 +225,9 @@ x <- data.frame(
 tt(x,caption="Regression, placebo, and synthetic p-values along with confidence intervals using IM inference.")
 ```
 
-## 6. Mueller-Watson SCPC
+## 6. Muller-Watson SCPC
 
-Next we implement the SCPC estimator of @uMmW21. Here the placebo test is concerned to choose the optimal value of the `avc` parameter: the default runs from 0.2 to 0.1. Here the test picks a low value of 0.02 but that is not always the case. Due to the speed of the underlying command, thhese tests take a long time to run.
+Next we implement the SCPC estimator of @uMmW21. Here the placebo test is concerned to choose the optimal value of the `avc` parameter: the default runs from 0.2 to 0.1. Here the test picks a low value of 0.02 but often it will be considerably larger. Due to the speed of the underlying command, these tests take a long time to run.
 
 ```{r placebo_scpc,Cache=TRUE,message=FALSE}
 plbo_scpc=placebo_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
@@ -240,7 +240,7 @@ placebo_table(plbo_scpc)
 
 ```
 
-The confidence interval here is somewhat tighter than BCH: 1.1 versus 1.3 but the same as IM. Next we run a synthetic control test
+The confidence interval here is somewhat tighter than BCH: 0.55 versus 0.57 but the same as IM. Next we run a synthetic control test.
 
 ```{r synth_scpc,Cache=TRUE,message=FALSE}
 syn_scpc=synth_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,

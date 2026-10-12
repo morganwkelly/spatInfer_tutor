@@ -79,50 +79,18 @@ div.csl-indent {
 }</style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2fce84914d04974fc49b7f1db6a45189.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
+<script src="tutorial_files/libs/clipboard/clipboard.min.js"></script>
+<script src="tutorial_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="tutorial_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="tutorial_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="tutorial_files/libs/quarto-html/popper.min.js"></script>
+<script src="tutorial_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="tutorial_files/libs/quarto-html/anchor.min.js"></script>
+<link href="tutorial_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="tutorial_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="tutorial_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="tutorial_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="tutorial_files/libs/bootstrap/bootstrap-3c809c52fcdddde53214f26cd7713992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -173,14 +141,10 @@ window.Quarto = {
 
 <body class="quarto-light">
 
-<div id="quarto-search-results"></div>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
-<!-- sidebar -->
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
    
   <ul>
   <li><a href="#choose-the-spatial-basis" id="toc-choose-the-spatial-basis" class="nav-link active" data-scroll-target="#choose-the-spatial-basis">1. Choose the Spatial Basis</a></li>
@@ -188,11 +152,10 @@ window.Quarto = {
   <li><a href="#run-a-synthetic-outcome-test" id="toc-run-a-synthetic-outcome-test" class="nav-link" data-scroll-target="#run-a-synthetic-outcome-test">3. Run a Synthetic Outcome Test</a></li>
   <li><a href="#estimate-the-spatial-basis-regression" id="toc-estimate-the-spatial-basis-regression" class="nav-link" data-scroll-target="#estimate-the-spatial-basis-regression">4. Estimate the Spatial Basis Regression</a></li>
   <li><a href="#sec-im-inference" id="toc-sec-im-inference" class="nav-link" data-scroll-target="#sec-im-inference">5. IM Inference</a></li>
-  <li><a href="#mueller-watson-scpc" id="toc-mueller-watson-scpc" class="nav-link" data-scroll-target="#mueller-watson-scpc">6. Mueller-Watson SCPC</a></li>
+  <li><a href="#muller-watson-scpc" id="toc-muller-watson-scpc" class="nav-link" data-scroll-target="#muller-watson-scpc">6. Muller-Watson SCPC</a></li>
   </ul>
 </nav>
-    </div>
-<!-- main -->
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -302,23 +265,23 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_1kiyubhjdbsy4f469ef7 = TinyTable.createTableFunctions("tinytable_1kiyubhjdbsy4f469ef7");
+      const tableFns_cfvii1t38gcbhjrby2zf = TinyTable.createTableFunctions("tinytable_cfvii1t38gcbhjrby2zf");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_s9ue9m4xvha0u7zer3uk',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_yp4bxr3gjgx7c6njtu9q',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_e4jlo6koky9b2cbxt8jz',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_ousi4bfdas5r3iizxjlp',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_ol2bkt8m5ooy09kr6rg5',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_fff7yvaiqebejz6uh36w',}, 
+          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_kxnl95qaqo7cj0cmlwwa',}, 
+          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_bmnbrkqkn0lbv0fenlof',}, 
+          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_i3oj2og56a586kwommp4',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_y0n1a5s7f403i3844zwv',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_ljhpnja2vhrnhsfumt7q',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_p8u5zbqty1n0veasfegz',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_1kiyubhjdbsy4f469ef7.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_cfvii1t38gcbhjrby2zf.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -327,15 +290,15 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_s9ue9m4xvha0u7zer3uk, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_s9ue9m4xvha0u7zer3uk { color: #FFA500 }
-    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_yp4bxr3gjgx7c6njtu9q, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_yp4bxr3gjgx7c6njtu9q { color: #FFA500; background-color: #ededed }
-    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_e4jlo6koky9b2cbxt8jz, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_e4jlo6koky9b2cbxt8jz { font-weight: bold; color: #FFA500 }
-    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_ousi4bfdas5r3iizxjlp, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_ousi4bfdas5r3iizxjlp { background-color: #ededed }
-    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_ol2bkt8m5ooy09kr6rg5, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_ol2bkt8m5ooy09kr6rg5 { font-weight: bold; background-color: #ededed }
-    #tinytable_1kiyubhjdbsy4f469ef7 td.tinytable_css_fff7yvaiqebejz6uh36w, #tinytable_1kiyubhjdbsy4f469ef7 th.tinytable_css_fff7yvaiqebejz6uh36w { font-weight: bold }
+    #tinytable_cfvii1t38gcbhjrby2zf td.tinytable_css_kxnl95qaqo7cj0cmlwwa, #tinytable_cfvii1t38gcbhjrby2zf th.tinytable_css_kxnl95qaqo7cj0cmlwwa { color: #FFA500 }
+    #tinytable_cfvii1t38gcbhjrby2zf td.tinytable_css_bmnbrkqkn0lbv0fenlof, #tinytable_cfvii1t38gcbhjrby2zf th.tinytable_css_bmnbrkqkn0lbv0fenlof { color: #FFA500; background-color: #ededed }
+    #tinytable_cfvii1t38gcbhjrby2zf td.tinytable_css_i3oj2og56a586kwommp4, #tinytable_cfvii1t38gcbhjrby2zf th.tinytable_css_i3oj2og56a586kwommp4 { font-weight: bold; color: #FFA500 }
+    #tinytable_cfvii1t38gcbhjrby2zf td.tinytable_css_y0n1a5s7f403i3844zwv, #tinytable_cfvii1t38gcbhjrby2zf th.tinytable_css_y0n1a5s7f403i3844zwv { background-color: #ededed }
+    #tinytable_cfvii1t38gcbhjrby2zf td.tinytable_css_ljhpnja2vhrnhsfumt7q, #tinytable_cfvii1t38gcbhjrby2zf th.tinytable_css_ljhpnja2vhrnhsfumt7q { font-weight: bold; background-color: #ededed }
+    #tinytable_cfvii1t38gcbhjrby2zf td.tinytable_css_p8u5zbqty1n0veasfegz, #tinytable_cfvii1t38gcbhjrby2zf th.tinytable_css_p8u5zbqty1n0veasfegz { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_1kiyubhjdbsy4f469ef7" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_cfvii1t38gcbhjrby2zf" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -359,8 +322,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
                   <td data-row="1" data-col="5">0.13</td>
-                  <td data-row="1" data-col="6">0.28</td>
-                  <td data-row="1" data-col="7">[-1.14, -0.86]</td>
+                  <td data-row="1" data-col="6">0.142</td>
+                  <td data-row="1" data-col="7">[-0.578, -0.436]</td>
                 </tr>
                 <tr>
                   <td data-row="2" data-col="1">BCH</td>
@@ -368,8 +331,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="3">0.075</td>
                   <td data-row="2" data-col="4">0.09</td>
                   <td data-row="2" data-col="5">0.057</td>
-                  <td data-row="2" data-col="6">2.49</td>
-                  <td data-row="2" data-col="7">[-2.25, 0.25]</td>
+                  <td data-row="2" data-col="6">1.26</td>
+                  <td data-row="2" data-col="7">[-1.14, 0.124]</td>
                 </tr>
                 <tr>
                   <td data-row="3" data-col="1"></td>
@@ -377,8 +340,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="3">0.038</td>
                   <td data-row="3" data-col="4">0.058</td>
                   <td data-row="3" data-col="5">0.076</td>
-                  <td data-row="3" data-col="6">1.8</td>
-                  <td data-row="3" data-col="7">[-1.9, -0.1]</td>
+                  <td data-row="3" data-col="6">0.912</td>
+                  <td data-row="3" data-col="7">[-0.962, -0.0508]</td>
                 </tr>
                 <tr>
                   <td data-row="4" data-col="1"></td>
@@ -386,8 +349,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="3">0.02</td>
                   <td data-row="4" data-col="4">0.015</td>
                   <td data-row="4" data-col="5">0.062</td>
-                  <td data-row="4" data-col="6">1.48</td>
-                  <td data-row="4" data-col="7">[-1.74, -0.26]</td>
+                  <td data-row="4" data-col="6">0.752</td>
+                  <td data-row="4" data-col="7">[-0.883, -0.131]</td>
                 </tr>
                 <tr>
                   <td data-row="5" data-col="1"></td>
@@ -395,8 +358,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="3">0.012</td>
                   <td data-row="5" data-col="4">0.013</td>
                   <td data-row="5" data-col="5">0.06</td>
-                  <td data-row="5" data-col="6">1.33</td>
-                  <td data-row="5" data-col="7">[-1.66, -0.34]</td>
+                  <td data-row="5" data-col="6">0.671</td>
+                  <td data-row="5" data-col="7">[-0.842, -0.171]</td>
                 </tr>
                 <tr>
                   <td data-row="6" data-col="1"></td>
@@ -404,8 +367,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="3">0.003</td>
                   <td data-row="6" data-col="4">0.008</td>
                   <td data-row="6" data-col="5">0.08</td>
-                  <td data-row="6" data-col="6">1.01</td>
-                  <td data-row="6" data-col="7">[-1.51, -0.49]</td>
+                  <td data-row="6" data-col="6">0.513</td>
+                  <td data-row="6" data-col="7">[-0.763, -0.25]</td>
                 </tr>
         </tbody>
       </table>
@@ -439,20 +402,20 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_k858zjp6reclc7niamkl = TinyTable.createTableFunctions("tinytable_k858zjp6reclc7niamkl");
+      const tableFns_8i6z000pcv34cz1ryh3k = TinyTable.createTableFunctions("tinytable_8i6z000pcv34cz1ryh3k");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_rfejj835ko2jj9t1mad2',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_36dy70ifot9eqzfie36b',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_hmizhum3avx6gswimdwh',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_ceyx7zol5cxsxmvbh8k4',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_n14f1f3fzi1uatxlssv6',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_x9vuk6a9pjdsnfz81ihq',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_k858zjp6reclc7niamkl.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_8i6z000pcv34cz1ryh3k.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -461,12 +424,12 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_k858zjp6reclc7niamkl td.tinytable_css_rfejj835ko2jj9t1mad2, #tinytable_k858zjp6reclc7niamkl th.tinytable_css_rfejj835ko2jj9t1mad2 { background-color: #ededed }
-    #tinytable_k858zjp6reclc7niamkl td.tinytable_css_36dy70ifot9eqzfie36b, #tinytable_k858zjp6reclc7niamkl th.tinytable_css_36dy70ifot9eqzfie36b { font-weight: bold; background-color: #ededed }
-    #tinytable_k858zjp6reclc7niamkl td.tinytable_css_hmizhum3avx6gswimdwh, #tinytable_k858zjp6reclc7niamkl th.tinytable_css_hmizhum3avx6gswimdwh { font-weight: bold }
+    #tinytable_8i6z000pcv34cz1ryh3k td.tinytable_css_ceyx7zol5cxsxmvbh8k4, #tinytable_8i6z000pcv34cz1ryh3k th.tinytable_css_ceyx7zol5cxsxmvbh8k4 { background-color: #ededed }
+    #tinytable_8i6z000pcv34cz1ryh3k td.tinytable_css_n14f1f3fzi1uatxlssv6, #tinytable_8i6z000pcv34cz1ryh3k th.tinytable_css_n14f1f3fzi1uatxlssv6 { font-weight: bold; background-color: #ededed }
+    #tinytable_8i6z000pcv34cz1ryh3k td.tinytable_css_x9vuk6a9pjdsnfz81ihq, #tinytable_8i6z000pcv34cz1ryh3k th.tinytable_css_x9vuk6a9pjdsnfz81ihq { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_k858zjp6reclc7niamkl" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_8i6z000pcv34cz1ryh3k" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -488,48 +451,48 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="2">.</td>
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
-                  <td data-row="1" data-col="5">0.28</td>
-                  <td data-row="1" data-col="6">[-1.14, -0.86]</td>
+                  <td data-row="1" data-col="5">0.142</td>
+                  <td data-row="1" data-col="6">[-0.578, -0.436]</td>
                 </tr>
                 <tr>
                   <td data-row="2" data-col="1">BCH</td>
                   <td data-row="2" data-col="2">3</td>
                   <td data-row="2" data-col="3">0.075</td>
                   <td data-row="2" data-col="4">0.14</td>
-                  <td data-row="2" data-col="5">2.49</td>
-                  <td data-row="2" data-col="6">[-2.25, 0.25]</td>
+                  <td data-row="2" data-col="5">1.26</td>
+                  <td data-row="2" data-col="6">[-1.14, 0.124]</td>
                 </tr>
                 <tr>
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">4</td>
                   <td data-row="3" data-col="3">0.038</td>
                   <td data-row="3" data-col="4">0.059</td>
-                  <td data-row="3" data-col="5">1.8</td>
-                  <td data-row="3" data-col="6">[-1.9, -0.1]</td>
+                  <td data-row="3" data-col="5">0.912</td>
+                  <td data-row="3" data-col="6">[-0.962, -0.0508]</td>
                 </tr>
                 <tr>
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">5</td>
                   <td data-row="4" data-col="3">0.02</td>
                   <td data-row="4" data-col="4">0.041</td>
-                  <td data-row="4" data-col="5">1.48</td>
-                  <td data-row="4" data-col="6">[-1.74, -0.26]</td>
+                  <td data-row="4" data-col="5">0.752</td>
+                  <td data-row="4" data-col="6">[-0.883, -0.131]</td>
                 </tr>
                 <tr>
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">6</td>
                   <td data-row="5" data-col="3">0.012</td>
                   <td data-row="5" data-col="4">0.041</td>
-                  <td data-row="5" data-col="5">1.33</td>
-                  <td data-row="5" data-col="6">[-1.66, -0.34]</td>
+                  <td data-row="5" data-col="5">0.671</td>
+                  <td data-row="5" data-col="6">[-0.842, -0.171]</td>
                 </tr>
                 <tr>
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">7</td>
                   <td data-row="6" data-col="3">0.003</td>
                   <td data-row="6" data-col="4">0.011</td>
-                  <td data-row="6" data-col="5">1.01</td>
-                  <td data-row="6" data-col="6">[-1.51, -0.49]</td>
+                  <td data-row="6" data-col="5">0.513</td>
+                  <td data-row="6" data-col="6">[-0.763, -0.25]</td>
                 </tr>
         </tbody>
       </table>
@@ -569,25 +532,25 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_6kncuhhzje1y0avbyhsv = TinyTable.createTableFunctions("tinytable_6kncuhhzje1y0avbyhsv");
+      const tableFns_rmzsiv71dj04jehlp7r0 = TinyTable.createTableFunctions("tinytable_rmzsiv71dj04jehlp7r0");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '17', j: 2 }, { i: '17', j: 3 }, { i: '17', j: 4 } ], css_id: 'tinytable_css_nr0vssgffoa8h4o55lqh',}, 
-          { positions: [ { i: '15', j: 2 }, { i: '15', j: 3 }, { i: '15', j: 4 } ], css_id: 'tinytable_css_rgng8rimkuyfek632c30',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '16', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '16', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '6', j: 4 }, { i: '7', j: 4 }, { i: '8', j: 4 }, { i: '9', j: 4 }, { i: '10', j: 4 }, { i: '11', j: 4 }, { i: '12', j: 4 }, { i: '13', j: 4 }, { i: '14', j: 4 }, { i: '16', j: 4 } ], css_id: 'tinytable_css_on60slyxiflx54t357ls',}, 
-          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 } ], css_id: 'tinytable_css_drozeibja417sjjmfqj8',}, 
-          { positions: [ { i: '17', j: 1 } ], css_id: 'tinytable_css_i2ux6ei832ariqewdcs5',}, 
-          { positions: [ { i: '15', j: 1 } ], css_id: 'tinytable_css_kljv1vbsn0kmn6z2iv9l',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '16', j: 1 } ], css_id: 'tinytable_css_bosvqet37wt2unzjtzlq',}, 
-          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_mk4xaventgokwzcagzcd',}, 
+          { positions: [ { i: '17', j: 2 }, { i: '17', j: 3 }, { i: '17', j: 4 } ], css_id: 'tinytable_css_4deu2g7uwpanutduvx32',}, 
+          { positions: [ { i: '15', j: 2 }, { i: '15', j: 3 }, { i: '15', j: 4 } ], css_id: 'tinytable_css_n3it65v4nn2amuujzezf',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '16', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '16', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '6', j: 4 }, { i: '7', j: 4 }, { i: '8', j: 4 }, { i: '9', j: 4 }, { i: '10', j: 4 }, { i: '11', j: 4 }, { i: '12', j: 4 }, { i: '13', j: 4 }, { i: '14', j: 4 }, { i: '16', j: 4 } ], css_id: 'tinytable_css_721hz91yr9ebzvt0o2px',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 } ], css_id: 'tinytable_css_j1za1r1pootfdl0wr5pc',}, 
+          { positions: [ { i: '17', j: 1 } ], css_id: 'tinytable_css_wjivmmeyct3ghtmit9f2',}, 
+          { positions: [ { i: '15', j: 1 } ], css_id: 'tinytable_css_2ybetrdawpzjnijxb6wz',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '16', j: 1 } ], css_id: 'tinytable_css_f3rr23a68uy8vq0qnyj5',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_qq9odp1gxpyydrg8eqa9',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_6kncuhhzje1y0avbyhsv.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_rmzsiv71dj04jehlp7r0.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -596,17 +559,17 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_6kncuhhzje1y0avbyhsv td.tinytable_css_nr0vssgffoa8h4o55lqh, #tinytable_6kncuhhzje1y0avbyhsv th.tinytable_css_nr0vssgffoa8h4o55lqh {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_6kncuhhzje1y0avbyhsv td.tinytable_css_rgng8rimkuyfek632c30, #tinytable_6kncuhhzje1y0avbyhsv th.tinytable_css_rgng8rimkuyfek632c30 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_6kncuhhzje1y0avbyhsv td.tinytable_css_on60slyxiflx54t357ls, #tinytable_6kncuhhzje1y0avbyhsv th.tinytable_css_on60slyxiflx54t357ls { text-align: center }
-    #tinytable_6kncuhhzje1y0avbyhsv td.tinytable_css_drozeibja417sjjmfqj8, #tinytable_6kncuhhzje1y0avbyhsv th.tinytable_css_drozeibja417sjjmfqj8 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_6kncuhhzje1y0avbyhsv td.tinytable_css_i2ux6ei832ariqewdcs5, #tinytable_6kncuhhzje1y0avbyhsv th.tinytable_css_i2ux6ei832ariqewdcs5 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_6kncuhhzje1y0avbyhsv td.tinytable_css_kljv1vbsn0kmn6z2iv9l, #tinytable_6kncuhhzje1y0avbyhsv th.tinytable_css_kljv1vbsn0kmn6z2iv9l {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_6kncuhhzje1y0avbyhsv td.tinytable_css_bosvqet37wt2unzjtzlq, #tinytable_6kncuhhzje1y0avbyhsv th.tinytable_css_bosvqet37wt2unzjtzlq { text-align: left }
-    #tinytable_6kncuhhzje1y0avbyhsv td.tinytable_css_mk4xaventgokwzcagzcd, #tinytable_6kncuhhzje1y0avbyhsv th.tinytable_css_mk4xaventgokwzcagzcd {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_rmzsiv71dj04jehlp7r0 td.tinytable_css_4deu2g7uwpanutduvx32, #tinytable_rmzsiv71dj04jehlp7r0 th.tinytable_css_4deu2g7uwpanutduvx32 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_rmzsiv71dj04jehlp7r0 td.tinytable_css_n3it65v4nn2amuujzezf, #tinytable_rmzsiv71dj04jehlp7r0 th.tinytable_css_n3it65v4nn2amuujzezf {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_rmzsiv71dj04jehlp7r0 td.tinytable_css_721hz91yr9ebzvt0o2px, #tinytable_rmzsiv71dj04jehlp7r0 th.tinytable_css_721hz91yr9ebzvt0o2px { text-align: center }
+    #tinytable_rmzsiv71dj04jehlp7r0 td.tinytable_css_j1za1r1pootfdl0wr5pc, #tinytable_rmzsiv71dj04jehlp7r0 th.tinytable_css_j1za1r1pootfdl0wr5pc {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_rmzsiv71dj04jehlp7r0 td.tinytable_css_wjivmmeyct3ghtmit9f2, #tinytable_rmzsiv71dj04jehlp7r0 th.tinytable_css_wjivmmeyct3ghtmit9f2 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_rmzsiv71dj04jehlp7r0 td.tinytable_css_2ybetrdawpzjnijxb6wz, #tinytable_rmzsiv71dj04jehlp7r0 th.tinytable_css_2ybetrdawpzjnijxb6wz {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_rmzsiv71dj04jehlp7r0 td.tinytable_css_f3rr23a68uy8vq0qnyj5, #tinytable_rmzsiv71dj04jehlp7r0 th.tinytable_css_f3rr23a68uy8vq0qnyj5 { text-align: left }
+    #tinytable_rmzsiv71dj04jehlp7r0 td.tinytable_css_qq9odp1gxpyydrg8eqa9, #tinytable_rmzsiv71dj04jehlp7r0 th.tinytable_css_qq9odp1gxpyydrg8eqa9 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_6kncuhhzje1y0avbyhsv" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_rmzsiv71dj04jehlp7r0" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         
         <thead>
               <tr>
@@ -760,23 +723,23 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_umrojtrw1wzd6aenuvdn = TinyTable.createTableFunctions("tinytable_umrojtrw1wzd6aenuvdn");
+      const tableFns_i7zgon0i32o4xir8v5fg = TinyTable.createTableFunctions("tinytable_i7zgon0i32o4xir8v5fg");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_f46taind8poufq2n1i90',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_i79xpi517m5jror0vr3x',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_n6dyj4fj7ba2ga5jx4wk',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_8y1x0c2llhrf0hb9g61a',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_53tzhbpl5tyxkxctn9m0',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_scjrgr1f3i0krf0va9vm',}, 
+          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_rysnxboplt9gkzs4qubw',}, 
+          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_rsibob2ur3jfcj4b4gm8',}, 
+          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_h9a3mxzi3on1db0clgl5',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_w7151jmsnqy0pyw6ol8u',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_orusk5ty45r0mfv74jh7',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_czztey117zpyeqig2buo',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_umrojtrw1wzd6aenuvdn.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_i7zgon0i32o4xir8v5fg.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -785,15 +748,15 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_f46taind8poufq2n1i90, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_f46taind8poufq2n1i90 { color: #FFA500 }
-    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_i79xpi517m5jror0vr3x, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_i79xpi517m5jror0vr3x { color: #FFA500; background-color: #ededed }
-    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_n6dyj4fj7ba2ga5jx4wk, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_n6dyj4fj7ba2ga5jx4wk { font-weight: bold; color: #FFA500 }
-    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_8y1x0c2llhrf0hb9g61a, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_8y1x0c2llhrf0hb9g61a { background-color: #ededed }
-    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_53tzhbpl5tyxkxctn9m0, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_53tzhbpl5tyxkxctn9m0 { font-weight: bold; background-color: #ededed }
-    #tinytable_umrojtrw1wzd6aenuvdn td.tinytable_css_scjrgr1f3i0krf0va9vm, #tinytable_umrojtrw1wzd6aenuvdn th.tinytable_css_scjrgr1f3i0krf0va9vm { font-weight: bold }
+    #tinytable_i7zgon0i32o4xir8v5fg td.tinytable_css_rysnxboplt9gkzs4qubw, #tinytable_i7zgon0i32o4xir8v5fg th.tinytable_css_rysnxboplt9gkzs4qubw { color: #FFA500 }
+    #tinytable_i7zgon0i32o4xir8v5fg td.tinytable_css_rsibob2ur3jfcj4b4gm8, #tinytable_i7zgon0i32o4xir8v5fg th.tinytable_css_rsibob2ur3jfcj4b4gm8 { color: #FFA500; background-color: #ededed }
+    #tinytable_i7zgon0i32o4xir8v5fg td.tinytable_css_h9a3mxzi3on1db0clgl5, #tinytable_i7zgon0i32o4xir8v5fg th.tinytable_css_h9a3mxzi3on1db0clgl5 { font-weight: bold; color: #FFA500 }
+    #tinytable_i7zgon0i32o4xir8v5fg td.tinytable_css_w7151jmsnqy0pyw6ol8u, #tinytable_i7zgon0i32o4xir8v5fg th.tinytable_css_w7151jmsnqy0pyw6ol8u { background-color: #ededed }
+    #tinytable_i7zgon0i32o4xir8v5fg td.tinytable_css_orusk5ty45r0mfv74jh7, #tinytable_i7zgon0i32o4xir8v5fg th.tinytable_css_orusk5ty45r0mfv74jh7 { font-weight: bold; background-color: #ededed }
+    #tinytable_i7zgon0i32o4xir8v5fg td.tinytable_css_czztey117zpyeqig2buo, #tinytable_i7zgon0i32o4xir8v5fg th.tinytable_css_czztey117zpyeqig2buo { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_umrojtrw1wzd6aenuvdn" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_i7zgon0i32o4xir8v5fg" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -817,8 +780,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
                   <td data-row="1" data-col="5">0.13</td>
-                  <td data-row="1" data-col="6">0.28</td>
-                  <td data-row="1" data-col="7">[-1.14, -0.86]</td>
+                  <td data-row="1" data-col="6">0.142</td>
+                  <td data-row="1" data-col="7">[-0.578, -0.436]</td>
                 </tr>
                 <tr>
                   <td data-row="2" data-col="1">IM</td>
@@ -826,8 +789,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="3">0.057</td>
                   <td data-row="2" data-col="4">0.053</td>
                   <td data-row="2" data-col="5">0.046</td>
-                  <td data-row="2" data-col="6">2.14</td>
-                  <td data-row="2" data-col="7">[-2.07, 0.07]</td>
+                  <td data-row="2" data-col="6">0.972</td>
+                  <td data-row="2" data-col="7">[-0.94, 0.0316]</td>
                 </tr>
                 <tr>
                   <td data-row="3" data-col="1"></td>
@@ -835,8 +798,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="3">0.023</td>
                   <td data-row="3" data-col="4">0.024</td>
                   <td data-row="3" data-col="5">0.046</td>
-                  <td data-row="3" data-col="6">1.48</td>
-                  <td data-row="3" data-col="7">[-1.74, -0.26]</td>
+                  <td data-row="3" data-col="6">0.719</td>
+                  <td data-row="3" data-col="7">[-0.845, -0.126]</td>
                 </tr>
                 <tr>
                   <td data-row="4" data-col="1"></td>
@@ -844,8 +807,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="3">0.008</td>
                   <td data-row="4" data-col="4">0.004</td>
                   <td data-row="4" data-col="5">0.054</td>
-                  <td data-row="4" data-col="6">1.13</td>
-                  <td data-row="4" data-col="7">[-1.56, -0.44]</td>
+                  <td data-row="4" data-col="6">0.552</td>
+                  <td data-row="4" data-col="7">[-0.766, -0.215]</td>
                 </tr>
                 <tr>
                   <td data-row="5" data-col="1"></td>
@@ -853,8 +816,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="3">0.003</td>
                   <td data-row="5" data-col="4">0.002</td>
                   <td data-row="5" data-col="5">0.042</td>
-                  <td data-row="5" data-col="6">0.93</td>
-                  <td data-row="5" data-col="7">[-1.46, -0.54]</td>
+                  <td data-row="5" data-col="6">0.487</td>
+                  <td data-row="5" data-col="7">[-0.769, -0.282]</td>
                 </tr>
                 <tr>
                   <td data-row="6" data-col="1"></td>
@@ -862,8 +825,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="3">0.002</td>
                   <td data-row="6" data-col="4">0.002</td>
                   <td data-row="6" data-col="5">0.054</td>
-                  <td data-row="6" data-col="6">0.93</td>
-                  <td data-row="6" data-col="7">[-1.46, -0.54]</td>
+                  <td data-row="6" data-col="6">0.443</td>
+                  <td data-row="6" data-col="7">[-0.699, -0.256]</td>
                 </tr>
         </tbody>
       </table>
@@ -884,20 +847,20 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_1u07m0b1pi3hjn5tfvi2 = TinyTable.createTableFunctions("tinytable_1u07m0b1pi3hjn5tfvi2");
+      const tableFns_vsk8d2mgdlw5dqf7k1bd = TinyTable.createTableFunctions("tinytable_vsk8d2mgdlw5dqf7k1bd");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_4qpfrk0oz8d75tvzyc9s',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_mvw4iap29f8lo04ronkr',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_v1hap2m6r29p6s3w21oz',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_okq2swxknkqt9khaqwh3',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_fi6nqo8sq2jix7o2vts6',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_tppofoftsclr2z9uhary',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_1u07m0b1pi3hjn5tfvi2.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_vsk8d2mgdlw5dqf7k1bd.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -906,12 +869,12 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_1u07m0b1pi3hjn5tfvi2 td.tinytable_css_4qpfrk0oz8d75tvzyc9s, #tinytable_1u07m0b1pi3hjn5tfvi2 th.tinytable_css_4qpfrk0oz8d75tvzyc9s { background-color: #ededed }
-    #tinytable_1u07m0b1pi3hjn5tfvi2 td.tinytable_css_mvw4iap29f8lo04ronkr, #tinytable_1u07m0b1pi3hjn5tfvi2 th.tinytable_css_mvw4iap29f8lo04ronkr { font-weight: bold; background-color: #ededed }
-    #tinytable_1u07m0b1pi3hjn5tfvi2 td.tinytable_css_v1hap2m6r29p6s3w21oz, #tinytable_1u07m0b1pi3hjn5tfvi2 th.tinytable_css_v1hap2m6r29p6s3w21oz { font-weight: bold }
+    #tinytable_vsk8d2mgdlw5dqf7k1bd td.tinytable_css_okq2swxknkqt9khaqwh3, #tinytable_vsk8d2mgdlw5dqf7k1bd th.tinytable_css_okq2swxknkqt9khaqwh3 { background-color: #ededed }
+    #tinytable_vsk8d2mgdlw5dqf7k1bd td.tinytable_css_fi6nqo8sq2jix7o2vts6, #tinytable_vsk8d2mgdlw5dqf7k1bd th.tinytable_css_fi6nqo8sq2jix7o2vts6 { font-weight: bold; background-color: #ededed }
+    #tinytable_vsk8d2mgdlw5dqf7k1bd td.tinytable_css_tppofoftsclr2z9uhary, #tinytable_vsk8d2mgdlw5dqf7k1bd th.tinytable_css_tppofoftsclr2z9uhary { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_1u07m0b1pi3hjn5tfvi2" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_vsk8d2mgdlw5dqf7k1bd" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -933,48 +896,48 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="2">.</td>
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
-                  <td data-row="1" data-col="5">0.28</td>
-                  <td data-row="1" data-col="6">[-1.14, -0.86]</td>
+                  <td data-row="1" data-col="5">0.142</td>
+                  <td data-row="1" data-col="6">[-0.578, -0.436]</td>
                 </tr>
                 <tr>
                   <td data-row="2" data-col="1">IM</td>
                   <td data-row="2" data-col="2">3</td>
                   <td data-row="2" data-col="3">0.057</td>
                   <td data-row="2" data-col="4">0.055</td>
-                  <td data-row="2" data-col="5">2.14</td>
-                  <td data-row="2" data-col="6">[-2.07, 0.07]</td>
+                  <td data-row="2" data-col="5">0.972</td>
+                  <td data-row="2" data-col="6">[-0.94, 0.0316]</td>
                 </tr>
                 <tr>
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">4</td>
                   <td data-row="3" data-col="3">0.023</td>
                   <td data-row="3" data-col="4">0.022</td>
-                  <td data-row="3" data-col="5">1.48</td>
-                  <td data-row="3" data-col="6">[-1.74, -0.26]</td>
+                  <td data-row="3" data-col="5">0.719</td>
+                  <td data-row="3" data-col="6">[-0.845, -0.126]</td>
                 </tr>
                 <tr>
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">5</td>
                   <td data-row="4" data-col="3">0.008</td>
                   <td data-row="4" data-col="4">0.007</td>
-                  <td data-row="4" data-col="5">1.13</td>
-                  <td data-row="4" data-col="6">[-1.56, -0.44]</td>
+                  <td data-row="4" data-col="5">0.552</td>
+                  <td data-row="4" data-col="6">[-0.766, -0.215]</td>
                 </tr>
                 <tr>
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">6</td>
                   <td data-row="5" data-col="3">0.003</td>
                   <td data-row="5" data-col="4">0.002</td>
-                  <td data-row="5" data-col="5">0.93</td>
-                  <td data-row="5" data-col="6">[-1.46, -0.54]</td>
+                  <td data-row="5" data-col="5">0.487</td>
+                  <td data-row="5" data-col="6">[-0.769, -0.282]</td>
                 </tr>
                 <tr>
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">7</td>
                   <td data-row="6" data-col="3">0.002</td>
                   <td data-row="6" data-col="4">0.004</td>
-                  <td data-row="6" data-col="5">0.93</td>
-                  <td data-row="6" data-col="6">[-1.46, -0.54]</td>
+                  <td data-row="6" data-col="5">0.443</td>
+                  <td data-row="6" data-col="6">[-0.699, -0.256]</td>
                 </tr>
         </tbody>
       </table>
@@ -998,19 +961,19 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_9fdlxwg5xdl6j6y8z0v0 = TinyTable.createTableFunctions("tinytable_9fdlxwg5xdl6j6y8z0v0");
+      const tableFns_3y8ggzixcisig00kedqr = TinyTable.createTableFunctions("tinytable_3y8ggzixcisig00kedqr");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '5', j: 1 }, { i: '5', j: 2 }, { i: '5', j: 3 }, { i: '5', j: 4 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_81bzzk1vlhrqr2hpz7fd',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 } ], css_id: 'tinytable_css_2bgcq2e9nvbujafljmpe',}, 
+          { positions: [ { i: '5', j: 1 }, { i: '5', j: 2 }, { i: '5', j: 3 }, { i: '5', j: 4 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_96lo5ggtosqnwu64gxij',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 } ], css_id: 'tinytable_css_d1towlw6ew9gk6jb6c5h',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_9fdlxwg5xdl6j6y8z0v0.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_3y8ggzixcisig00kedqr.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -1019,11 +982,11 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_9fdlxwg5xdl6j6y8z0v0 td.tinytable_css_81bzzk1vlhrqr2hpz7fd, #tinytable_9fdlxwg5xdl6j6y8z0v0 th.tinytable_css_81bzzk1vlhrqr2hpz7fd {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%;  }
-    #tinytable_9fdlxwg5xdl6j6y8z0v0 td.tinytable_css_2bgcq2e9nvbujafljmpe, #tinytable_9fdlxwg5xdl6j6y8z0v0 th.tinytable_css_2bgcq2e9nvbujafljmpe {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%;  }
+    #tinytable_3y8ggzixcisig00kedqr td.tinytable_css_96lo5ggtosqnwu64gxij, #tinytable_3y8ggzixcisig00kedqr th.tinytable_css_96lo5ggtosqnwu64gxij {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%;  }
+    #tinytable_3y8ggzixcisig00kedqr td.tinytable_css_d1towlw6ew9gk6jb6c5h, #tinytable_3y8ggzixcisig00kedqr th.tinytable_css_d1towlw6ew9gk6jb6c5h {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%;  }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_9fdlxwg5xdl6j6y8z0v0" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_3y8ggzixcisig00kedqr" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption>Regression, placebo, and synthetic p-values along with confidence intervals using IM inference.</caption>
         <thead>
               <tr>
@@ -1078,9 +1041,9 @@ Figure&nbsp;2: Spline surface of social mobility.
 </div>
 </div>
 </section>
-<section id="mueller-watson-scpc" class="level2">
-<h2 class="anchored" data-anchor-id="mueller-watson-scpc">6. Mueller-Watson SCPC</h2>
-<p>Next we implement the SCPC estimator of <span class="citation" data-cites="uMmW21">Müller and Watson (<a href="#ref-uMmW21" role="doc-biblioref">2022</a>)</span>. Here the placebo test is concerned to choose the optimal value of the <code>avc</code> parameter: the default runs from 0.2 to 0.1. Here the test picks a low value of 0.02 but that is not always the case. Due to the speed of the underlying command, thhese tests take a long time to run.</p>
+<section id="muller-watson-scpc" class="level2">
+<h2 class="anchored" data-anchor-id="muller-watson-scpc">6. Muller-Watson SCPC</h2>
+<p>Next we implement the SCPC estimator of <span class="citation" data-cites="uMmW21">Müller and Watson (<a href="#ref-uMmW21" role="doc-biblioref">2022</a>)</span>. Here the placebo test is concerned to choose the optimal value of the <code>avc</code> parameter: the default runs from 0.2 to 0.1. Here the test picks a low value of 0.02 but often it will be considerably larger. Due to the speed of the underlying command, these tests take a long time to run.</p>
 <div class="cell" data-cache="true">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>plbo_scpc<span class="ot">=</span><span class="fu">placebo_scpc</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
@@ -1094,23 +1057,23 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_fgsmr5fbof0khnmtny53 = TinyTable.createTableFunctions("tinytable_fgsmr5fbof0khnmtny53");
+      const tableFns_mbbtc302kkbb9jsq0a3d = TinyTable.createTableFunctions("tinytable_mbbtc302kkbb9jsq0a3d");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_ivpxsbg1il9gkc4olgmp',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_42kwmgockcdglg0j56qg',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_ih0vkzsyaphrlw14aqjm',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_nhtydcd4wuxo5q6jdfqw',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_eo8d6mhv7v9e61gnqlmp',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_0qhcem4kzxv0vpspi5wt',}, 
+          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_v1ro8l62u3jbzj6abe5a',}, 
+          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_d96dxm89iopdp3oz74ao',}, 
+          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_04t4cncjl677b8e2rnwt',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_p0zpaacy86lmm7oloidi',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_80vod11qt7je2st5dsx8',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_l4l7coyrhl8t7ay45ikg',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_fgsmr5fbof0khnmtny53.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_mbbtc302kkbb9jsq0a3d.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -1119,15 +1082,15 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_ivpxsbg1il9gkc4olgmp, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_ivpxsbg1il9gkc4olgmp { color: #FFA500 }
-    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_42kwmgockcdglg0j56qg, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_42kwmgockcdglg0j56qg { color: #FFA500; background-color: #ededed }
-    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_ih0vkzsyaphrlw14aqjm, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_ih0vkzsyaphrlw14aqjm { font-weight: bold; color: #FFA500 }
-    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_nhtydcd4wuxo5q6jdfqw, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_nhtydcd4wuxo5q6jdfqw { background-color: #ededed }
-    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_eo8d6mhv7v9e61gnqlmp, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_eo8d6mhv7v9e61gnqlmp { font-weight: bold; background-color: #ededed }
-    #tinytable_fgsmr5fbof0khnmtny53 td.tinytable_css_0qhcem4kzxv0vpspi5wt, #tinytable_fgsmr5fbof0khnmtny53 th.tinytable_css_0qhcem4kzxv0vpspi5wt { font-weight: bold }
+    #tinytable_mbbtc302kkbb9jsq0a3d td.tinytable_css_v1ro8l62u3jbzj6abe5a, #tinytable_mbbtc302kkbb9jsq0a3d th.tinytable_css_v1ro8l62u3jbzj6abe5a { color: #FFA500 }
+    #tinytable_mbbtc302kkbb9jsq0a3d td.tinytable_css_d96dxm89iopdp3oz74ao, #tinytable_mbbtc302kkbb9jsq0a3d th.tinytable_css_d96dxm89iopdp3oz74ao { color: #FFA500; background-color: #ededed }
+    #tinytable_mbbtc302kkbb9jsq0a3d td.tinytable_css_04t4cncjl677b8e2rnwt, #tinytable_mbbtc302kkbb9jsq0a3d th.tinytable_css_04t4cncjl677b8e2rnwt { font-weight: bold; color: #FFA500 }
+    #tinytable_mbbtc302kkbb9jsq0a3d td.tinytable_css_p0zpaacy86lmm7oloidi, #tinytable_mbbtc302kkbb9jsq0a3d th.tinytable_css_p0zpaacy86lmm7oloidi { background-color: #ededed }
+    #tinytable_mbbtc302kkbb9jsq0a3d td.tinytable_css_80vod11qt7je2st5dsx8, #tinytable_mbbtc302kkbb9jsq0a3d th.tinytable_css_80vod11qt7je2st5dsx8 { font-weight: bold; background-color: #ededed }
+    #tinytable_mbbtc302kkbb9jsq0a3d td.tinytable_css_l4l7coyrhl8t7ay45ikg, #tinytable_mbbtc302kkbb9jsq0a3d th.tinytable_css_l4l7coyrhl8t7ay45ikg { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_fgsmr5fbof0khnmtny53" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_mbbtc302kkbb9jsq0a3d" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -1152,8 +1115,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
                   <td data-row="1" data-col="5">0.13</td>
-                  <td data-row="1" data-col="6">0.28</td>
-                  <td data-row="1" data-col="7">[-1.14, -0.86]</td>
+                  <td data-row="1" data-col="6">0.142</td>
+                  <td data-row="1" data-col="7">[-0.578, -0.436]</td>
                 </tr>
                 <tr>
                   <td data-row="2" data-col="1">SCPC</td>
@@ -1161,8 +1124,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="2" data-col="3">0.003</td>
                   <td data-row="2" data-col="4">0.001</td>
                   <td data-row="2" data-col="5">0.052</td>
-                  <td data-row="2" data-col="6">1.08</td>
-                  <td data-row="2" data-col="7">[-1.54, -0.46]</td>
+                  <td data-row="2" data-col="6">0.549</td>
+                  <td data-row="2" data-col="7">[-0.781, -0.232]</td>
                 </tr>
                 <tr>
                   <td data-row="3" data-col="1"></td>
@@ -1170,8 +1133,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="3" data-col="3">0.009</td>
                   <td data-row="3" data-col="4">0.007</td>
                   <td data-row="3" data-col="5">0.046</td>
-                  <td data-row="3" data-col="6">1.3</td>
-                  <td data-row="3" data-col="7">[-1.65, -0.35]</td>
+                  <td data-row="3" data-col="6">0.656</td>
+                  <td data-row="3" data-col="7">[-0.835, -0.178]</td>
                 </tr>
                 <tr>
                   <td data-row="4" data-col="1"></td>
@@ -1179,8 +1142,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="4" data-col="3">0.013</td>
                   <td data-row="4" data-col="4">0.008</td>
                   <td data-row="4" data-col="5">0.03</td>
-                  <td data-row="4" data-col="6">1.43</td>
-                  <td data-row="4" data-col="7">[-1.71, -0.29]</td>
+                  <td data-row="4" data-col="6">0.723</td>
+                  <td data-row="4" data-col="7">[-0.868, -0.145]</td>
                 </tr>
                 <tr>
                   <td data-row="5" data-col="1"></td>
@@ -1188,8 +1151,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="5" data-col="3">0.023</td>
                   <td data-row="5" data-col="4">0.008</td>
                   <td data-row="5" data-col="5">0.026</td>
-                  <td data-row="5" data-col="6">1.61</td>
-                  <td data-row="5" data-col="7">[-1.8, -0.2]</td>
+                  <td data-row="5" data-col="6">0.815</td>
+                  <td data-row="5" data-col="7">[-0.914, -0.0993]</td>
                 </tr>
                 <tr>
                   <td data-row="6" data-col="1"></td>
@@ -1197,8 +1160,8 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="3">0.03</td>
                   <td data-row="6" data-col="4">0.008</td>
                   <td data-row="6" data-col="5">0.021</td>
-                  <td data-row="6" data-col="6">1.72</td>
-                  <td data-row="6" data-col="7">[-1.86, -0.14]</td>
+                  <td data-row="6" data-col="6">0.874</td>
+                  <td data-row="6" data-col="7">[-0.943, -0.0698]</td>
                 </tr>
         </tbody>
       </table>
@@ -1206,7 +1169,7 @@ Figure&nbsp;2: Spline surface of social mobility.
 <!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
-<p>The confidence interval here is somewhat tighter than BCH: 1.1 versus 1.3 but the same as IM. Next we run a synthetic control test</p>
+<p>The confidence interval here is somewhat tighter than BCH: 0.55 versus 0.57 but the same as IM. Next we run a synthetic control test.</p>
 <div class="cell" data-cache="true">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>syn_scpc<span class="ot">=</span><span class="fu">synth_scpc</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
@@ -1220,20 +1183,20 @@ Figure&nbsp;2: Spline surface of social mobility.
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_24au2zrshrlsqznoabzv = TinyTable.createTableFunctions("tinytable_24au2zrshrlsqznoabzv");
+      const tableFns_ljgsmknnbaqcjj7ol98e = TinyTable.createTableFunctions("tinytable_ljgsmknnbaqcjj7ol98e");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_am1r7xyzu18ta1rgm446',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_3y32wyto2szpurxv8vxy',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_mu8ax0rmfhxci6h5jk9t',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_1pegt0s4t0bdn0n5pyrn',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_ms4wead462qa9mgf2dfi',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_9f5rdd33gncg3w3f7q0b',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_24au2zrshrlsqznoabzv.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_ljgsmknnbaqcjj7ol98e.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -1242,12 +1205,12 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_24au2zrshrlsqznoabzv td.tinytable_css_am1r7xyzu18ta1rgm446, #tinytable_24au2zrshrlsqznoabzv th.tinytable_css_am1r7xyzu18ta1rgm446 { background-color: #ededed }
-    #tinytable_24au2zrshrlsqznoabzv td.tinytable_css_3y32wyto2szpurxv8vxy, #tinytable_24au2zrshrlsqznoabzv th.tinytable_css_3y32wyto2szpurxv8vxy { font-weight: bold; background-color: #ededed }
-    #tinytable_24au2zrshrlsqznoabzv td.tinytable_css_mu8ax0rmfhxci6h5jk9t, #tinytable_24au2zrshrlsqznoabzv th.tinytable_css_mu8ax0rmfhxci6h5jk9t { font-weight: bold }
+    #tinytable_ljgsmknnbaqcjj7ol98e td.tinytable_css_1pegt0s4t0bdn0n5pyrn, #tinytable_ljgsmknnbaqcjj7ol98e th.tinytable_css_1pegt0s4t0bdn0n5pyrn { background-color: #ededed }
+    #tinytable_ljgsmknnbaqcjj7ol98e td.tinytable_css_ms4wead462qa9mgf2dfi, #tinytable_ljgsmknnbaqcjj7ol98e th.tinytable_css_ms4wead462qa9mgf2dfi { font-weight: bold; background-color: #ededed }
+    #tinytable_ljgsmknnbaqcjj7ol98e td.tinytable_css_9f5rdd33gncg3w3f7q0b, #tinytable_ljgsmknnbaqcjj7ol98e th.tinytable_css_9f5rdd33gncg3w3f7q0b { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_24au2zrshrlsqznoabzv" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_ljgsmknnbaqcjj7ol98e" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption></caption>
         <thead>
               <tr>
@@ -1269,48 +1232,48 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="2">.</td>
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
-                  <td data-row="1" data-col="5">0.28</td>
-                  <td data-row="1" data-col="6">[-1.14, -0.86]</td>
+                  <td data-row="1" data-col="5">0.142</td>
+                  <td data-row="1" data-col="6">[-0.578, -0.436]</td>
                 </tr>
                 <tr>
                   <td data-row="2" data-col="1">SCPC</td>
                   <td data-row="2" data-col="2">0.02</td>
                   <td data-row="2" data-col="3">0.003</td>
                   <td data-row="2" data-col="4">0.003</td>
-                  <td data-row="2" data-col="5">1.08</td>
-                  <td data-row="2" data-col="6">[-1.54, -0.46]</td>
+                  <td data-row="2" data-col="5">0.549</td>
+                  <td data-row="2" data-col="6">[-0.781, -0.232]</td>
                 </tr>
                 <tr>
                   <td data-row="3" data-col="1"></td>
                   <td data-row="3" data-col="2">0.04</td>
                   <td data-row="3" data-col="3">0.009</td>
                   <td data-row="3" data-col="4">0.005</td>
-                  <td data-row="3" data-col="5">1.3</td>
-                  <td data-row="3" data-col="6">[-1.65, -0.35]</td>
+                  <td data-row="3" data-col="5">0.656</td>
+                  <td data-row="3" data-col="6">[-0.835, -0.178]</td>
                 </tr>
                 <tr>
                   <td data-row="4" data-col="1"></td>
                   <td data-row="4" data-col="2">0.06</td>
                   <td data-row="4" data-col="3">0.013</td>
                   <td data-row="4" data-col="4">0.011</td>
-                  <td data-row="4" data-col="5">1.43</td>
-                  <td data-row="4" data-col="6">[-1.71, -0.29]</td>
+                  <td data-row="4" data-col="5">0.723</td>
+                  <td data-row="4" data-col="6">[-0.868, -0.145]</td>
                 </tr>
                 <tr>
                   <td data-row="5" data-col="1"></td>
                   <td data-row="5" data-col="2">0.08</td>
                   <td data-row="5" data-col="3">0.023</td>
                   <td data-row="5" data-col="4">0.016</td>
-                  <td data-row="5" data-col="5">1.61</td>
-                  <td data-row="5" data-col="6">[-1.8, -0.2]</td>
+                  <td data-row="5" data-col="5">0.815</td>
+                  <td data-row="5" data-col="6">[-0.914, -0.0993]</td>
                 </tr>
                 <tr>
                   <td data-row="6" data-col="1"></td>
                   <td data-row="6" data-col="2">0.1</td>
                   <td data-row="6" data-col="3">0.03</td>
                   <td data-row="6" data-col="4">0.018</td>
-                  <td data-row="6" data-col="5">1.72</td>
-                  <td data-row="6" data-col="6">[-1.86, -0.14]</td>
+                  <td data-row="6" data-col="5">0.874</td>
+                  <td data-row="6" data-col="6">[-0.943, -0.0698]</td>
                 </tr>
         </tbody>
       </table>
@@ -1318,8 +1281,6 @@ Figure&nbsp;2: Spline surface of social mobility.
 <!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
-
-
 
 </section>
 
@@ -1338,7 +1299,7 @@ Conley, Timothy G., and Morgan Kelly. 2024. <span>“<span class="nocase">The St
 Ibragimov, Rustam, and Ulrich K. Müller. 2010. <span>“<span class="nocase">t-Statistic Based Correlation and Heterogeneity Robust Inference</span>.”</span> <em>Journal of Business and Economic Statistics</em> 28: 453–68.
 </div>
 <div id="ref-uMmW21" class="csl-entry" role="listitem">
-Müller, Ulrich K., and Mark W. Watson. 2022. <span>“Spatial Correlation Robust Inference.”</span> Working Paper. <em>Econometrica</em> 90 (6): 2901–35.
+Müller, Ulrich K., and Mark W. Watson. 2022. <span>“Spatial Correlation Robust Inference.”</span> <em>Econometrica</em> 90 (6): 2901–35.
 </div>
 </div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
@@ -1347,7 +1308,8 @@ Müller, Ulrich K., and Mark W. Watson. 2022. <span>“Spatial Correlation Robus
 <li id="fn2"><p>For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting <code>k_medoids=FALSE</code> and <code>exact_cholesky=FALSE</code> in the <code>placebo</code> command. The latter requires the <code>BRISC</code> package.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>See Table 3 in Conley and Kelly.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
-</section></div></main> <!-- /main -->
+</section></div></main>
+<!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
