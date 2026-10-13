@@ -24,6 +24,8 @@ The four steps in estimating a spatial basis regression with large cluster infer
 
 -   Estimate a spatial basis regression using the parameters estimated in the first two steps.
 
+As well as estimating @BCH11 large clusters, spatInfer implements two other adjustments estimated in completely different ways, the t-test of @rIuM10 and the scpc of @uMmW21. By comparing the results of all three it is possible to ensure that your results are reliable.
+
 The first step is to download spatInfer.
 
 ```{r download, eval=FALSE}
@@ -211,18 +213,24 @@ syn_im=synth_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_c
 synth_table(syn_im)
 ```
 
-Given that the IM confidence interval is somewhat narrower than the BCH one ( \[-1.56,-0.44\] here as opposed to \[-0.1.66,-0.34\]) and its central value is somewhat larger in absolute terms than the BCH one. If we repeat the exercise for the other variables, short commute again has similar p-values to BCH and a higher but wider interval. The other three variables have wide intervals centred near zero.
+Given that the IM confidence interval is somewhat narrower than the BCH one ( \[-1.56,-0.44\] here as opposed to \[-0.1.66,-0.34\]) and its central value is somewhat larger in absolute terms than the BCH one.
 
-```{r}
-x <- data.frame(
-  Var=c("single_mothers","short_commute","gini" ,          "dropout_rate","short_commute"),
-  reg=c(0.01,0.01,0.26,0.23,0.78),
-  placebo=c(0.00,0.01,0.21,0.21,0.80),
-  synth=c(0.01,0.02,0.29,0.23,0.77),
-  CI=c("[-1.56,-0.44]","[0.33,1.67]","[-3.14,1.14]","[-2.98,0.98]","[-8.52,10.52]")
-)
+Besides the fact that it rests on a minimum of assumptions about the data generating process, a great attraction of IM rests on the fact that it formalizes the intuition that if an effect is real it should hold everywhere: coefficients should be similar across clusters. To estimate theses coefficients we use the `im_reg` command
 
-tt(x,caption="Regression, placebo, and synthetic p-values along with confidence intervals using IM inference.")
+```{r im_reg,Cache=TRUE,message=FALSE}
+im_reg=im_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
+                  splines=6,
+                  pc_num=15,
+                  clusters=5)
+```
+
+In this case it can be seen that the coefficients of the variables are stable across regions which is not always the case. For a large number of historical persistence studies @tCmK24 find that coefficients vary wildly.
+
+```{r coef_table,Cache=TRUE,message=FALSE}
+im_reg$Cluster_Coefs |>
+  dplyr::select(-2) |> 
+  dplyr::mutate(dplyr::across(dplyr::where(is.numeric),~{round(.x,2)})) |> 
+  tt(caption="Coefficients of Regression Variables Across Clusters.")
 ```
 
 ## 6. Muller-Watson SCPC
@@ -252,3 +260,26 @@ syn_scpc=synth_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+soci
 synth_table(syn_scpc)
 
 ```
+
+We next run an scpc regression with the chosen `avc` parameter.
+
+```{r scpc_reg ,Cache=TRUE,message=FALSE}
+scpc_reg=scpc_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
+                  splines=6,
+                  pc_num=15,
+                  avc=0.02)
+```
+
+Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state.
+
+```{r, regression_table,Cache=TRUE,message=FALSE}
+regression_table(orig=Original,im=im_reg,bch=Basis_5,scpc=scpc_reg,coef_omit = c("Intercept|PC*|state*"))
+```
+
+The results are again clearer as a coefficient plot
+
+```{r}
+regression_plot(orig=Original,im=im_reg,bch=Basis_5,scpc=scpc_reg,coef_omit = c("Intercept|PC*|state*"))
+```
+
+The most striking thing that emerges from the Table and plot is how similar the results are across the three spatially robust estimators. Given that they are constructed in entirely different ways we can be fairly confident that the results are reliable.
