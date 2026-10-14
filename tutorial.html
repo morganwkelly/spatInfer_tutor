@@ -177,7 +177,7 @@ window.Quarto = {
 
 
 <p>The purpose of <code>spatInfer</code> is to estimate reliable results from regressions based on spatial observations by implementing the diagnostics and regression procedures introduced by <span class="citation" data-cites="tCmK24">Conley and Kelly (<a href="#ref-tCmK24" role="doc-biblioref">2024</a>)</span>. The package allows estimation using three very different procedures: the large cluster standard errors of <span class="citation" data-cites="BCH11">Bester, Conley, and Hansen (<a href="#ref-BCH11" role="doc-biblioref">2011</a>)</span> (BCH), the t-test of <span class="citation" data-cites="rIuM10">Ibragimov and Müller (<a href="#ref-rIuM10" role="doc-biblioref">2010</a>)</span> (IM) and the scpc procedure of <span class="citation" data-cites="uMmW21">Müller and Watson (<a href="#ref-uMmW21" role="doc-biblioref">2022</a>)</span> (SCPC). By comparing the results of all three allows the reliability of your results to be assessed.</p>
-<p>A feature of <code>spatInfer</code> is its simple workflow, requiring a sequence of only four commands.</p>
+<p>A feature of <code>spatInfer</code> is its simple workflow, requiring a sequence of only four steps.</p>
 <ul>
 <li><p>Estimate the optimal spatial basis to control for large scale structure in the data.</p></li>
 <li><p>Generate a spatial noise placebo to select the optimal tuning parameter for each procedure (number of clusters for BCH and IM, and avc for SCPC) and estimate the placebo significance level of the treatment.</p></li>

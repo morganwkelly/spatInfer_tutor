@@ -14,7 +14,7 @@ execute:
 
 The purpose of `spatInfer` is to estimate reliable results from regressions based on spatial observations by implementing the diagnostics and regression procedures introduced by @tCmK24. The package allows estimation using three very different procedures: the large cluster standard errors of @BCH11 (BCH), the t-test of @rIuM10 (IM) and the scpc procedure of @uMmW21 (SCPC). By comparing the results of all three allows the reliability of your results to be assessed.
 
-A feature of `spatInfer` is its simple workflow, requiring a sequence of only four commands.
+A feature of `spatInfer` is its simple workflow, requiring a sequence of only four steps.
 
 -   Estimate the optimal spatial basis to control for large scale structure in the data.
 
