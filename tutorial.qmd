@@ -6,7 +6,6 @@ format:
   html:
     toc: true
     html-math-method: katex
-    #css: styles.css
 bibliography: tutor.bib
 execute:
   cache: true
@@ -101,7 +100,7 @@ plbo=placebo(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+
                   max_clus = 7
        )
 
-placebo_table(plbo)
+placebo_table(plbo,caption="BCH placebo tests for different cluster numbers.")
 
 ```
 
