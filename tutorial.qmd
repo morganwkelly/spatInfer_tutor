@@ -12,19 +12,17 @@ execute:
   cache: true
 ---
 
-The purpose of `spatInfer` is to estimate reliable results from regressions based on spatial observations by implementing the diagnostics and regression procedures introduced by @tCmK24. A feature of `spatInfer` is its simple workflow, requiring a sequence of only four commands.
+The purpose of `spatInfer` is to estimate reliable results from regressions based on spatial observations by implementing the diagnostics and regression procedures introduced by @tCmK24. The package allows estimation using three very different procedures: the large cluster standard errors of @BCH11 (BCH), the t-test of @rIuM10 (IM) and the scpc procedure of @uMmW21 (SCPC). By comparing the results of all three allows the reliability of your results to be assessed.
 
-The four steps in estimating a spatial basis regression with large cluster inference are
+A feature of `spatInfer` is its simple workflow, requiring a sequence of only four commands.
 
--   Estimate the optimal spatial basis.
+-   Estimate the optimal spatial basis to control for large scale structure in the data.
 
--   Generate a spatial noise placebo to select the number of clusters for standard error estimation and estimate the placebo significance level of the treatment.
+-   Generate a spatial noise placebo to select the optimal tuning parameter for each procedure (number of clusters for BCH and IM, and avc for SCPC) and estimate the placebo significance level of the treatment.
 
 -   Generate synthetic outcomes to test the null hypothesis that the outcome is spatial noise, independent of the treatment.
 
--   Estimate a spatial basis regression using the parameters estimated in the first two steps.
-
-As well as estimating @BCH11 large clusters, spatInfer implements two other adjustments estimated in completely different ways, the t-test of @rIuM10 and the scpc of @uMmW21. By comparing the results of all three it is possible to ensure that your results are reliable.
+-   Produce a table and coefficient plot comparing the results of all three procedures.
 
 The first step is to download spatInfer.
 
@@ -144,50 +142,7 @@ synth_table(synt_bch)
 
 For the five or six clusters chosen by the placebo test, the synthetic outcome significance level is 0.04, slightly higher than the placebo one.
 
-## 4. Estimate the Spatial Basis Regression
-
-The fact that the placebo and synthetic outcome significance levels closely match the regression one gives us considerable confidence in the reliability of the regression estimate. We therefore estimate a regression with 15 principal components of a 6x6 spline, and compute standard errors using both five and six k-medoids clusters.
-
-For comparison we also include the original regression with state dummies and residuals clustered by state. The state dummies act as a spatial basis in this regression with 49 variables as opposed to the 15 used in the basis regressions.
-
-Because t-statistics for BCH regressions are not readily interpretable given their low degrees of freedom (the 5% significance level for 5 clusters is 2.8, for instance), the Table reports confidence intervals and p-values.
-
-```{r regression,Cache=TRUE}
-
-Basis_5=basis_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na, opportunity,
-splines=6,pc_num=15,
-clusters=5)
-
-Basis_6=basis_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na, opportunity,
-splines=6,pc_num=15,
-clusters=6)
-
-Original=fixest::feols(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na+state_id, opportunity,
-cluster= ~state_id)
-
-modelsummary(list(Clustered=Original, 
-                 `Basis 5`=Basis_5,
-                 `Basis 6`=Basis_6),
-statistic = c("conf.int","p = {p.value}"),
-coef_omit = c("Intercept|PC*|dropout_na|state*"), #omit basis and intercept
-gof_map = c("nobs", "r.squared"),
-fmt=2,
-notes="Clustered is a standard regression estimate without a spatial basis and clustered by state. Basis 5 and 6 use 15 principal components of a 6x6 linear b-spline basis, with 5 and 6 k-medoids clusters respectively.")
-```
-
-Next we can plot confidence intervals for the regressions. It is evident that the confidence interval for single mothers has grown substantially wider, and that the effects of commuting distance and school dropout rates have fallen considerably.
-
-```{r modelplot,fig.cap="Confidence intervals for clustered and spatial basis regressions."}
-
-modelplot(list(Clustered=Original, 
-                             `Basis 5`=Basis_5,
-                                `Basis 6`=Basis_6),
-                           coef_omit = c("Intercept|PC*|dropout_na|state*")
-                           )+
-  geom_vline(xintercept=0,color="red",linewidth=0.25,linetype=3)
-```
-
-## 5. IM Inference {#sec-im-inference}
+## 4. IM Inference {#sec-im-inference}
 
 Besides BCH standard errors, there is another spatial inferential method based on large clusters due to @rIuM10. This involves running the regression of interest on each cluster and collecting the estimated coefficients of the treatment $\hat{\beta}_c$ for each cluster $c$. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Once again the optimal number of clusters is chosen by the fraction of placebo regressions that are significant at 5%.
 
@@ -233,9 +188,9 @@ im_reg$Cluster_Coefs |>
   tt(caption="Coefficients of Regression Variables Across Clusters.")
 ```
 
-## 6. Muller-Watson SCPC
+## 5. Muller-Watson SCPC
 
-Next we implement the SCPC estimator of @uMmW21. Here the placebo test is concerned to choose the optimal value of the `avc` parameter: the default runs from 0.2 to 0.1. Here the test picks a low value of 0.02 but often it will be considerably larger. Due to the speed of the underlying command, these tests take a long time to run.
+Next we implement the SCPC estimator of @uMmW21. Here the placebo test is concerned to choose the optimal value of the `avc` parameter: the default runs from 0.2 to 0.1. Here the test picks a low value of 0.02 but often it will be considerably larger.
 
 ```{r placebo_scpc,Cache=TRUE,message=FALSE}
 plbo_scpc=placebo_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
@@ -270,7 +225,18 @@ scpc_reg=scpc_regression(mobility~single_mothers+short_commute+gini+dropout_rate
                   avc=0.02)
 ```
 
-Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state.
+## 6. Comparison Table
+
+Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state. We begin by running regressions for with the original clustering and state dummies, and a BCH regression with 5 clusters.
+
+```{r, regression_content,Cache=TRUE,message=FALSE}
+Basis_5=basis_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na, opportunity,
+splines=6,pc_num=15,
+clusters=5)
+
+Original=fixest::feols(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na+state_id, opportunity,
+cluster= ~state_id)
+```
 
 ```{r, regression_table,Cache=TRUE,message=FALSE}
 regression_table(orig=Original,im=im_reg,bch=Basis_5,scpc=scpc_reg,coef_omit = c("Intercept|PC*|state*"))
@@ -282,4 +248,4 @@ The results are again clearer as a coefficient plot
 regression_plot(orig=Original,im=im_reg,bch=Basis_5,scpc=scpc_reg,coef_omit = c("Intercept|PC*|state*"))
 ```
 
-The most striking thing that emerges from the Table and plot is how similar the results are across the three spatially robust estimators. Given that they are constructed in entirely different ways we can be fairly confident that the results are reliable.
+The most striking thing that emerges from the table and plot is how similar the results are across the three spatially robust estimators. Given that they are constructed in entirely different ways we can be fairly confident that the results are reliable.
