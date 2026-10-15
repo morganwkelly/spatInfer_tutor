@@ -52,7 +52,7 @@ We apply the simplest basis possible: a $k \times k$ tensor of linear b-splines 
 
 The treatment of interest is placed as the first on the right hand side. If several are of concern the procedure can be repeated using each as the first entry. Here we will focus on single mothers.
 
-```{r fig-basis,fig.cap="Spline surface of social mobility."}
+```{r fig-basis,fig.cap="Choice of optimal spline basis."}
 
 optimal_basis(mobility~single_mothers+short_commute+
                 gini+dropout_rate+social_cap+dropout_na,  opportunity,
@@ -91,7 +91,7 @@ The placebo test is implemented by the command `placebo`. Again this starts off 
 
 [^2]: For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
 
-```{r placebo,Cache=TRUE}
+```{r tbl_placebo.bch, tbl.cap= "BCH placebo test.", Cache=TRUE}
 
 plbo=placebo(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
@@ -100,11 +100,11 @@ plbo=placebo(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+
                   max_clus = 7
        )
 
-placebo_table(plbo,caption="BCH placebo tests for different cluster numbers.")
+placebo_table(plbo)
 
 ```
 
-Placebo generates a table where the top row uses heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are large cluster (Bester-Conley-Hansen) standard errors, starting with three and going up to six. The second column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.
+`placebo` generates a table where the top row uses heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are large cluster (Bester-Conley-Hansen) standard errors, starting with three and going up to six. The second column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.
 
 The next column gives the placebo p-value: the proportion of simulations where the placebo had a lower p-value than the real treatment.
 
@@ -128,7 +128,7 @@ An important thing about the synthetic outcome test is that it can be computed i
 
 It is assumed that the outcome is generated in the simplest manner possible: as a quadratic in longitude and latitude. Noise is generated using maximum likelihood estimates of the residuals' spatial parameters: here there is a structure of 0.88 and an effective range of 0.15.
 
-```{r synth,Cache=TRUE}
+```{r tbl_synth,tbl_caption="BCH synthetic outcomes.", ,Cache=TRUE}
 
 synt_bch=synth(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
@@ -167,29 +167,25 @@ syn_im=synth_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_c
 synth_table(syn_im)
 ```
 
-Given that the IM confidence interval is somewhat narrower than the BCH one ( \[-1.56,-0.44\] here as opposed to \[-0.1.66,-0.34\]) and its central value is somewhat larger in absolute terms than the BCH one.
-
-Besides the fact that it rests on a minimum of assumptions about the data generating process, a great attraction of IM rests on the fact that it formalizes the intuition that if an effect is real it should hold everywhere: coefficients should be similar across clusters. To estimate theses coefficients we use the `im_reg` command
+Besides the fact that it rests on a minimum of assumptions about the data generating process, a great attraction of IM rests on the fact that it formalizes the intuition that if an effect is real it should hold everywhere: coefficients should be similar across clusters. To estimate theses coefficients we use the `im_reg` command and then display them as a table.
 
 ```{r im_reg,Cache=TRUE,message=FALSE}
 im_reg=im_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
                   clusters=5)
-```
 
-In this case it can be seen that the coefficients of the variables are stable across regions which is not always the case. For a large number of historical persistence studies @tCmK24 find that coefficients vary wildly.
-
-```{r coef_table,Cache=TRUE,message=FALSE}
 im_reg$Cluster_Coefs |>
   dplyr::select(-2) |> 
   dplyr::mutate(dplyr::across(dplyr::where(is.numeric),~{round(.x,2)})) |> 
   tt(caption="Coefficients of Regression Variables Across Clusters.")
 ```
 
+In this case it can be seen that the coefficients of the variables are stable across regions which is not always the case. For the majority of the historical persistence studies examined by @tCmK24 coefficients vary widely by magnitude and sign across clusters. There will not always be enough data points to run a reliable IM test but this Table should always displayed using two or three clusters to give a minimal assurance that the regressions make sense.
+
 ## 5. Muller-Watson SCPC
 
-Next we implement the SCPC estimator of @uMmW21. Here the placebo test is concerned to choose the optimal value of the `avc` parameter: the default runs from 0.2 to 0.1. Here the test picks a low value of 0.02 but often it will be considerably larger.
+Next we implement the SCPC estimator of @uMmW21. Here the placebo test is concerned to choose the optimal value of the `avc` parameter: the default runs from 0.02 to 0.1. Here the test picks a low value of 0.02 but often it will be considerably larger.
 
 ```{r placebo_scpc,Cache=TRUE,message=FALSE}
 plbo_scpc=placebo_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
@@ -215,33 +211,31 @@ synth_table(syn_scpc)
 
 ```
 
-We next run an scpc regression with the chosen `avc` parameter.
+## 6. Compare Estimates
 
-```{r scpc_reg ,Cache=TRUE,message=FALSE}
+Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state. We begin by running regressions for with the original clustering and state dummies, a BCH regression with 5 clusters, and an SCPC with `avc` parameter of 0.02. We ran the IM regression earlier. These are combined into a comparison table using `regression_table.`
+
+```{r, regression_content,Cache=TRUE,message=FALSE}
+
+
+Original=fixest::feols(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na+state_id, opportunity,
+cluster= ~state_id)
+
+Basis_5=basis_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na, opportunity,
+                  splines=6,
+                  pc_num=15,
+                  clusters=5)
+
 scpc_reg=scpc_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
                   splines=6,
                   pc_num=15,
                   avc=0.02)
-```
 
-## 6. Comparison Table
-
-Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state. We begin by running regressions for with the original clustering and state dummies, and a BCH regression with 5 clusters.
-
-```{r, regression_content,Cache=TRUE,message=FALSE}
-Basis_5=basis_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na, opportunity,
-splines=6,pc_num=15,
-clusters=5)
-
-Original=fixest::feols(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na+state_id, opportunity,
-cluster= ~state_id)
-```
-
-```{r, regression_table,Cache=TRUE,message=FALSE}
+#Combine into table
 regression_table(orig=Original,im=im_reg,bch=Basis_5,scpc=scpc_reg,coef_omit = c("Intercept|PC*|state*"))
 ```
 
-The results are again clearer as a coefficient plot
+The results can be viewed as a coefficient plot using `regression_plot`.
 
 ```{r}
 regression_plot(orig=Original,im=im_reg,bch=Basis_5,scpc=scpc_reg,coef_omit = c("Intercept|PC*|state*"))
