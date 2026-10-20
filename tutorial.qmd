@@ -11,7 +11,7 @@ execute:
   cache: true
 ---
 
-The purpose of `spatInfer` is to provide a simple workflow to produce reliable results from regressions based on spatial observations. It represents an extension of methods introduced in @tCmK24. The package does two things. First, it controls for spatial trends or other large spatial structure using a flexible spline basis. Then it carries out estimation using three very different standard error corrections: the large cluster standard errors of @BCH11 (BCH), the t-test of @rIuM10 (IM) and the scpc procedure of @uMmW21 (SCPC). In particular it allows a valid level of the tuning parameter of each to be chosen.
+The purpose of `spatInfer` is to provide a simple workflow to produce reliable results from regressions based on spatial observations. It represents an extension of methods introduced in @tCmK24. The package does two things. First, it controls for spatial trends or other large spatial structure using a flexible spline basis. Then it carries out estimation using three very different standard error corrections: the large cluster standard errors of @BCH11 (BCH), the t-test of @rIuM10 (IM) and the scpc procedure of @uMmW21 (SCPC). In particular it allows an optimal level of the tuning parameter for each test to be selected.
 
 A feature of `spatInfer` is its simple workflow, requiring a sequence of only four steps.
 
