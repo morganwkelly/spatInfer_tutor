@@ -7,3 +7,4 @@
 /tutorial_cache/
 /old/
 **/*.quarto_ipynb
+/tutorial_iv_cache/

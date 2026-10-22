@@ -146,12 +146,12 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#choose-the-spatial-basis" id="toc-choose-the-spatial-basis" class="nav-link active" data-scroll-target="#choose-the-spatial-basis">1. Choose the Spatial Basis</a></li>
+  <li><a href="#three-standard-error-corrections" id="toc-three-standard-error-corrections" class="nav-link active" data-scroll-target="#three-standard-error-corrections">Three Standard Error Corrections</a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The Data</a></li>
+  <li><a href="#choose-the-spatial-basis" id="toc-choose-the-spatial-basis" class="nav-link" data-scroll-target="#choose-the-spatial-basis">1. Choose the Spatial Basis</a></li>
   <li><a href="#run-placebo-test" id="toc-run-placebo-test" class="nav-link" data-scroll-target="#run-placebo-test">2. Run Placebo Test</a></li>
   <li><a href="#run-synthetic-outcome-test" id="toc-run-synthetic-outcome-test" class="nav-link" data-scroll-target="#run-synthetic-outcome-test">3. Run Synthetic Outcome Test</a></li>
-  <li><a href="#sec-im-inference" id="toc-sec-im-inference" class="nav-link" data-scroll-target="#sec-im-inference">4. IM Inference</a></li>
-  <li><a href="#muller-watson-scpc" id="toc-muller-watson-scpc" class="nav-link" data-scroll-target="#muller-watson-scpc">5. Muller-Watson SCPC</a></li>
-  <li><a href="#compare-estimates" id="toc-compare-estimates" class="nav-link" data-scroll-target="#compare-estimates">6. Compare Estimates</a></li>
+  <li><a href="#compare-estimates" id="toc-compare-estimates" class="nav-link" data-scroll-target="#compare-estimates">4. Compare Estimates</a></li>
   </ul>
 </nav>
 </div>
@@ -176,7 +176,7 @@ window.Quarto = {
 </header>
 
 
-<p>The purpose of <code>spatInfer</code> is to provide a simple workflow to produce reliable results from regressions based on spatial observations. It represents an extension of methods introduced in <span class="citation" data-cites="tCmK24">Conley and Kelly (<a href="#ref-tCmK24" role="doc-biblioref">2024</a>)</span>. The package does two things. First, it controls for spatial trends or other large spatial structure using a flexible spline basis. Then it carries out estimation using three very different standard error corrections: the large cluster standard errors of <span class="citation" data-cites="BCH11">Bester, Conley, and Hansen (<a href="#ref-BCH11" role="doc-biblioref">2011</a>)</span> (BCH), the t-test of <span class="citation" data-cites="rIuM10">Ibragimov and Müller (<a href="#ref-rIuM10" role="doc-biblioref">2010</a>)</span> (IM) and the scpc procedure of <span class="citation" data-cites="uMmW21">Müller and Watson (<a href="#ref-uMmW21" role="doc-biblioref">2022</a>)</span> (SCPC). In particular it allows a valid level of the tuning parameter of each to be chosen.</p>
+<p>The purpose of <code>spatInfer</code> is to provide a simple workflow to produce reliable results from regressions based on spatial observations. It represents an extension of methods introduced in <span class="citation" data-cites="tCmK24">Conley and Kelly (<a href="#ref-tCmK24" role="doc-biblioref">2024</a>)</span>. The package does two things. First, it controls for spatial trends or other large spatial structure using a flexible spline basis. Then it carries out estimation using three very different standard error corrections: the large cluster standard errors of <span class="citation" data-cites="BCH11">Bester, Conley, and Hansen (<a href="#ref-BCH11" role="doc-biblioref">2011</a>)</span> (BCH), the t-test of <span class="citation" data-cites="rIuM10">Ibragimov and Müller (<a href="#ref-rIuM10" role="doc-biblioref">2010</a>)</span> (IM) and the scpc procedure of <span class="citation" data-cites="uMmW21">Müller and Watson (<a href="#ref-uMmW21" role="doc-biblioref">2022</a>)</span> (SCPC). In particular it allows an optimal level of the tuning parameter for each test to be selected.</p>
 <p>A feature of <code>spatInfer</code> is its simple workflow, requiring a sequence of only four steps.</p>
 <ul>
 <li><p>Estimate the optimal spatial basis to control for large scale structure in the data.</p></li>
@@ -184,28 +184,42 @@ window.Quarto = {
 <li><p>Generate synthetic outcomes to test the null hypothesis that the outcome is spatial noise, independent of the treatment.</p></li>
 <li><p>Produce a table and coefficient plot to compare the results of all three procedures.</p></li>
 </ul>
+<p>This tutorial covers least squares regressions. Instrumental variable regressions follow the same workflow, and are covered in the <a href="tutorial_iv.html">tutorial for instrumental variables</a>.</p>
+<section id="three-standard-error-corrections" class="level2">
+<h2 class="anchored" data-anchor-id="three-standard-error-corrections">Three Standard Error Corrections</h2>
+<p><code>spatInfer</code> reports heteroskedasticity robust (HC) standard errors alongside three spatially robust corrections. Because they are constructed in entirely different ways, results that agree across all three can be regarded as reliable.</p>
+<ul>
+<li><p><strong>BCH.</strong> The large cluster standard errors of <span class="citation" data-cites="BCH11">Bester, Conley, and Hansen (<a href="#ref-BCH11" role="doc-biblioref">2011</a>)</span> partition the observations into <span class="math inline">c</span> large clusters using k-medoids, and compute clustered standard errors. The tuning parameter is the number of clusters. If there are too many, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals.</p></li>
+<li><p><strong>IM.</strong> The t-test of <span class="citation" data-cites="rIuM10">Ibragimov and Müller (<a href="#ref-rIuM10" role="doc-biblioref">2010</a>)</span> also uses large clusters. The regression of interest is run on each cluster separately and the estimated coefficients of the treatment <span class="math inline">\hat{\beta}_c</span> for each cluster <span class="math inline">c</span> are collected. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Besides the fact that it rests on a minimum of assumptions about the data generating process, a great attraction of IM is that it formalizes the intuition that if an effect is real it should hold everywhere: coefficients should be similar across clusters. Its tuning parameter is again the number of clusters.</p></li>
+<li><p><strong>SCPC.</strong> The spatial correlation principal components procedure of <span class="citation" data-cites="uMmW21">Müller and Watson (<a href="#ref-uMmW21" role="doc-biblioref">2022</a>)</span> does not use clusters. Instead it bounds the average pairwise correlation between observations by a parameter <code>avc</code>, and derives a t-test that is valid for any pattern of spatial correlation within that bound. Larger values of <code>avc</code> allow for stronger spatial correlation and give wider confidence intervals.</p></li>
+</ul>
+<p>The tuning parameter of each, the number of clusters for BCH and IM and <code>avc</code> for SCPC, is chosen by the spatial noise placebo test in Step 2.</p>
+</section>
+<section id="the-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-data">The Data</h2>
 <p>The first step is to download spatInfer.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pkg_install("morganwkelly/spatInfer")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We begin by loading the <code>spatInfer</code> library and the data frame called <code>opportunity</code>. This includes the variables used in the second column of Table VI in <span class="citation" data-cites="chetty2014land">Chetty et al. (<a href="#ref-chetty2014land" role="doc-biblioref">2014</a>)</span> which examines the determinants of intergenerational income mobility across US cities. Specifically, it regresses absolute upward mobility on five variables: fraction of single mothers, fraction short commute, Gini bottom 99%, high school dropout rate, and social capital index. Observations for Alaska and Hawaii are omitted to allow meaningful spatial correlations to be estimated. The longitude and latitude of each observation are included in the data. These must be named <code>X</code> and <code>Y</code>.</p>
+<p>The treatment of interest is placed as the first on the right hand side of the regression formula. If several are of concern the procedure can be repeated using each as the first entry. Here we will focus on single mothers.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatInfer)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(modelsummary)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tinytable)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(opportunity)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(opportunity)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>fm<span class="ot">=</span>mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
 <section id="choose-the-spatial-basis" class="level2">
 <h2 class="anchored" data-anchor-id="choose-the-spatial-basis">1. Choose the Spatial Basis</h2>
 <p>The first step is to estimate the optimal spatial basis that best explains the outcome variable. The spatial basis serves both to remove long range structure from the data (acting like a systematic and parsimonious version of the 49 state dummies included in the original regression) and to improve inference by reducing the autocorrelation among residuals.</p>
 <p>We apply the simplest basis possible: a <span class="math inline">k \times k</span> tensor of linear b-splines and, to minimize the loss of degrees of freedom, we select the first <span class="math inline">p</span> principal components of the tensor. The first command <code>optimal_basis</code> chooses the combination of <span class="math inline">k</span> and <span class="math inline">p</span> that minimizes a Bayes Information Criterion. To make the diagram legible, select the maximum basis degree that you want to examine. As with most commands in <code>R</code> it starts with the regression formula and the name of the dataset: the choice of right hand side variables does not matter at this stage.</p>
-<p>The treatment of interest is placed as the first on the right hand side. If several are of concern the procedure can be repeated using each as the first entry. Here we will focus on single mothers.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">optimal_basis</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,  opportunity,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a> <span class="at">max_splines=</span><span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">optimal_basis</span>(fm, opportunity, <span class="at">max_splines=</span><span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-basis" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -222,12 +236,9 @@ Figure&nbsp;1: Choice of optimal spline basis.
 <p>It can be seen here that the optimal combination is the first 15 principal components of a 6x6 spline. It is notable that this very small number of spatial controls explains 60% of variability in the outcome, compared with 64% obtained by using the 49 state dummies of the original study. Knowing only the location of a place lets you make a decent guess about the likely degree of mobility there, without knowing anything about its other characteristics.</p>
 <p>It is useful to plot the tensor surface of intergenerational mobility to see how geometrically simple it is. The viewpoint is from the southeast of the US and the angular surface reflects the fact that a product of linear B-splines (series of overlapping triangles) is used.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_basis</span>(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>           gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,    opportunity,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">splines=</span><span class="dv">6</span>, </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">Title=</span><span class="st">"6x6 Tensor Surface of Mobility"</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_basis</span>(fm, opportunity,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">splines=</span><span class="dv">6</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">Title=</span><span class="st">"6x6 Tensor Surface of Mobility"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-spline" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -244,43 +255,42 @@ Figure&nbsp;2: Spline surface of social mobility.
 </section>
 <section id="run-placebo-test" class="level2">
 <h2 class="anchored" data-anchor-id="run-placebo-test">2. Run Placebo Test</h2>
-<p>Having chosen a spatial basis, we begin with BCH where we need to choose an optimal number of clusters for the residuals. If there are too many, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.</p>
+<p>Having chosen a spatial basis, we need to choose the tuning parameter of each standard error correction: the number of clusters for BCH and IM, and <code>avc</code> for SCPC. To do this we use spatial noise placebos.</p>
 <p>The placebos are constructed to have the same spatial structure as the treatment, here single mothers. First, the treatment is regressed on the spatial basis terms selected in Step 1. The spatial correlation between the detrended residuals is assumed to decay exponentially so that the correlation between two at distance <span class="math inline">h</span> apart is <span class="math inline">\rho \exp (- \theta / h)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The parameters <span class="math inline">\rho</span> and <span class="math inline">\theta</span> are referred to as the structure and range of the correlation. Effective range is <span class="math inline">2 \theta</span>: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the <code>fields</code> library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.</p>
 <p>These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment.</p>
-<p>The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient.</p>
-<p>Standard errors are estimated using the large cluster procedure of <span class="citation" data-cites="BCH11">Bester, Conley, and Hansen (<a href="#ref-BCH11" role="doc-biblioref">2011</a>)</span>, where observations are partitioned into <span class="math inline">c</span> large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of <span class="math inline">c</span> to be picked.</p>
-<p>The placebo test is implemented by the command <code>placebo</code>. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by <code>optimal_basis</code>, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving. The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option <code>Parallel=FALSE</code> in each command.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
-<div class="cell" data-tbl.cap="BCH placebo test." data-cache="true">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plbo_bch<span class="ot">=</span><span class="fu">placebo</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">max_clus =</span> <span class="dv">7</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>       )</span>
+<p>The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient. The placebo Monte Carlos therefore allow an optimal number of clusters, and an optimal value of <code>avc</code>, to be picked.</p>
+<p>The placebo test is implemented by the command <code>placebo</code>, which gives the results for HC, BCH, IM and SCPC in a single call. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by <code>optimal_basis</code>, and then the number of simulations. <code>max_clus</code> gives the largest number of clusters to examine for BCH and IM, and <code>avc</code> the values to examine for SCPC, which are the slowest to compute and are left out if <code>avc</code> is not given. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving. The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option <code>Parallel=FALSE</code> in each command.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plbo<span class="ot">=</span><span class="fu">placebo</span>(fm, opportunity,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">splines=</span><span class="dv">6</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">pc_num=</span><span class="dv">15</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">nSim=</span><span class="dv">1000</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">max_clus=</span><span class="dv">7</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">avc=</span><span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.1</span>, <span class="at">by=</span><span class="fl">0.02</span>))</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_bch,<span class="at">caption =</span> <span class="st">"BCH placebo significance levels of the single mothers variable."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo, <span class="at">caption=</span><span class="st">"Placebo significance levels of the single mothers variable."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_ruf150incrnoyftiid9i = TinyTable.createTableFunctions("tinytable_ruf150incrnoyftiid9i");
+      const tableFns_ur4uaq6pv38xz9ii4gkz = TinyTable.createTableFunctions("tinytable_ur4uaq6pv38xz9ii4gkz");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_1cco6f534skx24cvilhl',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_dhv10aovg9pr6bhr3j2m',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_owbzass3vrkma5low8lh',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_a9c6r5wowfde0mj8wpo7',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_xfoihvnc32p3f1tahcbm',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_ezmygqia4m38ybmf4r2n',}, 
+          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 }, { i: '8', j: 5 }, { i: '10', j: 5 }, { i: '12', j: 5 }, { i: '14', j: 5 }, { i: '16', j: 5 } ], css_id: 'tinytable_css_55m36dyk8n7e05tkys2l',}, 
+          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '7', j: 5 }, { i: '9', j: 5 }, { i: '11', j: 5 }, { i: '13', j: 5 }, { i: '15', j: 5 } ], css_id: 'tinytable_css_7owlejjda71866ltc19b',}, 
+          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_h5be3z99qsn2w4ev1nxu',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '7', j: 2 }, { i: '9', j: 2 }, { i: '11', j: 2 }, { i: '13', j: 2 }, { i: '15', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '7', j: 3 }, { i: '9', j: 3 }, { i: '11', j: 3 }, { i: '13', j: 3 }, { i: '15', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '7', j: 4 }, { i: '9', j: 4 }, { i: '11', j: 4 }, { i: '13', j: 4 }, { i: '15', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '7', j: 6 }, { i: '9', j: 6 }, { i: '11', j: 6 }, { i: '13', j: 6 }, { i: '15', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 }, { i: '7', j: 7 }, { i: '9', j: 7 }, { i: '11', j: 7 }, { i: '13', j: 7 }, { i: '15', j: 7 } ], css_id: 'tinytable_css_qzsvw6j72d38ga971939',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 }, { i: '7', j: 1 }, { i: '9', j: 1 }, { i: '11', j: 1 }, { i: '13', j: 1 }, { i: '15', j: 1 } ], css_id: 'tinytable_css_fbvka7mnz438gybwkbab',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '8', j: 1 }, { i: '10', j: 1 }, { i: '12', j: 1 }, { i: '14', j: 1 }, { i: '16', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_7mmq1rfxdqg6gj2iszzk',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_ruf150incrnoyftiid9i.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_ur4uaq6pv38xz9ii4gkz.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -289,20 +299,20 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_ruf150incrnoyftiid9i td.tinytable_css_1cco6f534skx24cvilhl, #tinytable_ruf150incrnoyftiid9i th.tinytable_css_1cco6f534skx24cvilhl { color: #FFA500 }
-    #tinytable_ruf150incrnoyftiid9i td.tinytable_css_dhv10aovg9pr6bhr3j2m, #tinytable_ruf150incrnoyftiid9i th.tinytable_css_dhv10aovg9pr6bhr3j2m { color: #FFA500; background-color: #ededed }
-    #tinytable_ruf150incrnoyftiid9i td.tinytable_css_owbzass3vrkma5low8lh, #tinytable_ruf150incrnoyftiid9i th.tinytable_css_owbzass3vrkma5low8lh { font-weight: bold; color: #FFA500 }
-    #tinytable_ruf150incrnoyftiid9i td.tinytable_css_a9c6r5wowfde0mj8wpo7, #tinytable_ruf150incrnoyftiid9i th.tinytable_css_a9c6r5wowfde0mj8wpo7 { background-color: #ededed }
-    #tinytable_ruf150incrnoyftiid9i td.tinytable_css_xfoihvnc32p3f1tahcbm, #tinytable_ruf150incrnoyftiid9i th.tinytable_css_xfoihvnc32p3f1tahcbm { font-weight: bold; background-color: #ededed }
-    #tinytable_ruf150incrnoyftiid9i td.tinytable_css_ezmygqia4m38ybmf4r2n, #tinytable_ruf150incrnoyftiid9i th.tinytable_css_ezmygqia4m38ybmf4r2n { font-weight: bold }
+    #tinytable_ur4uaq6pv38xz9ii4gkz td.tinytable_css_55m36dyk8n7e05tkys2l, #tinytable_ur4uaq6pv38xz9ii4gkz th.tinytable_css_55m36dyk8n7e05tkys2l { color: #FFA500 }
+    #tinytable_ur4uaq6pv38xz9ii4gkz td.tinytable_css_7owlejjda71866ltc19b, #tinytable_ur4uaq6pv38xz9ii4gkz th.tinytable_css_7owlejjda71866ltc19b { color: #FFA500; background-color: #ededed }
+    #tinytable_ur4uaq6pv38xz9ii4gkz td.tinytable_css_h5be3z99qsn2w4ev1nxu, #tinytable_ur4uaq6pv38xz9ii4gkz th.tinytable_css_h5be3z99qsn2w4ev1nxu { font-weight: bold; color: #FFA500 }
+    #tinytable_ur4uaq6pv38xz9ii4gkz td.tinytable_css_qzsvw6j72d38ga971939, #tinytable_ur4uaq6pv38xz9ii4gkz th.tinytable_css_qzsvw6j72d38ga971939 { background-color: #ededed }
+    #tinytable_ur4uaq6pv38xz9ii4gkz td.tinytable_css_fbvka7mnz438gybwkbab, #tinytable_ur4uaq6pv38xz9ii4gkz th.tinytable_css_fbvka7mnz438gybwkbab { font-weight: bold; background-color: #ededed }
+    #tinytable_ur4uaq6pv38xz9ii4gkz td.tinytable_css_7mmq1rfxdqg6gj2iszzk, #tinytable_ur4uaq6pv38xz9ii4gkz th.tinytable_css_7mmq1rfxdqg6gj2iszzk { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_ruf150incrnoyftiid9i" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <caption>BCH placebo significance levels of the single mothers variable.</caption>
+      <table class="tinytable" id="tinytable_ur4uaq6pv38xz9ii4gkz" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <caption>Placebo significance levels of the single mothers variable.</caption>
         <thead>
               <tr>
                 <th scope="col" data-row="0" data-col="1">Adj</th>
-                <th scope="col" data-row="0" data-col="2">Clusters</th>
+                <th scope="col" data-row="0" data-col="2">Clusters/avc</th>
                 <th scope="col" data-row="0" data-col="3">Est p</th>
                 <th scope="col" data-row="0" data-col="4">Plac p</th>
                 <th scope="col" data-row="0" data-col="5">Plac 5%</th>
@@ -311,9 +321,9 @@ Figure&nbsp;2: Spline surface of social mobility.
               </tr>
         </thead>
         <tfoot><tr><td colspan="7">Moran=15.69, Structure=0.96, Effective Range=0.05, R2=0.46.</td></tr>
-<tr><td colspan="7">Splines=6, PCs=15.</td></tr>
+<tr><td colspan="7">N=693, Splines=6, PCs=15.</td></tr>
 <tr><td colspan="7">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
-                with confidence intervals. R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
+                with confidence intervals, with HC inference, BCH and IM inference for each number of clusters, and SCPC inference for each value of the average correlation bound avc. R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
         <tbody>
                 <tr>
                   <td data-row="1" data-col="1">HC</td>
@@ -369,52 +379,146 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="6">0.513</td>
                   <td data-row="6" data-col="7">[-0.763, -0.25]</td>
                 </tr>
+                <tr>
+                  <td data-row="7" data-col="1">IM</td>
+                  <td data-row="7" data-col="2">3</td>
+                  <td data-row="7" data-col="3">0.057</td>
+                  <td data-row="7" data-col="4">0.053</td>
+                  <td data-row="7" data-col="5">0.046</td>
+                  <td data-row="7" data-col="6">0.972</td>
+                  <td data-row="7" data-col="7">[-0.94, 0.0316]</td>
+                </tr>
+                <tr>
+                  <td data-row="8" data-col="1"></td>
+                  <td data-row="8" data-col="2">4</td>
+                  <td data-row="8" data-col="3">0.023</td>
+                  <td data-row="8" data-col="4">0.024</td>
+                  <td data-row="8" data-col="5">0.046</td>
+                  <td data-row="8" data-col="6">0.719</td>
+                  <td data-row="8" data-col="7">[-0.845, -0.126]</td>
+                </tr>
+                <tr>
+                  <td data-row="9" data-col="1"></td>
+                  <td data-row="9" data-col="2">5</td>
+                  <td data-row="9" data-col="3">0.008</td>
+                  <td data-row="9" data-col="4">0.004</td>
+                  <td data-row="9" data-col="5">0.054</td>
+                  <td data-row="9" data-col="6">0.552</td>
+                  <td data-row="9" data-col="7">[-0.766, -0.215]</td>
+                </tr>
+                <tr>
+                  <td data-row="10" data-col="1"></td>
+                  <td data-row="10" data-col="2">6</td>
+                  <td data-row="10" data-col="3">0.003</td>
+                  <td data-row="10" data-col="4">0.002</td>
+                  <td data-row="10" data-col="5">0.042</td>
+                  <td data-row="10" data-col="6">0.487</td>
+                  <td data-row="10" data-col="7">[-0.769, -0.282]</td>
+                </tr>
+                <tr>
+                  <td data-row="11" data-col="1"></td>
+                  <td data-row="11" data-col="2">7</td>
+                  <td data-row="11" data-col="3">0.002</td>
+                  <td data-row="11" data-col="4">0.002</td>
+                  <td data-row="11" data-col="5">0.054</td>
+                  <td data-row="11" data-col="6">0.443</td>
+                  <td data-row="11" data-col="7">[-0.699, -0.256]</td>
+                </tr>
+                <tr>
+                  <td data-row="12" data-col="1">SCPC</td>
+                  <td data-row="12" data-col="2">0.02</td>
+                  <td data-row="12" data-col="3">0.003</td>
+                  <td data-row="12" data-col="4">0.001</td>
+                  <td data-row="12" data-col="5">0.052</td>
+                  <td data-row="12" data-col="6">0.549</td>
+                  <td data-row="12" data-col="7">[-0.781, -0.232]</td>
+                </tr>
+                <tr>
+                  <td data-row="13" data-col="1"></td>
+                  <td data-row="13" data-col="2">0.04</td>
+                  <td data-row="13" data-col="3">0.009</td>
+                  <td data-row="13" data-col="4">0.007</td>
+                  <td data-row="13" data-col="5">0.046</td>
+                  <td data-row="13" data-col="6">0.656</td>
+                  <td data-row="13" data-col="7">[-0.835, -0.178]</td>
+                </tr>
+                <tr>
+                  <td data-row="14" data-col="1"></td>
+                  <td data-row="14" data-col="2">0.06</td>
+                  <td data-row="14" data-col="3">0.013</td>
+                  <td data-row="14" data-col="4">0.008</td>
+                  <td data-row="14" data-col="5">0.03</td>
+                  <td data-row="14" data-col="6">0.723</td>
+                  <td data-row="14" data-col="7">[-0.868, -0.145]</td>
+                </tr>
+                <tr>
+                  <td data-row="15" data-col="1"></td>
+                  <td data-row="15" data-col="2">0.08</td>
+                  <td data-row="15" data-col="3">0.023</td>
+                  <td data-row="15" data-col="4">0.008</td>
+                  <td data-row="15" data-col="5">0.026</td>
+                  <td data-row="15" data-col="6">0.815</td>
+                  <td data-row="15" data-col="7">[-0.914, -0.0993]</td>
+                </tr>
+                <tr>
+                  <td data-row="16" data-col="1"></td>
+                  <td data-row="16" data-col="2">0.1</td>
+                  <td data-row="16" data-col="3">0.03</td>
+                  <td data-row="16" data-col="4">0.008</td>
+                  <td data-row="16" data-col="5">0.021</td>
+                  <td data-row="16" data-col="6">0.874</td>
+                  <td data-row="16" data-col="7">[-0.943, -0.0698]</td>
+                </tr>
         </tbody>
       </table>
     </div>
 <!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
-<p><code>placebo</code> generates a table where the top row uses heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are large cluster (Bester-Conley-Hansen) standard errors, starting with three and going up to six. The second column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.</p>
+<p><code>placebo_table</code> shows every correction in one table. The top row uses heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are the BCH and IM results for three up to seven clusters, and the SCPC results for each value of <code>avc</code>, which is given in the <code>Clusters/avc</code> column. The <code>Est p</code> column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.</p>
 <p>The next column gives the placebo p-value: the proportion of simulations where the placebo had a lower p-value than the real treatment.</p>
-<p>Following this, and highlighted in orange, is the percentage of simulations where the placebo is significant at 5%. If this is markedly higher than 5% it suggests that the inference method employed was inadequate. In practice a value in the range of 0.05 to 0.07 or 0.08 indicates satisfactory performance. In this case here, 7 clusters give 8% of simulations significant at 5% suggesting that this is a reasonable number. (Using five or six clusters give similar answers with slightly wider confidence intervals.) By contrast 13% of HC simulations are significant at 5%. The placebo p-value is 0.01 and the confidence interval for the parameter is [-0.76,-0.25]. The significance level of 0.003 compares with the original significance level with standard errors clustered by state of <span class="math inline">1.2\times10^{-8}</span>.</p>
+<p>Following this, and highlighted in orange, is the percentage of simulations where the placebo is significant at 5%. If this is markedly higher than 5% it suggests that the inference method employed was inadequate. In practice a value in the range of 0.05 to 0.07 or 0.08 indicates satisfactory performance.</p>
+<p>For BCH, 7 clusters give 8% of simulations significant at 5% suggesting that this is a reasonable number. (Using five or six clusters give similar answers with slightly wider confidence intervals.) By contrast 13% of HC simulations are significant at 5%. The placebo p-value is 0.01 and the confidence interval for the parameter is [-0.76,-0.25]. The significance level of 0.003 compares with the original significance level with standard errors clustered by state of <span class="math inline">1.2\times10^{-8}</span>.</p>
+<p>IM is conservative, and between 4% and 5.5% of placebos are significant at 5% for every number of clusters. Because an increasing number of clusters lowers the reliability of the coefficient estimates within each, we will use five clusters, which give 5.4% of placebos significant, an estimated p-value of 0.008 and a confidence interval of [-0.77,-0.22].</p>
+<p>For SCPC the test picks a low value of <code>avc</code> of 0.02, where 5.2% of placebos are significant at 5%, but often it will be considerably larger. The estimated p-value is 0.003, with a confidence interval of [-0.78,-0.23].</p>
 <p>It will sometimes happen that the proportion of placebos significant at 5% stays considerably above 5% regardless of the cluster number. In that case systematically increasing, or sometimes decreasing, the number of principal components <code>num_pc</code> by one or two will usually give a satisfactory placebo value.</p>
-<p>Below the Table are a number of diagnostics and descriptive statistics. Most important is the Moran statistic, the Z-score of the null hypothesis that the correlation between each residual and its nearest neighbours is zero. We use 5 neighbours here: altering this does not alter the results materially.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
-<p>In deciding whether to use a familiar HC standard error or a large cluster one we have adopted the rule of thumb that if a regression has a Moran statistic below 2 and a 5% placebo value not far above 0.05 for HC standard errors then these should be used given their tighter confidence intervals. Otherwise BCH, IM or scpc is chosen.</p>
+<p>Below the Table are a number of diagnostics and descriptive statistics. Most important is the Moran statistic, the Z-score of the null hypothesis that the correlation between each residual and its nearest neighbours is zero. We use 5 neighbours here: altering this does not alter the results materially.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> Here it is 15.7, far above 2.</p>
+<p>In deciding whether to use a familiar HC standard error or a spatially robust one we have adopted the rule of thumb that if a regression has a Moran statistic below 2 and a 5% placebo value not far above 0.05 for HC standard errors then these should be used given their tighter confidence intervals. Otherwise BCH, IM or SCPC is chosen.</p>
 <p>Below the Moran statistic are the spatial parameters. R2 gives the explanatory power of the regression of the treatment on the spatial basis variables, in this case 0.46. Next is the structure <span class="math inline">\rho</span> of the residuals and then the effective range (where correlation has fallen to 0.14) expressed as a fraction of the 95th percentile of distance between points. Here it can be seen that structure and effective range are 0.96 and 0.05 respectively.</p>
 </section>
 <section id="run-synthetic-outcome-test" class="level2">
 <h2 class="anchored" data-anchor-id="run-synthetic-outcome-test">3. Run Synthetic Outcome Test</h2>
 <p>Following the placebo test, the next step is to calculate the synthetic outcome p-value: Can we reject the null hypothesis that the outcome is trending spatial noise, and therefore independent of the treatment?</p>
-<p>An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of cluster values from 3 to 5 or more to allow readers to judge the robustness of the results.</p>
-<p>It is assumed that the outcome is generated in the simplest manner possible: as a quadratic in longitude and latitude. Noise is generated using maximum likelihood estimates of the residuals’ spatial parameters: here there is a structure of 0.88 and an effective range of 0.15.</p>
-<div class="cell" data-tbl_caption="BCH synthetic outcomes." data-cache="true">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>synt_bch<span class="ot">=</span><span class="fu">synth</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">max_clus =</span> <span class="dv">7</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt_bch, <span class="at">caption =</span> <span class="st">"BCH synthetic outcome significance levels for the single mothers variable."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of cluster values from 3 to 5 or more, and a range of <code>avc</code> values, to allow readers to judge the robustness of the results.</p>
+<p>It is assumed that the outcome is generated in the simplest manner possible: as a quadratic in longitude and latitude. Noise is generated using maximum likelihood estimates of the residuals’ spatial parameters: here there is a structure of 0.88 and an effective range of 0.15. Like <code>placebo</code>, <code>synth</code> gives the results for every correction in one call.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>synt<span class="ot">=</span><span class="fu">synth</span>(fm, opportunity,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">splines=</span><span class="dv">6</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">pc_num=</span><span class="dv">15</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">nSim=</span><span class="dv">1000</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">max_clus=</span><span class="dv">7</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">avc=</span><span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.1</span>, <span class="at">by=</span><span class="fl">0.02</span>))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">synth_table</span>(synt, <span class="at">caption=</span><span class="st">"Synthetic outcome significance levels for the single mothers variable."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_puw2xrkls8zokybd25wo = TinyTable.createTableFunctions("tinytable_puw2xrkls8zokybd25wo");
+      const tableFns_zem9vb5y52orew0hp27n = TinyTable.createTableFunctions("tinytable_zem9vb5y52orew0hp27n");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 } ], css_id: 'tinytable_css_t3zi5e11hvohah9got31',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_i5rb64r61sb6zw7xv8z9',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 } ], css_id: 'tinytable_css_vjjj6uqp2eycdhlfop89',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '7', j: 2 }, { i: '9', j: 2 }, { i: '11', j: 2 }, { i: '13', j: 2 }, { i: '15', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '7', j: 3 }, { i: '9', j: 3 }, { i: '11', j: 3 }, { i: '13', j: 3 }, { i: '15', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '7', j: 4 }, { i: '9', j: 4 }, { i: '11', j: 4 }, { i: '13', j: 4 }, { i: '15', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '7', j: 5 }, { i: '9', j: 5 }, { i: '11', j: 5 }, { i: '13', j: 5 }, { i: '15', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '7', j: 6 }, { i: '9', j: 6 }, { i: '11', j: 6 }, { i: '13', j: 6 }, { i: '15', j: 6 } ], css_id: 'tinytable_css_oumf49ns0i4r6kql4qm7',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 }, { i: '7', j: 1 }, { i: '9', j: 1 }, { i: '11', j: 1 }, { i: '13', j: 1 }, { i: '15', j: 1 } ], css_id: 'tinytable_css_qvtmh8egg0dipgt3lut4',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '8', j: 1 }, { i: '10', j: 1 }, { i: '12', j: 1 }, { i: '14', j: 1 }, { i: '16', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 }, { i: '0', j: 6 } ], css_id: 'tinytable_css_one0r7zgaitv6qls9zp4',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_puw2xrkls8zokybd25wo.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_zem9vb5y52orew0hp27n.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -423,17 +527,17 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_puw2xrkls8zokybd25wo td.tinytable_css_t3zi5e11hvohah9got31, #tinytable_puw2xrkls8zokybd25wo th.tinytable_css_t3zi5e11hvohah9got31 { background-color: #ededed }
-    #tinytable_puw2xrkls8zokybd25wo td.tinytable_css_i5rb64r61sb6zw7xv8z9, #tinytable_puw2xrkls8zokybd25wo th.tinytable_css_i5rb64r61sb6zw7xv8z9 { font-weight: bold; background-color: #ededed }
-    #tinytable_puw2xrkls8zokybd25wo td.tinytable_css_vjjj6uqp2eycdhlfop89, #tinytable_puw2xrkls8zokybd25wo th.tinytable_css_vjjj6uqp2eycdhlfop89 { font-weight: bold }
+    #tinytable_zem9vb5y52orew0hp27n td.tinytable_css_oumf49ns0i4r6kql4qm7, #tinytable_zem9vb5y52orew0hp27n th.tinytable_css_oumf49ns0i4r6kql4qm7 { background-color: #ededed }
+    #tinytable_zem9vb5y52orew0hp27n td.tinytable_css_qvtmh8egg0dipgt3lut4, #tinytable_zem9vb5y52orew0hp27n th.tinytable_css_qvtmh8egg0dipgt3lut4 { font-weight: bold; background-color: #ededed }
+    #tinytable_zem9vb5y52orew0hp27n td.tinytable_css_one0r7zgaitv6qls9zp4, #tinytable_zem9vb5y52orew0hp27n th.tinytable_css_one0r7zgaitv6qls9zp4 { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_puw2xrkls8zokybd25wo" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <caption>BCH synthetic outcome significance levels for the single mothers variable.</caption>
+      <table class="tinytable" id="tinytable_zem9vb5y52orew0hp27n" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <caption>Synthetic outcome significance levels for the single mothers variable.</caption>
         <thead>
               <tr>
                 <th scope="col" data-row="0" data-col="1">Adj</th>
-                <th scope="col" data-row="0" data-col="2">Clusters</th>
+                <th scope="col" data-row="0" data-col="2">Clusters/avc</th>
                 <th scope="col" data-row="0" data-col="3">Est p</th>
                 <th scope="col" data-row="0" data-col="4">Synth p</th>
                 <th scope="col" data-row="0" data-col="5">CI Width</th>
@@ -442,8 +546,7 @@ Figure&nbsp;2: Spline surface of social mobility.
         </thead>
         <tfoot><tr><td colspan="6">Moran=15.69, Structure=0.88, Effective Range=0.15, R2=0.43.</td></tr>
 <tr><td colspan="6">N=693, Splines=6, PCs=15.</td></tr>
-<tr><td colspan="6">Estimated and synthetic outcome p values for different cluster numbers.
-                R2 gives the explanatory power of a regression of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
+<tr><td colspan="6">Estimated and synthetic outcome p values, along with confidence intervals, with HC inference, BCH and IM inference for each number of clusters, and SCPC inference for each value of the average correlation bound avc. R2 gives the explanatory power of a regression of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
         <tbody>
                 <tr>
                   <td data-row="1" data-col="1">HC</td>
@@ -493,47 +596,122 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="6" data-col="5">0.513</td>
                   <td data-row="6" data-col="6">[-0.763, -0.25]</td>
                 </tr>
+                <tr>
+                  <td data-row="7" data-col="1">IM</td>
+                  <td data-row="7" data-col="2">3</td>
+                  <td data-row="7" data-col="3">0.057</td>
+                  <td data-row="7" data-col="4">0.055</td>
+                  <td data-row="7" data-col="5">0.972</td>
+                  <td data-row="7" data-col="6">[-0.94, 0.0316]</td>
+                </tr>
+                <tr>
+                  <td data-row="8" data-col="1"></td>
+                  <td data-row="8" data-col="2">4</td>
+                  <td data-row="8" data-col="3">0.023</td>
+                  <td data-row="8" data-col="4">0.022</td>
+                  <td data-row="8" data-col="5">0.719</td>
+                  <td data-row="8" data-col="6">[-0.845, -0.126]</td>
+                </tr>
+                <tr>
+                  <td data-row="9" data-col="1"></td>
+                  <td data-row="9" data-col="2">5</td>
+                  <td data-row="9" data-col="3">0.008</td>
+                  <td data-row="9" data-col="4">0.007</td>
+                  <td data-row="9" data-col="5">0.552</td>
+                  <td data-row="9" data-col="6">[-0.766, -0.215]</td>
+                </tr>
+                <tr>
+                  <td data-row="10" data-col="1"></td>
+                  <td data-row="10" data-col="2">6</td>
+                  <td data-row="10" data-col="3">0.003</td>
+                  <td data-row="10" data-col="4">0.002</td>
+                  <td data-row="10" data-col="5">0.487</td>
+                  <td data-row="10" data-col="6">[-0.769, -0.282]</td>
+                </tr>
+                <tr>
+                  <td data-row="11" data-col="1"></td>
+                  <td data-row="11" data-col="2">7</td>
+                  <td data-row="11" data-col="3">0.002</td>
+                  <td data-row="11" data-col="4">0.004</td>
+                  <td data-row="11" data-col="5">0.443</td>
+                  <td data-row="11" data-col="6">[-0.699, -0.256]</td>
+                </tr>
+                <tr>
+                  <td data-row="12" data-col="1">SCPC</td>
+                  <td data-row="12" data-col="2">0.02</td>
+                  <td data-row="12" data-col="3">0.003</td>
+                  <td data-row="12" data-col="4">0.003</td>
+                  <td data-row="12" data-col="5">0.549</td>
+                  <td data-row="12" data-col="6">[-0.781, -0.232]</td>
+                </tr>
+                <tr>
+                  <td data-row="13" data-col="1"></td>
+                  <td data-row="13" data-col="2">0.04</td>
+                  <td data-row="13" data-col="3">0.009</td>
+                  <td data-row="13" data-col="4">0.005</td>
+                  <td data-row="13" data-col="5">0.656</td>
+                  <td data-row="13" data-col="6">[-0.835, -0.178]</td>
+                </tr>
+                <tr>
+                  <td data-row="14" data-col="1"></td>
+                  <td data-row="14" data-col="2">0.06</td>
+                  <td data-row="14" data-col="3">0.013</td>
+                  <td data-row="14" data-col="4">0.011</td>
+                  <td data-row="14" data-col="5">0.723</td>
+                  <td data-row="14" data-col="6">[-0.868, -0.145]</td>
+                </tr>
+                <tr>
+                  <td data-row="15" data-col="1"></td>
+                  <td data-row="15" data-col="2">0.08</td>
+                  <td data-row="15" data-col="3">0.023</td>
+                  <td data-row="15" data-col="4">0.016</td>
+                  <td data-row="15" data-col="5">0.815</td>
+                  <td data-row="15" data-col="6">[-0.914, -0.0993]</td>
+                </tr>
+                <tr>
+                  <td data-row="16" data-col="1"></td>
+                  <td data-row="16" data-col="2">0.1</td>
+                  <td data-row="16" data-col="3">0.03</td>
+                  <td data-row="16" data-col="4">0.018</td>
+                  <td data-row="16" data-col="5">0.874</td>
+                  <td data-row="16" data-col="6">[-0.943, -0.0698]</td>
+                </tr>
         </tbody>
       </table>
     </div>
 <!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
-<p>For the seven clusters chosen by the placebo test, the synthetic outcome significance level is 0.01, much the same as the placebo one.</p>
+<p>At the settings chosen by the placebo test, the synthetic outcome significance levels are 0.01 for BCH with seven clusters, 0.007 for IM with five clusters, and 0.003 for SCPC with <code>avc</code> of 0.02, much the same as the placebo ones.</p>
 </section>
-<section id="sec-im-inference" class="level2">
-<h2 class="anchored" data-anchor-id="sec-im-inference">4. IM Inference</h2>
-<p>Besides BCH, there is another spatial inference method based on large clusters due to <span class="citation" data-cites="rIuM10">Ibragimov and Müller (<a href="#ref-rIuM10" role="doc-biblioref">2010</a>)</span>. This involves running the regression of interest on each cluster and collecting the estimated coefficients of the treatment <span class="math inline">\hat{\beta}_c</span> for each cluster <span class="math inline">c</span>. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Once again the optimal number of clusters is chosen by the fraction of placebo regressions that are significant at 5%.</p>
-<div class="cell" data-cache="true">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>plbo_im<span class="ot">=</span><span class="fu">placebo_im</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">max_clus =</span> <span class="dv">7</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_im, <span class="at">caption =</span> <span class="st">"IM placebo significance levels of the single mothers variable."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="compare-estimates" class="level2">
+<h2 class="anchored" data-anchor-id="compare-estimates">4. Compare Estimates</h2>
+<p>We have now run one placebo and one synthetic outcome test, each covering every correction. <code>combined_table</code> brings together the HC row and the rows chosen for each correction by the placebo test, with their synthetic outcome p-values. <code>select</code> names the number of clusters for BCH and IM and the <code>avc</code> for SCPC.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">combined_table</span>(plbo, synt, <span class="at">select=</span><span class="fu">c</span>(<span class="at">BCH=</span><span class="dv">7</span>, <span class="at">IM=</span><span class="dv">5</span>, <span class="at">SCPC=</span><span class="fl">0.02</span>),</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption=</span><span class="st">"Placebo and synthetic outcome significance levels for the single mothers variable."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_x4e5ia2eahkkrgqh3k88 = TinyTable.createTableFunctions("tinytable_x4e5ia2eahkkrgqh3k88");
+      const tableFns_ec9k2exs0wgmj0lzwhue = TinyTable.createTableFunctions("tinytable_ec9k2exs0wgmj0lzwhue");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_vzbaq5rhbyn5wtebhfzz',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_42e8lv8tfy95cucredld',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_tzd7t0d0x12caw5nl457',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_0y7ernlovbxe1d4wwc4z',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_2tkownjtcxxgk7h0riv0',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_tax2noizacdj0p67h99p',}, 
+          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 } ], css_id: 'tinytable_css_xdvqv8pmecc4vmhptcis',}, 
+          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 } ], css_id: 'tinytable_css_xop1u8pu7agbw5ybnnty',}, 
+          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_rfxqvf4efvljcby0qai6',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '1', j: 8 }, { i: '3', j: 8 } ], css_id: 'tinytable_css_tpb8n1d717khdok8n2c6',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 } ], css_id: 'tinytable_css_eql8mgvx0uduzzvhmbvk',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 }, { i: '0', j: 8 } ], css_id: 'tinytable_css_t4r9z8txa8vwbls6c40y',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_x4e5ia2eahkkrgqh3k88.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_ec9k2exs0wgmj0lzwhue.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -542,31 +720,36 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_x4e5ia2eahkkrgqh3k88 td.tinytable_css_vzbaq5rhbyn5wtebhfzz, #tinytable_x4e5ia2eahkkrgqh3k88 th.tinytable_css_vzbaq5rhbyn5wtebhfzz { color: #FFA500 }
-    #tinytable_x4e5ia2eahkkrgqh3k88 td.tinytable_css_42e8lv8tfy95cucredld, #tinytable_x4e5ia2eahkkrgqh3k88 th.tinytable_css_42e8lv8tfy95cucredld { color: #FFA500; background-color: #ededed }
-    #tinytable_x4e5ia2eahkkrgqh3k88 td.tinytable_css_tzd7t0d0x12caw5nl457, #tinytable_x4e5ia2eahkkrgqh3k88 th.tinytable_css_tzd7t0d0x12caw5nl457 { font-weight: bold; color: #FFA500 }
-    #tinytable_x4e5ia2eahkkrgqh3k88 td.tinytable_css_0y7ernlovbxe1d4wwc4z, #tinytable_x4e5ia2eahkkrgqh3k88 th.tinytable_css_0y7ernlovbxe1d4wwc4z { background-color: #ededed }
-    #tinytable_x4e5ia2eahkkrgqh3k88 td.tinytable_css_2tkownjtcxxgk7h0riv0, #tinytable_x4e5ia2eahkkrgqh3k88 th.tinytable_css_2tkownjtcxxgk7h0riv0 { font-weight: bold; background-color: #ededed }
-    #tinytable_x4e5ia2eahkkrgqh3k88 td.tinytable_css_tax2noizacdj0p67h99p, #tinytable_x4e5ia2eahkkrgqh3k88 th.tinytable_css_tax2noizacdj0p67h99p { font-weight: bold }
+    #tinytable_ec9k2exs0wgmj0lzwhue td.tinytable_css_xdvqv8pmecc4vmhptcis, #tinytable_ec9k2exs0wgmj0lzwhue th.tinytable_css_xdvqv8pmecc4vmhptcis { color: #FFA500 }
+    #tinytable_ec9k2exs0wgmj0lzwhue td.tinytable_css_xop1u8pu7agbw5ybnnty, #tinytable_ec9k2exs0wgmj0lzwhue th.tinytable_css_xop1u8pu7agbw5ybnnty { color: #FFA500; background-color: #ededed }
+    #tinytable_ec9k2exs0wgmj0lzwhue td.tinytable_css_rfxqvf4efvljcby0qai6, #tinytable_ec9k2exs0wgmj0lzwhue th.tinytable_css_rfxqvf4efvljcby0qai6 { font-weight: bold; color: #FFA500 }
+    #tinytable_ec9k2exs0wgmj0lzwhue td.tinytable_css_tpb8n1d717khdok8n2c6, #tinytable_ec9k2exs0wgmj0lzwhue th.tinytable_css_tpb8n1d717khdok8n2c6 { background-color: #ededed }
+    #tinytable_ec9k2exs0wgmj0lzwhue td.tinytable_css_eql8mgvx0uduzzvhmbvk, #tinytable_ec9k2exs0wgmj0lzwhue th.tinytable_css_eql8mgvx0uduzzvhmbvk { font-weight: bold; background-color: #ededed }
+    #tinytable_ec9k2exs0wgmj0lzwhue td.tinytable_css_t4r9z8txa8vwbls6c40y, #tinytable_ec9k2exs0wgmj0lzwhue th.tinytable_css_t4r9z8txa8vwbls6c40y { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_x4e5ia2eahkkrgqh3k88" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <caption>IM placebo significance levels of the single mothers variable.</caption>
+      <table class="tinytable" id="tinytable_ec9k2exs0wgmj0lzwhue" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <caption>Placebo and synthetic outcome significance levels for the single mothers variable.</caption>
         <thead>
               <tr>
                 <th scope="col" data-row="0" data-col="1">Adj</th>
-                <th scope="col" data-row="0" data-col="2">Clusters</th>
+                <th scope="col" data-row="0" data-col="2">Clusters/avc</th>
                 <th scope="col" data-row="0" data-col="3">Est p</th>
                 <th scope="col" data-row="0" data-col="4">Plac p</th>
                 <th scope="col" data-row="0" data-col="5">Plac 5%</th>
-                <th scope="col" data-row="0" data-col="6">CI Width</th>
-                <th scope="col" data-row="0" data-col="7">CI</th>
+                <th scope="col" data-row="0" data-col="6">Synth p</th>
+                <th scope="col" data-row="0" data-col="7">CI Width</th>
+                <th scope="col" data-row="0" data-col="8">CI</th>
               </tr>
         </thead>
-        <tfoot><tr><td colspan="7">Moran=15.69, Structure=0.96, Effective Range=0.05, R2=0.46.</td></tr>
-<tr><td colspan="7">Splines=6, PCs=15.</td></tr>
-<tr><td colspan="7">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
-                with confidence intervals. R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
+        <tfoot><tr><td colspan="8">Moran=15.69, N=693, Splines=6, PCs=15.</td></tr>
+<tr><td colspan="8">Treatment: Structure=0.96, Effective Range=0.05, R2=0.46.</td></tr>
+<tr><td colspan="8">Outcome: Structure=0.88, Effective Range=0.15, R2=0.43.</td></tr>
+<tr><td colspan="8">Estimated and placebo p values and proportion of placebo regressions significant at 5%,
+                synthetic outcome p values, and confidence intervals, for the chosen number of clusters
+                or SCPC average correlation bound avc. Treatment R2 gives the explanatory power of a
+                regression of the treatment on the principal components, and outcome R2 of a regression
+                of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
         <tbody>
                 <tr>
                   <td data-row="1" data-col="1">HC</td>
@@ -574,53 +757,39 @@ Figure&nbsp;2: Spline surface of social mobility.
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
                   <td data-row="1" data-col="5">0.13</td>
-                  <td data-row="1" data-col="6">0.142</td>
-                  <td data-row="1" data-col="7">[-0.578, -0.436]</td>
+                  <td data-row="1" data-col="6">0</td>
+                  <td data-row="1" data-col="7">0.142</td>
+                  <td data-row="1" data-col="8">[-0.578, -0.436]</td>
                 </tr>
                 <tr>
-                  <td data-row="2" data-col="1">IM</td>
-                  <td data-row="2" data-col="2">3</td>
-                  <td data-row="2" data-col="3">0.057</td>
-                  <td data-row="2" data-col="4">0.053</td>
-                  <td data-row="2" data-col="5">0.046</td>
-                  <td data-row="2" data-col="6">0.972</td>
-                  <td data-row="2" data-col="7">[-0.94, 0.0316]</td>
+                  <td data-row="2" data-col="1">BCH</td>
+                  <td data-row="2" data-col="2">7</td>
+                  <td data-row="2" data-col="3">0.003</td>
+                  <td data-row="2" data-col="4">0.008</td>
+                  <td data-row="2" data-col="5">0.08</td>
+                  <td data-row="2" data-col="6">0.011</td>
+                  <td data-row="2" data-col="7">0.513</td>
+                  <td data-row="2" data-col="8">[-0.763, -0.25]</td>
                 </tr>
                 <tr>
-                  <td data-row="3" data-col="1"></td>
-                  <td data-row="3" data-col="2">4</td>
-                  <td data-row="3" data-col="3">0.023</td>
-                  <td data-row="3" data-col="4">0.024</td>
-                  <td data-row="3" data-col="5">0.046</td>
-                  <td data-row="3" data-col="6">0.719</td>
-                  <td data-row="3" data-col="7">[-0.845, -0.126]</td>
+                  <td data-row="3" data-col="1">IM</td>
+                  <td data-row="3" data-col="2">5</td>
+                  <td data-row="3" data-col="3">0.008</td>
+                  <td data-row="3" data-col="4">0.004</td>
+                  <td data-row="3" data-col="5">0.054</td>
+                  <td data-row="3" data-col="6">0.007</td>
+                  <td data-row="3" data-col="7">0.552</td>
+                  <td data-row="3" data-col="8">[-0.766, -0.215]</td>
                 </tr>
                 <tr>
-                  <td data-row="4" data-col="1"></td>
-                  <td data-row="4" data-col="2">5</td>
-                  <td data-row="4" data-col="3">0.008</td>
-                  <td data-row="4" data-col="4">0.004</td>
-                  <td data-row="4" data-col="5">0.054</td>
-                  <td data-row="4" data-col="6">0.552</td>
-                  <td data-row="4" data-col="7">[-0.766, -0.215]</td>
-                </tr>
-                <tr>
-                  <td data-row="5" data-col="1"></td>
-                  <td data-row="5" data-col="2">6</td>
-                  <td data-row="5" data-col="3">0.003</td>
-                  <td data-row="5" data-col="4">0.002</td>
-                  <td data-row="5" data-col="5">0.042</td>
-                  <td data-row="5" data-col="6">0.487</td>
-                  <td data-row="5" data-col="7">[-0.769, -0.282]</td>
-                </tr>
-                <tr>
-                  <td data-row="6" data-col="1"></td>
-                  <td data-row="6" data-col="2">7</td>
-                  <td data-row="6" data-col="3">0.002</td>
-                  <td data-row="6" data-col="4">0.002</td>
-                  <td data-row="6" data-col="5">0.054</td>
-                  <td data-row="6" data-col="6">0.443</td>
-                  <td data-row="6" data-col="7">[-0.699, -0.256]</td>
+                  <td data-row="4" data-col="1">SCPC</td>
+                  <td data-row="4" data-col="2">0.02</td>
+                  <td data-row="4" data-col="3">0.003</td>
+                  <td data-row="4" data-col="4">0.001</td>
+                  <td data-row="4" data-col="5">0.052</td>
+                  <td data-row="4" data-col="6">0.003</td>
+                  <td data-row="4" data-col="7">0.549</td>
+                  <td data-row="4" data-col="8">[-0.781, -0.232]</td>
                 </tr>
         </tbody>
       </table>
@@ -628,43 +797,34 @@ Figure&nbsp;2: Spline surface of social mobility.
 <!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
-<p>We can run a synthetic outcome test as before, but will not print the table so as to save space: we will include its output in a final summary table for all estimators below.</p>
-<div class="cell" data-cache="true">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>synt_im<span class="ot">=</span><span class="fu">synth_im</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">max_clus =</span> <span class="dv">7</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#synth_table(synt_im, caption = "IM synthetic outcome significance levels of the single mothers variable." )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Besides the fact that it rests on a minimum of assumptions about the data generating process, a great attraction of IM is that it formalizes the intuition that if an effect is real it should hold everywhere: coefficients should be similar across clusters. This serves as a minimal sanity check on the regression. We first run the regression using the <code>im_reg</code> command and then display the the coefficients as a table.</p>
-<p>Because an increasing number of clusters lowers the reliability of the coefficient estimates within each we will use five clusters here.</p>
-<div class="cell" data-cache="true">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>im_reg<span class="ot">=</span><span class="fu">im_regression</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">clusters=</span><span class="dv">5</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">im_table</span>(im_reg,<span class="at">type=</span><span class="st">"clusters"</span>,<span class="at">caption =</span> <span class="st">"Coefficient values for each cluster."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The last step runs each regression with the settings chosen by the placebo test. <code>basis_regression</code> estimates the regression with BCH standard errors, and <code>im_regression</code> and <code>scpc_regression</code> use IM and SCPC.</p>
+<p>As a sanity check, the IM coefficients estimated within each cluster can be displayed with <code>im_table</code>. We first run the regression using <code>im_regression</code> with the five clusters chosen above.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>im_reg<span class="ot">=</span><span class="fu">im_regression</span>(fm, opportunity,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">splines=</span><span class="dv">6</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">pc_num=</span><span class="dv">15</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">clusters=</span><span class="dv">5</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">im_table</span>(im_reg, <span class="at">type=</span><span class="st">"clusters"</span>, <span class="at">caption=</span><span class="st">"Coefficient values for each cluster."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_lwulcreyz6wdbrh2xn4n = TinyTable.createTableFunctions("tinytable_lwulcreyz6wdbrh2xn4n");
+      const tableFns_iv33qwpchshsxtcqlkv0 = TinyTable.createTableFunctions("tinytable_iv33qwpchshsxtcqlkv0");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 }, { i: '1', j: 8 }, { i: '3', j: 8 }, { i: '5', j: 8 }, { i: '1', j: 9 }, { i: '3', j: 9 }, { i: '5', j: 9 } ], css_id: 'tinytable_css_k20n7grej1d0j430e4y6',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_0y9mljx7ehlu6eswqxt2',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 }, { i: '0', j: 6 }, { i: '0', j: 7 }, { i: '0', j: 8 }, { i: '0', j: 9 } ], css_id: 'tinytable_css_8wlyxren7f2sg7ha21s5',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 }, { i: '1', j: 8 }, { i: '3', j: 8 }, { i: '5', j: 8 }, { i: '1', j: 9 }, { i: '3', j: 9 }, { i: '5', j: 9 } ], css_id: 'tinytable_css_139xaqtzykia5i17547q',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_pxv5oog5nj2yotbyxoti',}, 
+          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 }, { i: '0', j: 6 }, { i: '0', j: 7 }, { i: '0', j: 8 }, { i: '0', j: 9 } ], css_id: 'tinytable_css_qltjqyv6f1nzwvhe5e5x',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_lwulcreyz6wdbrh2xn4n.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_iv33qwpchshsxtcqlkv0.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -673,12 +833,12 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_lwulcreyz6wdbrh2xn4n td.tinytable_css_k20n7grej1d0j430e4y6, #tinytable_lwulcreyz6wdbrh2xn4n th.tinytable_css_k20n7grej1d0j430e4y6 { background-color: #ededed }
-    #tinytable_lwulcreyz6wdbrh2xn4n td.tinytable_css_0y9mljx7ehlu6eswqxt2, #tinytable_lwulcreyz6wdbrh2xn4n th.tinytable_css_0y9mljx7ehlu6eswqxt2 { font-weight: bold; background-color: #ededed }
-    #tinytable_lwulcreyz6wdbrh2xn4n td.tinytable_css_8wlyxren7f2sg7ha21s5, #tinytable_lwulcreyz6wdbrh2xn4n th.tinytable_css_8wlyxren7f2sg7ha21s5 { font-weight: bold }
+    #tinytable_iv33qwpchshsxtcqlkv0 td.tinytable_css_139xaqtzykia5i17547q, #tinytable_iv33qwpchshsxtcqlkv0 th.tinytable_css_139xaqtzykia5i17547q { background-color: #ededed }
+    #tinytable_iv33qwpchshsxtcqlkv0 td.tinytable_css_pxv5oog5nj2yotbyxoti, #tinytable_iv33qwpchshsxtcqlkv0 th.tinytable_css_pxv5oog5nj2yotbyxoti { font-weight: bold; background-color: #ededed }
+    #tinytable_iv33qwpchshsxtcqlkv0 td.tinytable_css_qltjqyv6f1nzwvhe5e5x, #tinytable_iv33qwpchshsxtcqlkv0 th.tinytable_css_qltjqyv6f1nzwvhe5e5x { font-weight: bold }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_lwulcreyz6wdbrh2xn4n" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_iv33qwpchshsxtcqlkv0" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption>Coefficient values for each cluster.</caption>
         <thead>
               <tr>
@@ -758,174 +918,48 @@ Figure&nbsp;2: Spline surface of social mobility.
 </div>
 </div>
 <p>In this case it can be seen that the coefficients of the variables are stable across regions. (By contrast, for the majority of the historical persistence studies examined by <span class="citation" data-cites="tCmK24">Conley and Kelly (<a href="#ref-tCmK24" role="doc-biblioref">2024</a>)</span> coefficients vary widely by magnitude and sign across clusters.) There will not always be enough data points to run a reliable IM test but this Table should always displayed using two or three clusters to give a minimal assurance that the regressions make sense.</p>
-</section>
-<section id="muller-watson-scpc" class="level2">
-<h2 class="anchored" data-anchor-id="muller-watson-scpc">5. Muller-Watson SCPC</h2>
-<p>The third estimator implemented is the SCPC estimator of <span class="citation" data-cites="uMmW21">Müller and Watson (<a href="#ref-uMmW21" role="doc-biblioref">2022</a>)</span>. Here the placebo test is concerned to choose the optimal value of the <code>avc</code> parameter: the default runs from 0.02 to 0.1. Here the test picks a low value of 0.02 but often it will be considerably larger.</p>
-<div class="cell" data-cache="true">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>plbo_scpc<span class="ot">=</span><span class="fu">placebo_scpc</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">avc =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.1</span>, <span class="at">by =</span> <span class="fl">0.02</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_table</span>(plbo_scpc, <span class="at">caption =</span> <span class="st">"Scpc placebo significance levels of the single mothers variable."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
-
-    <script>
-      // Create table-specific functions using external factory
-      const tableFns_cen5rqm6se3vlinybzy1 = TinyTable.createTableFunctions("tinytable_cen5rqm6se3vlinybzy1");
-      // tinytable span after
-      window.addEventListener('load', function () {
-          var cellsToStyle = [
-            // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_l8xeuzglts34iuot6env',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 } ], css_id: 'tinytable_css_yz1iwqewzosvd8f4thcq',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_kgnss0rirpt9enamj21y',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 } ], css_id: 'tinytable_css_d89y01dov4lof2p7gxl9',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 } ], css_id: 'tinytable_css_74e30bdsuu1relz4ngq8',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 } ], css_id: 'tinytable_css_fqshjmq1sx4clg7vgyrs',}, 
-          ];
-
-          // Loop over the arrays to style the cells
-          cellsToStyle.forEach(function (group) {
-              group.positions.forEach(function (cell) {
-                  tableFns_cen5rqm6se3vlinybzy1.styleCell(cell.i, cell.j, group.css_id);
-              });
-          });
-      });
-    </script>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
-    <style>
-    /* tinytable css entries after */
-    #tinytable_cen5rqm6se3vlinybzy1 td.tinytable_css_l8xeuzglts34iuot6env, #tinytable_cen5rqm6se3vlinybzy1 th.tinytable_css_l8xeuzglts34iuot6env { color: #FFA500 }
-    #tinytable_cen5rqm6se3vlinybzy1 td.tinytable_css_yz1iwqewzosvd8f4thcq, #tinytable_cen5rqm6se3vlinybzy1 th.tinytable_css_yz1iwqewzosvd8f4thcq { color: #FFA500; background-color: #ededed }
-    #tinytable_cen5rqm6se3vlinybzy1 td.tinytable_css_kgnss0rirpt9enamj21y, #tinytable_cen5rqm6se3vlinybzy1 th.tinytable_css_kgnss0rirpt9enamj21y { font-weight: bold; color: #FFA500 }
-    #tinytable_cen5rqm6se3vlinybzy1 td.tinytable_css_d89y01dov4lof2p7gxl9, #tinytable_cen5rqm6se3vlinybzy1 th.tinytable_css_d89y01dov4lof2p7gxl9 { background-color: #ededed }
-    #tinytable_cen5rqm6se3vlinybzy1 td.tinytable_css_74e30bdsuu1relz4ngq8, #tinytable_cen5rqm6se3vlinybzy1 th.tinytable_css_74e30bdsuu1relz4ngq8 { font-weight: bold; background-color: #ededed }
-    #tinytable_cen5rqm6se3vlinybzy1 td.tinytable_css_fqshjmq1sx4clg7vgyrs, #tinytable_cen5rqm6se3vlinybzy1 th.tinytable_css_fqshjmq1sx4clg7vgyrs { font-weight: bold }
-    </style>
-    <div class="container">
-      <table class="tinytable" id="tinytable_cen5rqm6se3vlinybzy1" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <caption>Scpc placebo significance levels of the single mothers variable.</caption>
-        <thead>
-              <tr>
-                <th scope="col" data-row="0" data-col="1">Adj</th>
-                <th scope="col" data-row="0" data-col="2">avc</th>
-                <th scope="col" data-row="0" data-col="3">Est p</th>
-                <th scope="col" data-row="0" data-col="4">Plac p</th>
-                <th scope="col" data-row="0" data-col="5">Plac 5%</th>
-                <th scope="col" data-row="0" data-col="6">CI Width</th>
-                <th scope="col" data-row="0" data-col="7">CI</th>
-              </tr>
-        </thead>
-        <tfoot><tr><td colspan="7">Moran=15.69, Structure=0.96, Effective Range=0.05, R2=0.46.</td></tr>
-<tr><td colspan="7">Splines=6, PCs=15.</td></tr>
-<tr><td colspan="7">Estimated and placebo p values and proportion of placebo regressions significant at 5%, along
-                with confidence intervals, for different values of the SCPC average correlation bound avc.
-                R2 gives the explanatory power of a regression of the treatment on the principal components.</td></tr></tfoot>
-        <tbody>
-                <tr>
-                  <td data-row="1" data-col="1">HC</td>
-                  <td data-row="1" data-col="2">.</td>
-                  <td data-row="1" data-col="3">0</td>
-                  <td data-row="1" data-col="4">0</td>
-                  <td data-row="1" data-col="5">0.13</td>
-                  <td data-row="1" data-col="6">0.142</td>
-                  <td data-row="1" data-col="7">[-0.578, -0.436]</td>
-                </tr>
-                <tr>
-                  <td data-row="2" data-col="1">SCPC</td>
-                  <td data-row="2" data-col="2">0.02</td>
-                  <td data-row="2" data-col="3">0.003</td>
-                  <td data-row="2" data-col="4">0.001</td>
-                  <td data-row="2" data-col="5">0.052</td>
-                  <td data-row="2" data-col="6">0.549</td>
-                  <td data-row="2" data-col="7">[-0.781, -0.232]</td>
-                </tr>
-                <tr>
-                  <td data-row="3" data-col="1"></td>
-                  <td data-row="3" data-col="2">0.04</td>
-                  <td data-row="3" data-col="3">0.009</td>
-                  <td data-row="3" data-col="4">0.007</td>
-                  <td data-row="3" data-col="5">0.046</td>
-                  <td data-row="3" data-col="6">0.656</td>
-                  <td data-row="3" data-col="7">[-0.835, -0.178]</td>
-                </tr>
-                <tr>
-                  <td data-row="4" data-col="1"></td>
-                  <td data-row="4" data-col="2">0.06</td>
-                  <td data-row="4" data-col="3">0.013</td>
-                  <td data-row="4" data-col="4">0.008</td>
-                  <td data-row="4" data-col="5">0.03</td>
-                  <td data-row="4" data-col="6">0.723</td>
-                  <td data-row="4" data-col="7">[-0.868, -0.145]</td>
-                </tr>
-                <tr>
-                  <td data-row="5" data-col="1"></td>
-                  <td data-row="5" data-col="2">0.08</td>
-                  <td data-row="5" data-col="3">0.023</td>
-                  <td data-row="5" data-col="4">0.008</td>
-                  <td data-row="5" data-col="5">0.026</td>
-                  <td data-row="5" data-col="6">0.815</td>
-                  <td data-row="5" data-col="7">[-0.914, -0.0993]</td>
-                </tr>
-                <tr>
-                  <td data-row="6" data-col="1"></td>
-                  <td data-row="6" data-col="2">0.1</td>
-                  <td data-row="6" data-col="3">0.03</td>
-                  <td data-row="6" data-col="4">0.008</td>
-                  <td data-row="6" data-col="5">0.021</td>
-                  <td data-row="6" data-col="6">0.874</td>
-                  <td data-row="6" data-col="7">[-0.943, -0.0698]</td>
-                </tr>
-        </tbody>
-      </table>
-    </div>
-<!-- hack to avoid NA insertion in last line -->
-</div>
-</div>
-<p>Next we run a synthetic control test but do not print results</p>
-<div class="cell" data-cache="true">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>synt_scpc<span class="ot">=</span><span class="fu">synth_scpc</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nSim=</span><span class="dv">1000</span>,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">avc =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.1</span>, <span class="at">by =</span> <span class="fl">0.02</span>),</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                 )</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#synth_table(synt_scpc, caption = "Scpc synthetic outcome significance levels of the single mothers variable." )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section id="compare-estimates" class="level2">
-<h2 class="anchored" data-anchor-id="compare-estimates">6. Compare Estimates</h2>
-<p>We have now run three sets of placebo and synthetic outcome tests. We can combine the results in a single table where we choose the optimal estimates based on 5% placebo rejection rates.</p>
+<p>Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state. We run the original regression with state dummies and clustering by state, a BCH regression with 7 clusters, and an SCPC regression with <code>avc</code> of 0.02, and combine them with the IM regression into a comparison table using <code>regression_table</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">combined_table</span>(<span class="fu">list</span>(plbo_bch, plbo_im,plbo_scpc), <span class="fu">list</span>(synt_bch, synt_im,synt_scpc), <span class="at">select=</span><span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">5</span>,<span class="fl">0.02</span>),</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption=</span><span class="st">"Placebo and synthetic outcome significance levels for the single mothers variable."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Original<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na<span class="sc">+</span>state_id, opportunity,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">cluster=</span> <span class="sc">~</span>state_id)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>Basis_7<span class="ot">=</span><span class="fu">basis_regression</span>(fm, opportunity,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">splines=</span><span class="dv">6</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">pc_num=</span><span class="dv">15</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">clusters=</span><span class="dv">7</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>scpc_reg<span class="ot">=</span><span class="fu">scpc_regression</span>(fm, opportunity,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">splines=</span><span class="dv">6</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                         <span class="at">pc_num=</span><span class="dv">15</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                         <span class="at">avc=</span><span class="fl">0.02</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">#Combine into table</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">regression_table</span>(<span class="at">orig=</span>Original,<span class="at">im=</span>im_reg,<span class="at">bch=</span>Basis_7,<span class="at">scpc=</span>scpc_reg,<span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*|state*"</span>),</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>                 <span class="at">title=</span><span class="st">"Comparison of Standard Error Corrections."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_2lv9m600sos0nxne1v6v = TinyTable.createTableFunctions("tinytable_2lv9m600sos0nxne1v6v");
+      const tableFns_0o0u8xi034qmlqno68kk = TinyTable.createTableFunctions("tinytable_0o0u8xi034qmlqno68kk");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '2', j: 5 }, { i: '4', j: 5 } ], css_id: 'tinytable_css_1hz1roi4t8hx5n40rn74',}, 
-          { positions: [ { i: '1', j: 5 }, { i: '3', j: 5 } ], css_id: 'tinytable_css_nctq2a6xr1un8metyp06',}, 
-          { positions: [ { i: '0', j: 5 } ], css_id: 'tinytable_css_wqfkc9zlahdhpxcvpg0h',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '1', j: 8 }, { i: '3', j: 8 } ], css_id: 'tinytable_css_b2rzo7hx7anmdjyew7v2',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 } ], css_id: 'tinytable_css_014rkx1ew6m2n6k2zv2c',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 6 }, { i: '0', j: 7 }, { i: '0', j: 8 } ], css_id: 'tinytable_css_ru28ffd1c3kyxml28cn1',}, 
+          { positions: [ { i: '13', j: 2 }, { i: '13', j: 3 }, { i: '13', j: 4 }, { i: '13', j: 5 } ], css_id: 'tinytable_css_lq1dfdl94uzmcosz9u94',}, 
+          { positions: [ { i: '12', j: 2 }, { i: '12', j: 3 }, { i: '12', j: 4 }, { i: '12', j: 5 } ], css_id: 'tinytable_css_9xk5x9cvbjrft9bxagfy',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '6', j: 4 }, { i: '7', j: 4 }, { i: '8', j: 4 }, { i: '9', j: 4 }, { i: '10', j: 4 }, { i: '11', j: 4 }, { i: '1', j: 5 }, { i: '2', j: 5 }, { i: '3', j: 5 }, { i: '4', j: 5 }, { i: '5', j: 5 }, { i: '6', j: 5 }, { i: '7', j: 5 }, { i: '8', j: 5 }, { i: '9', j: 5 }, { i: '10', j: 5 }, { i: '11', j: 5 } ], css_id: 'tinytable_css_ovbr2nk1w2arj1lj76ln',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 } ], css_id: 'tinytable_css_o5576chdgn7tmbe5v2yj',}, 
+          { positions: [ { i: '13', j: 1 } ], css_id: 'tinytable_css_ij5z6nit3c6idgvx942y',}, 
+          { positions: [ { i: '12', j: 1 } ], css_id: 'tinytable_css_9ik1b1lnk9sw0z4m6v5n',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 } ], css_id: 'tinytable_css_0s3f9gcaflze85jmqw4h',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_dd1gk6sqncrnrsst4kyk',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_2lv9m600sos0nxne1v6v.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_0o0u8xi034qmlqno68kk.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -934,144 +968,17 @@ Figure&nbsp;2: Spline surface of social mobility.
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
     /* tinytable css entries after */
-    #tinytable_2lv9m600sos0nxne1v6v td.tinytable_css_1hz1roi4t8hx5n40rn74, #tinytable_2lv9m600sos0nxne1v6v th.tinytable_css_1hz1roi4t8hx5n40rn74 { color: #FFA500 }
-    #tinytable_2lv9m600sos0nxne1v6v td.tinytable_css_nctq2a6xr1un8metyp06, #tinytable_2lv9m600sos0nxne1v6v th.tinytable_css_nctq2a6xr1un8metyp06 { color: #FFA500; background-color: #ededed }
-    #tinytable_2lv9m600sos0nxne1v6v td.tinytable_css_wqfkc9zlahdhpxcvpg0h, #tinytable_2lv9m600sos0nxne1v6v th.tinytable_css_wqfkc9zlahdhpxcvpg0h { font-weight: bold; color: #FFA500 }
-    #tinytable_2lv9m600sos0nxne1v6v td.tinytable_css_b2rzo7hx7anmdjyew7v2, #tinytable_2lv9m600sos0nxne1v6v th.tinytable_css_b2rzo7hx7anmdjyew7v2 { background-color: #ededed }
-    #tinytable_2lv9m600sos0nxne1v6v td.tinytable_css_014rkx1ew6m2n6k2zv2c, #tinytable_2lv9m600sos0nxne1v6v th.tinytable_css_014rkx1ew6m2n6k2zv2c { font-weight: bold; background-color: #ededed }
-    #tinytable_2lv9m600sos0nxne1v6v td.tinytable_css_ru28ffd1c3kyxml28cn1, #tinytable_2lv9m600sos0nxne1v6v th.tinytable_css_ru28ffd1c3kyxml28cn1 { font-weight: bold }
+    #tinytable_0o0u8xi034qmlqno68kk td.tinytable_css_lq1dfdl94uzmcosz9u94, #tinytable_0o0u8xi034qmlqno68kk th.tinytable_css_lq1dfdl94uzmcosz9u94 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_0o0u8xi034qmlqno68kk td.tinytable_css_9xk5x9cvbjrft9bxagfy, #tinytable_0o0u8xi034qmlqno68kk th.tinytable_css_9xk5x9cvbjrft9bxagfy {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_0o0u8xi034qmlqno68kk td.tinytable_css_ovbr2nk1w2arj1lj76ln, #tinytable_0o0u8xi034qmlqno68kk th.tinytable_css_ovbr2nk1w2arj1lj76ln { text-align: center }
+    #tinytable_0o0u8xi034qmlqno68kk td.tinytable_css_o5576chdgn7tmbe5v2yj, #tinytable_0o0u8xi034qmlqno68kk th.tinytable_css_o5576chdgn7tmbe5v2yj {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_0o0u8xi034qmlqno68kk td.tinytable_css_ij5z6nit3c6idgvx942y, #tinytable_0o0u8xi034qmlqno68kk th.tinytable_css_ij5z6nit3c6idgvx942y {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_0o0u8xi034qmlqno68kk td.tinytable_css_9ik1b1lnk9sw0z4m6v5n, #tinytable_0o0u8xi034qmlqno68kk th.tinytable_css_9ik1b1lnk9sw0z4m6v5n {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_0o0u8xi034qmlqno68kk td.tinytable_css_0s3f9gcaflze85jmqw4h, #tinytable_0o0u8xi034qmlqno68kk th.tinytable_css_0s3f9gcaflze85jmqw4h { text-align: left }
+    #tinytable_0o0u8xi034qmlqno68kk td.tinytable_css_dd1gk6sqncrnrsst4kyk, #tinytable_0o0u8xi034qmlqno68kk th.tinytable_css_dd1gk6sqncrnrsst4kyk {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
     </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_2lv9m600sos0nxne1v6v" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <caption>Placebo and synthetic outcome significance levels for the single mothers variable.</caption>
-        <thead>
-              <tr>
-                <th scope="col" data-row="0" data-col="1">Adj</th>
-                <th scope="col" data-row="0" data-col="2">Clusters/avc</th>
-                <th scope="col" data-row="0" data-col="3">Est p</th>
-                <th scope="col" data-row="0" data-col="4">Plac p</th>
-                <th scope="col" data-row="0" data-col="5">Plac 5%</th>
-                <th scope="col" data-row="0" data-col="6">Synth p</th>
-                <th scope="col" data-row="0" data-col="7">CI Width</th>
-                <th scope="col" data-row="0" data-col="8">CI</th>
-              </tr>
-        </thead>
-        <tfoot><tr><td colspan="8">Moran=15.69, N=693, Splines=6, PCs=15.</td></tr>
-<tr><td colspan="8">Treatment: Structure=0.96, Effective Range=0.05, R2=0.46.</td></tr>
-<tr><td colspan="8">Outcome: Structure=0.88, Effective Range=0.15, R2=0.43.</td></tr>
-<tr><td colspan="8">Estimated and placebo p values and proportion of placebo regressions significant at 5%,
-                synthetic outcome p values, and confidence intervals, for the chosen number of clusters
-                or SCPC average correlation bound avc. Treatment R2 gives the explanatory power of a
-                regression of the treatment on the principal components, and outcome R2 of a regression
-                of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
-        <tbody>
-                <tr>
-                  <td data-row="1" data-col="1">HC</td>
-                  <td data-row="1" data-col="2">.</td>
-                  <td data-row="1" data-col="3">0</td>
-                  <td data-row="1" data-col="4">0</td>
-                  <td data-row="1" data-col="5">0.13</td>
-                  <td data-row="1" data-col="6">0</td>
-                  <td data-row="1" data-col="7">0.142</td>
-                  <td data-row="1" data-col="8">[-0.578, -0.436]</td>
-                </tr>
-                <tr>
-                  <td data-row="2" data-col="1">BCH</td>
-                  <td data-row="2" data-col="2">7</td>
-                  <td data-row="2" data-col="3">0.003</td>
-                  <td data-row="2" data-col="4">0.008</td>
-                  <td data-row="2" data-col="5">0.08</td>
-                  <td data-row="2" data-col="6">0.011</td>
-                  <td data-row="2" data-col="7">0.513</td>
-                  <td data-row="2" data-col="8">[-0.763, -0.25]</td>
-                </tr>
-                <tr>
-                  <td data-row="3" data-col="1">IM</td>
-                  <td data-row="3" data-col="2">5</td>
-                  <td data-row="3" data-col="3">0.008</td>
-                  <td data-row="3" data-col="4">0.004</td>
-                  <td data-row="3" data-col="5">0.054</td>
-                  <td data-row="3" data-col="6">0.007</td>
-                  <td data-row="3" data-col="7">0.552</td>
-                  <td data-row="3" data-col="8">[-0.766, -0.215]</td>
-                </tr>
-                <tr>
-                  <td data-row="4" data-col="1">SCPC</td>
-                  <td data-row="4" data-col="2">0.02</td>
-                  <td data-row="4" data-col="3">0.003</td>
-                  <td data-row="4" data-col="4">0.001</td>
-                  <td data-row="4" data-col="5">0.052</td>
-                  <td data-row="4" data-col="6">0.003</td>
-                  <td data-row="4" data-col="7">0.549</td>
-                  <td data-row="4" data-col="8">[-0.781, -0.232]</td>
-                </tr>
-        </tbody>
-      </table>
-    </div>
-<!-- hack to avoid NA insertion in last line -->
-</div>
-</div>
-<p>Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state. We begin by running regressions for with the original clustering and state dummies, a BCH regression with 7 clusters, and an SCPC with <code>avc</code> parameter of 0.02. We ran the IM regression earlier. These are combined into a comparison table using <code>regression_table.</code></p>
-<div class="cell" data-cache="true">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Original<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na<span class="sc">+</span>state_id, opportunity,</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">cluster=</span> <span class="sc">~</span>state_id)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>Basis_7<span class="ot">=</span><span class="fu">basis_regression</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na, opportunity,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">clusters=</span><span class="dv">7</span>)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>scpc_reg<span class="ot">=</span><span class="fu">scpc_regression</span>(mobility<span class="sc">~</span>single_mothers<span class="sc">+</span>short_commute<span class="sc">+</span>gini<span class="sc">+</span>dropout_rate<span class="sc">+</span>social_cap<span class="sc">+</span>dropout_na,                                 opportunity,</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">splines=</span><span class="dv">6</span>,</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pc_num=</span><span class="dv">15</span>,</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>                  <span class="at">avc=</span><span class="fl">0.02</span>)</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">#Combine into table</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="fu">regression_table</span>(<span class="at">orig=</span>Original,<span class="at">im=</span>im_reg,<span class="at">bch=</span>Basis_7,<span class="at">scpc=</span>scpc_reg,<span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*|state*"</span>),</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>                 <span class="at">title=</span><span class="st">"Comparison of Standard Error Corrections."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
-
-    <script>
-      // Create table-specific functions using external factory
-      const tableFns_yc0p8fw341pjoq5wpybw = TinyTable.createTableFunctions("tinytable_yc0p8fw341pjoq5wpybw");
-      // tinytable span after
-      window.addEventListener('load', function () {
-          var cellsToStyle = [
-            // tinytable style arrays after
-          { positions: [ { i: '13', j: 2 }, { i: '13', j: 3 }, { i: '13', j: 4 }, { i: '13', j: 5 } ], css_id: 'tinytable_css_6zirttjiszlesiixhtrt',}, 
-          { positions: [ { i: '12', j: 2 }, { i: '12', j: 3 }, { i: '12', j: 4 }, { i: '12', j: 5 } ], css_id: 'tinytable_css_4i2mi75a7ejsw9u5jbu5',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '6', j: 4 }, { i: '7', j: 4 }, { i: '8', j: 4 }, { i: '9', j: 4 }, { i: '10', j: 4 }, { i: '11', j: 4 }, { i: '1', j: 5 }, { i: '2', j: 5 }, { i: '3', j: 5 }, { i: '4', j: 5 }, { i: '5', j: 5 }, { i: '6', j: 5 }, { i: '7', j: 5 }, { i: '8', j: 5 }, { i: '9', j: 5 }, { i: '10', j: 5 }, { i: '11', j: 5 } ], css_id: 'tinytable_css_s9l267ljr4ut2sfameia',}, 
-          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 } ], css_id: 'tinytable_css_d6rmgly2z314c6igklef',}, 
-          { positions: [ { i: '13', j: 1 } ], css_id: 'tinytable_css_yhf0owmj6kt205phn7yx',}, 
-          { positions: [ { i: '12', j: 1 } ], css_id: 'tinytable_css_r76m95owcppny7nlmfrh',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 } ], css_id: 'tinytable_css_uivepyp1ig2mpg3isxhz',}, 
-          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_ehy9fqb24u62zg2jg5mg',}, 
-          ];
-
-          // Loop over the arrays to style the cells
-          cellsToStyle.forEach(function (group) {
-              group.positions.forEach(function (cell) {
-                  tableFns_yc0p8fw341pjoq5wpybw.styleCell(cell.i, cell.j, group.css_id);
-              });
-          });
-      });
-    </script>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
-    <style>
-    /* tinytable css entries after */
-    #tinytable_yc0p8fw341pjoq5wpybw td.tinytable_css_6zirttjiszlesiixhtrt, #tinytable_yc0p8fw341pjoq5wpybw th.tinytable_css_6zirttjiszlesiixhtrt {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_yc0p8fw341pjoq5wpybw td.tinytable_css_4i2mi75a7ejsw9u5jbu5, #tinytable_yc0p8fw341pjoq5wpybw th.tinytable_css_4i2mi75a7ejsw9u5jbu5 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_yc0p8fw341pjoq5wpybw td.tinytable_css_s9l267ljr4ut2sfameia, #tinytable_yc0p8fw341pjoq5wpybw th.tinytable_css_s9l267ljr4ut2sfameia { text-align: center }
-    #tinytable_yc0p8fw341pjoq5wpybw td.tinytable_css_d6rmgly2z314c6igklef, #tinytable_yc0p8fw341pjoq5wpybw th.tinytable_css_d6rmgly2z314c6igklef {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-    #tinytable_yc0p8fw341pjoq5wpybw td.tinytable_css_yhf0owmj6kt205phn7yx, #tinytable_yc0p8fw341pjoq5wpybw th.tinytable_css_yhf0owmj6kt205phn7yx {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_yc0p8fw341pjoq5wpybw td.tinytable_css_r76m95owcppny7nlmfrh, #tinytable_yc0p8fw341pjoq5wpybw th.tinytable_css_r76m95owcppny7nlmfrh {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    #tinytable_yc0p8fw341pjoq5wpybw td.tinytable_css_uivepyp1ig2mpg3isxhz, #tinytable_yc0p8fw341pjoq5wpybw th.tinytable_css_uivepyp1ig2mpg3isxhz { text-align: left }
-    #tinytable_yc0p8fw341pjoq5wpybw td.tinytable_css_ehy9fqb24u62zg2jg5mg, #tinytable_yc0p8fw341pjoq5wpybw th.tinytable_css_ehy9fqb24u62zg2jg5mg {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-    </style>
-    <div class="container">
-      <table class="tinytable" id="tinytable_yc0p8fw341pjoq5wpybw" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_0o0u8xi034qmlqno68kk" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <caption>Comparison of Standard Error Corrections.</caption>
         <thead>
               <tr>
@@ -1183,11 +1090,11 @@ Figure&nbsp;2: Spline surface of social mobility.
 </div>
 <p>The results can be viewed as a coefficient plot using <code>regression_plot</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">regression_plot</span>(<span class="at">orig=</span>Original,<span class="at">im=</span>im_reg,<span class="at">bch=</span>Basis_7,<span class="at">scpc=</span>scpc_reg,<span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*|state*"</span>), <span class="at">title=</span><span class="st">"Comparison of Standard Error Corrections."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">regression_plot</span>(<span class="at">orig=</span>Original,<span class="at">im=</span>im_reg,<span class="at">bch=</span>Basis_7,<span class="at">scpc=</span>scpc_reg,<span class="at">coef_omit =</span> <span class="fu">c</span>(<span class="st">"Intercept|PC*|state*"</span>), <span class="at">title=</span><span class="st">"Comparison of Standard Error Corrections."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="tutorial_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="tutorial_files/figure-html/reg_plot-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

@@ -23,6 +23,22 @@ A feature of `spatInfer` is its simple workflow, requiring a sequence of only fo
 
 -   Produce a table and coefficient plot to compare the results of all three procedures.
 
+This tutorial covers least squares regressions. Instrumental variable regressions follow the same workflow, and are covered in the [tutorial for instrumental variables](tutorial_iv.html).
+
+## Three Standard Error Corrections
+
+`spatInfer` reports heteroskedasticity robust (HC) standard errors alongside three spatially robust corrections. Because they are constructed in entirely different ways, results that agree across all three can be regarded as reliable.
+
+-   **BCH.** The large cluster standard errors of @BCH11 partition the observations into $c$ large clusters using k-medoids, and compute clustered standard errors. The tuning parameter is the number of clusters. If there are too many, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals.
+
+-   **IM.** The t-test of @rIuM10 also uses large clusters. The regression of interest is run on each cluster separately and the estimated coefficients of the treatment $\hat{\beta}_c$ for each cluster $c$ are collected. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Besides the fact that it rests on a minimum of assumptions about the data generating process, a great attraction of IM is that it formalizes the intuition that if an effect is real it should hold everywhere: coefficients should be similar across clusters. Its tuning parameter is again the number of clusters.
+
+-   **SCPC.** The spatial correlation principal components procedure of @uMmW21 does not use clusters. Instead it bounds the average pairwise correlation between observations by a parameter `avc`, and derives a t-test that is valid for any pattern of spatial correlation within that bound. Larger values of `avc` allow for stronger spatial correlation and give wider confidence intervals.
+
+The tuning parameter of each, the number of clusters for BCH and IM and `avc` for SCPC, is chosen by the spatial noise placebo test in Step 2.
+
+## The Data
+
 The first step is to download spatInfer.
 
 ```{r download, eval=FALSE}
@@ -33,7 +49,9 @@ The first step is to download spatInfer.
 
 We begin by loading the `spatInfer` library and the data frame called `opportunity`. This includes the variables used in the second column of Table VI in @chetty2014land which examines the determinants of intergenerational income mobility across US cities. Specifically, it regresses absolute upward mobility on five variables: fraction of single mothers, fraction short commute, Gini bottom 99%, high school dropout rate, and social capital index. Observations for Alaska and Hawaii are omitted to allow meaningful spatial correlations to be estimated. The longitude and latitude of each observation are included in the data. These must be named `X` and `Y`.
 
-```{r, message=F}
+The treatment of interest is placed as the first on the right hand side of the regression formula. If several are of concern the procedure can be repeated using each as the first entry. Here we will focus on single mothers.
+
+```{r setup, message=F}
 library(spatInfer)
 library(modelsummary)
 library(ggplot2)
@@ -41,7 +59,7 @@ library(tinytable)
 
 data(opportunity)
 
-
+fm=mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na
 ```
 
 ## 1. Choose the Spatial Basis
@@ -50,13 +68,8 @@ The first step is to estimate the optimal spatial basis that best explains the o
 
 We apply the simplest basis possible: a $k \times k$ tensor of linear b-splines and, to minimize the loss of degrees of freedom, we select the first $p$ principal components of the tensor. The first command `optimal_basis` chooses the combination of $k$ and $p$ that minimizes a Bayes Information Criterion. To make the diagram legible, select the maximum basis degree that you want to examine. As with most commands in `R` it starts with the regression formula and the name of the dataset: the choice of right hand side variables does not matter at this stage.
 
-The treatment of interest is placed as the first on the right hand side. If several are of concern the procedure can be repeated using each as the first entry. Here we will focus on single mothers.
-
 ```{r fig-basis,fig.cap="Choice of optimal spline basis."}
-
-optimal_basis(mobility~single_mothers+short_commute+
-                gini+dropout_rate+social_cap+dropout_na,  opportunity,
- max_splines=7)
+optimal_basis(fm, opportunity, max_splines=7)
 ```
 
 It can be seen here that the optimal combination is the first 15 principal components of a 6x6 spline. It is notable that this very small number of spatial controls explains 60% of variability in the outcome, compared with 64% obtained by using the 49 state dummies of the original study. Knowing only the location of a place lets you make a decent guess about the likely degree of mobility there, without knowing anything about its other characteristics.
@@ -64,18 +77,14 @@ It can be seen here that the optimal combination is the first 15 principal compo
 It is useful to plot the tensor surface of intergenerational mobility to see how geometrically simple it is. The viewpoint is from the southeast of the US and the angular surface reflects the fact that a product of linear B-splines (series of overlapping triangles) is used.
 
 ```{r fig-spline, fig.cap="Spline surface of social mobility."}
-
-plot_basis(
-  mobility~single_mothers+short_commute+
-           gini+dropout_rate+social_cap+dropout_na,    opportunity,
-splines=6, 
-Title="6x6 Tensor Surface of Mobility"
-)
+plot_basis(fm, opportunity,
+           splines=6,
+           Title="6x6 Tensor Surface of Mobility")
 ```
 
 ## 2. Run Placebo Test
 
-Having chosen a spatial basis, we begin with BCH where we need to choose an optimal number of clusters for the residuals. If there are too many, residuals will be correlated between clusters leading to inconsistent standard error estimates, whereas too few will result in unnecessarily wide confidence intervals. To choose the optimal number we use spatial noise placebos.
+Having chosen a spatial basis, we need to choose the tuning parameter of each standard error correction: the number of clusters for BCH and IM, and `avc` for SCPC. To do this we use spatial noise placebos.
 
 The placebos are constructed to have the same spatial structure as the treatment, here single mothers. First, the treatment is regressed on the spatial basis terms selected in Step 1. The spatial correlation between the detrended residuals is assumed to decay exponentially so that the correlation between two at distance $h$ apart is $\rho \exp (- \theta / h)$.[^1] The parameters $\rho$ and $\theta$ are referred to as the structure and range of the correlation. Effective range is $2 \theta$: at this distance correlation equals 0.14. These parameters are estimated by maximum likelihood using the `fields` library and then used to estimate synthetic residuals which are added back onto the predicted treatment values to give the placebo values. The regression is run repeatedly with simulated placebos in place of the real treatment and the p-values of each simulation are recorded.
 
@@ -83,40 +92,42 @@ The placebos are constructed to have the same spatial structure as the treatment
 
 These placebo p-values give us two useful things. The first is a placebo significance level of the treatment: how often does a placebo have a lower p-value (higher t-statistic) than the treatment.
 
-The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient.
+The second is that the placebos provide a Monte Carlo simulation to evaluate the inference procedure used. If substantially more than 5% of placebo regressions are significant at 5% we can conclude that the standard error estimate is deficient. The placebo Monte Carlos therefore allow an optimal number of clusters, and an optimal value of `avc`, to be picked.
 
-Standard errors are estimated using the large cluster procedure of @BCH11, where observations are partitioned into $c$ large clusters using k-medoids. The placebo Monte Carlos allow an optimal value of $c$ to be picked.
-
-The placebo test is implemented by the command `placebo`. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving. The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option `Parallel=FALSE` in each command.[^2]
+The placebo test is implemented by the command `placebo`, which gives the results for HC, BCH, IM and SCPC in a single call. Again this starts off with the formula and data, followed by the tensor degree and number of principal components just picked by `optimal_basis`, and then the number of simulations. `max_clus` gives the largest number of clusters to examine for BCH and IM, and `avc` the values to examine for SCPC, which are the slowest to compute and are left out if `avc` is not given. In practice the simulations settle down rapidly and 1000 will give accurate results but you may want to start with around 200 which will quickly give you a good idea of how your data are behaving. The placebo and synthetic outcome tests run in parallel by default. If you encounter computational problems you should set the option `Parallel=FALSE` in each command.[^2]
 
 [^2]: For large datasets, estimating the necessary Cholesky decomposition of the correlation matrix and the k-medoids clusters can be time-consuming, and fast approximations can be used by setting `k_medoids=FALSE` and `exact_cholesky=FALSE` in the `placebo` command. The latter requires the `BRISC` package.
 
-```{r tbl_placebo.bch, tbl.cap= "BCH placebo test.", Cache=TRUE}
+```{r placebo, message=FALSE}
+plbo=placebo(fm, opportunity,
+             splines=6,
+             pc_num=15,
+             nSim=1000,
+             max_clus=7,
+             avc=seq(0.02, 0.1, by=0.02))
 
-plbo_bch=placebo(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
-                  splines=6,
-                  pc_num=15,
-                  nSim=1000,
-                  max_clus = 7
-       )
-
-placebo_table(plbo_bch,caption = "BCH placebo significance levels of the single mothers variable.")
-
+placebo_table(plbo, caption="Placebo significance levels of the single mothers variable.")
 ```
 
-`placebo` generates a table where the top row uses heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are large cluster (Bester-Conley-Hansen) standard errors, starting with three and going up to six. The second column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.
+`placebo_table` shows every correction in one table. The top row uses heteroskedasticity consistent standard errors: if spatial correlation in residuals turns out to be unimportant these are the ones to use. Below this are the BCH and IM results for three up to seven clusters, and the SCPC results for each value of `avc`, which is given in the `Clusters/avc` column. The `Est p` column gives the estimated p-value of the treatment variable from a regression that includes spatial basis terms. As the number of clusters increases this will generally fall.
 
 The next column gives the placebo p-value: the proportion of simulations where the placebo had a lower p-value than the real treatment.
 
-Following this, and highlighted in orange, is the percentage of simulations where the placebo is significant at 5%. If this is markedly higher than 5% it suggests that the inference method employed was inadequate. In practice a value in the range of 0.05 to 0.07 or 0.08 indicates satisfactory performance. In this case here, 7 clusters give 8% of simulations significant at 5% suggesting that this is a reasonable number. (Using five or six clusters give similar answers with slightly wider confidence intervals.) By contrast 13% of HC simulations are significant at 5%. The placebo p-value is 0.01 and the confidence interval for the parameter is \[-0.76,-0.25\]. The significance level of 0.003 compares with the original significance level with standard errors clustered by state of $1.2\times10^{-8}$.
+Following this, and highlighted in orange, is the percentage of simulations where the placebo is significant at 5%. If this is markedly higher than 5% it suggests that the inference method employed was inadequate. In practice a value in the range of 0.05 to 0.07 or 0.08 indicates satisfactory performance.
+
+For BCH, 7 clusters give 8% of simulations significant at 5% suggesting that this is a reasonable number. (Using five or six clusters give similar answers with slightly wider confidence intervals.) By contrast 13% of HC simulations are significant at 5%. The placebo p-value is 0.01 and the confidence interval for the parameter is \[-0.76,-0.25\]. The significance level of 0.003 compares with the original significance level with standard errors clustered by state of $1.2\times10^{-8}$.
+
+IM is conservative, and between 4% and 5.5% of placebos are significant at 5% for every number of clusters. Because an increasing number of clusters lowers the reliability of the coefficient estimates within each, we will use five clusters, which give 5.4% of placebos significant, an estimated p-value of 0.008 and a confidence interval of \[-0.77,-0.22\].
+
+For SCPC the test picks a low value of `avc` of 0.02, where 5.2% of placebos are significant at 5%, but often it will be considerably larger. The estimated p-value is 0.003, with a confidence interval of \[-0.78,-0.23\].
 
 It will sometimes happen that the proportion of placebos significant at 5% stays considerably above 5% regardless of the cluster number. In that case systematically increasing, or sometimes decreasing, the number of principal components `num_pc` by one or two will usually give a satisfactory placebo value.
 
-Below the Table are a number of diagnostics and descriptive statistics. Most important is the Moran statistic, the Z-score of the null hypothesis that the correlation between each residual and its nearest neighbours is zero. We use 5 neighbours here: altering this does not alter the results materially.[^3]
+Below the Table are a number of diagnostics and descriptive statistics. Most important is the Moran statistic, the Z-score of the null hypothesis that the correlation between each residual and its nearest neighbours is zero. We use 5 neighbours here: altering this does not alter the results materially.[^3] Here it is 15.7, far above 2.
 
 [^3]: See Table 3 in Conley and Kelly.
 
-In deciding whether to use a familiar HC standard error or a large cluster one we have adopted the rule of thumb that if a regression has a Moran statistic below 2 and a 5% placebo value not far above 0.05 for HC standard errors then these should be used given their tighter confidence intervals. Otherwise BCH, IM or scpc is chosen.
+In deciding whether to use a familiar HC standard error or a spatially robust one we have adopted the rule of thumb that if a regression has a Moran statistic below 2 and a 5% placebo value not far above 0.05 for HC standard errors then these should be used given their tighter confidence intervals. Otherwise BCH, IM or SCPC is chosen.
 
 Below the Moran statistic are the spatial parameters. R2 gives the explanatory power of the regression of the treatment on the spatial basis variables, in this case 0.46. Next is the structure $\rho$ of the residuals and then the effective range (where correlation has fallen to 0.14) expressed as a fraction of the 95th percentile of distance between points. Here it can be seen that structure and effective range are 0.96 and 0.05 respectively.
 
@@ -124,118 +135,62 @@ Below the Moran statistic are the spatial parameters. R2 gives the explanatory p
 
 Following the placebo test, the next step is to calculate the synthetic outcome p-value: Can we reject the null hypothesis that the outcome is trending spatial noise, and therefore independent of the treatment?
 
-An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of cluster values from 3 to 5 or more to allow readers to judge the robustness of the results.
+An important thing about the synthetic outcome test is that it can be computed in situations where there is a binary treatment so a placebo test cannot be estimated. In this case it is best to report the p-values for a range of cluster values from 3 to 5 or more, and a range of `avc` values, to allow readers to judge the robustness of the results.
 
-It is assumed that the outcome is generated in the simplest manner possible: as a quadratic in longitude and latitude. Noise is generated using maximum likelihood estimates of the residuals' spatial parameters: here there is a structure of 0.88 and an effective range of 0.15.
+It is assumed that the outcome is generated in the simplest manner possible: as a quadratic in longitude and latitude. Noise is generated using maximum likelihood estimates of the residuals' spatial parameters: here there is a structure of 0.88 and an effective range of 0.15. Like `placebo`, `synth` gives the results for every correction in one call.
 
-```{r tbl_synth,tbl_caption="BCH synthetic outcomes.", ,Cache=TRUE}
+```{r synth, message=FALSE}
+synt=synth(fm, opportunity,
+           splines=6,
+           pc_num=15,
+           nSim=1000,
+           max_clus=7,
+           avc=seq(0.02, 0.1, by=0.02))
 
-synt_bch=synth(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
-                  splines=6,
-                  pc_num=15,
-                  nSim=1000,
-                  max_clus = 7)
-
-synth_table(synt_bch, caption = "BCH synthetic outcome significance levels for the single mothers variable.")
+synth_table(synt, caption="Synthetic outcome significance levels for the single mothers variable.")
 ```
 
-For the seven clusters chosen by the placebo test, the synthetic outcome significance level is 0.01, much the same as the placebo one.
+At the settings chosen by the placebo test, the synthetic outcome significance levels are 0.01 for BCH with seven clusters, 0.007 for IM with five clusters, and 0.003 for SCPC with `avc` of 0.02, much the same as the placebo ones.
 
-## 4. IM Inference {#sec-im-inference}
+## 4. Compare Estimates
 
-Besides BCH, there is another spatial inference method based on large clusters due to @rIuM10. This involves running the regression of interest on each cluster and collecting the estimated coefficients of the treatment $\hat{\beta}_c$ for each cluster $c$. The p-value of a regression of these coefficients on a constant is conservative up to a value of 0.08. Once again the optimal number of clusters is chosen by the fraction of placebo regressions that are significant at 5%.
+We have now run one placebo and one synthetic outcome test, each covering every correction. `combined_table` brings together the HC row and the rows chosen for each correction by the placebo test, with their synthetic outcome p-values. `select` names the number of clusters for BCH and IM and the `avc` for SCPC.
 
-```{r placebo_im,Cache=TRUE,message=FALSE}
-plbo_im=placebo_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
-                  splines=6,
-                  pc_num=15,
-                  nSim=1000,
-                  max_clus = 7
-                 )
-placebo_table(plbo_im, caption = "IM placebo significance levels of the single mothers variable.")
-
+```{r combined}
+combined_table(plbo, synt, select=c(BCH=7, IM=5, SCPC=0.02),
+  caption="Placebo and synthetic outcome significance levels for the single mothers variable.")
 ```
 
-We can run a synthetic outcome test as before, but will not print the table so as to save space: we will include its output in a final summary table for all estimators below.
+The last step runs each regression with the settings chosen by the placebo test. `basis_regression` estimates the regression with BCH standard errors, and `im_regression` and `scpc_regression` use IM and SCPC.
 
-```{r synth_im,Cache=TRUE,message=FALSE}
-synt_im=synth_im(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
-                  splines=6,
-                  pc_num=15,
-                  nSim=1000,
-                  max_clus = 7)
-#synth_table(synt_im, caption = "IM synthetic outcome significance levels of the single mothers variable." )
-```
+As a sanity check, the IM coefficients estimated within each cluster can be displayed with `im_table`. We first run the regression using `im_regression` with the five clusters chosen above.
 
-Besides the fact that it rests on a minimum of assumptions about the data generating process, a great attraction of IM is that it formalizes the intuition that if an effect is real it should hold everywhere: coefficients should be similar across clusters. This serves as a minimal sanity check on the regression. We first run the regression using the `im_reg` command and then display the the coefficients as a table.
+```{r im_reg, message=FALSE}
+im_reg=im_regression(fm, opportunity,
+                     splines=6,
+                     pc_num=15,
+                     clusters=5)
 
-Because an increasing number of clusters lowers the reliability of the coefficient estimates within each we will use five clusters here.
-
-```{r im_reg,Cache=TRUE,message=FALSE}
-im_reg=im_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
-                  splines=6,
-                  pc_num=15,
-                  clusters=5)
-
-im_table(im_reg,type="clusters",caption = "Coefficient values for each cluster.")
+im_table(im_reg, type="clusters", caption="Coefficient values for each cluster.")
 ```
 
 In this case it can be seen that the coefficients of the variables are stable across regions. (By contrast, for the majority of the historical persistence studies examined by @tCmK24 coefficients vary widely by magnitude and sign across clusters.) There will not always be enough data points to run a reliable IM test but this Table should always displayed using two or three clusters to give a minimal assurance that the regressions make sense.
 
-## 5. Muller-Watson SCPC
+Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state. We run the original regression with state dummies and clustering by state, a BCH regression with 7 clusters, and an SCPC regression with `avc` of 0.02, and combine them with the IM regression into a comparison table using `regression_table`.
 
-The third estimator implemented is the SCPC estimator of @uMmW21. Here the placebo test is concerned to choose the optimal value of the `avc` parameter: the default runs from 0.02 to 0.1. Here the test picks a low value of 0.02 but often it will be considerably larger.
-
-```{r placebo_scpc,Cache=TRUE,message=FALSE}
-plbo_scpc=placebo_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
-                  splines=6,
-                  pc_num=15,
-                  nSim=1000,
-                  avc = seq(0.02, 0.1, by = 0.02),
-                 )
-placebo_table(plbo_scpc, caption = "Scpc placebo significance levels of the single mothers variable.")
-
-```
-
-Next we run a synthetic control test but do not print results
-
-```{r synth_scpc,Cache=TRUE,message=FALSE}
-synt_scpc=synth_scpc(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
-                  splines=6,
-                  pc_num=15,
-                  nSim=1000,
-                  avc = seq(0.02, 0.1, by = 0.02),
-                 )
-#synth_table(synt_scpc, caption = "Scpc synthetic outcome significance levels of the single mothers variable." )
-
-```
-
-## 6. Compare Estimates
-
-We have now run three sets of placebo and synthetic outcome tests. We can combine the results in a single table where we choose the optimal estimates based on 5% placebo rejection rates.
-
-```{r}
-combined_table(list(plbo_bch, plbo_im,plbo_scpc), list(synt_bch, synt_im,synt_scpc), select=c(7, 5,0.02),
-  caption="Placebo and synthetic outcome significance levels for the single mothers variable.")
-```
-
-Finally, we can bring all results together and compare them with the original estimates that used state dummies and clustered by state. We begin by running regressions for with the original clustering and state dummies, a BCH regression with 7 clusters, and an SCPC with `avc` parameter of 0.02. We ran the IM regression earlier. These are combined into a comparison table using `regression_table.`
-
-```{r, regression_content,Cache=TRUE,message=FALSE}
-
-
+```{r regressions, message=FALSE}
 Original=fixest::feols(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na+state_id, opportunity,
-cluster= ~state_id)
+                       cluster= ~state_id)
 
-Basis_7=basis_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na, opportunity,
-                  splines=6,
-                  pc_num=15,
-                  clusters=7)
+Basis_7=basis_regression(fm, opportunity,
+                         splines=6,
+                         pc_num=15,
+                         clusters=7)
 
-scpc_reg=scpc_regression(mobility~single_mothers+short_commute+gini+dropout_rate+social_cap+dropout_na,                                 opportunity,
-                  splines=6,
-                  pc_num=15,
-                  avc=0.02)
+scpc_reg=scpc_regression(fm, opportunity,
+                         splines=6,
+                         pc_num=15,
+                         avc=0.02)
 
 #Combine into table
 regression_table(orig=Original,im=im_reg,bch=Basis_7,scpc=scpc_reg,coef_omit = c("Intercept|PC*|state*"),
@@ -244,7 +199,7 @@ regression_table(orig=Original,im=im_reg,bch=Basis_7,scpc=scpc_reg,coef_omit = c
 
 The results can be viewed as a coefficient plot using `regression_plot`.
 
-```{r}
+```{r reg_plot}
 regression_plot(orig=Original,im=im_reg,bch=Basis_7,scpc=scpc_reg,coef_omit = c("Intercept|PC*|state*"), title="Comparison of Standard Error Corrections.")
 ```
 
