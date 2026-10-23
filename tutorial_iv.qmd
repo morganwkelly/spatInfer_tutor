@@ -19,7 +19,7 @@ This tutorial shows how to apply `spatInfer` to instrumental variable regression
 
 -   The Anderson-Rubin (AR) test [@AR49], computed by the reduced form approach of @vCcH08. Its confidence sets remain valid however weak the instrument is.
 
-The workflow has the same four steps as before. First choose the spatial basis. Then use spatial noise placebos to pick the number of clusters (or `avc` for SCPC). Next, synthetic outcome tests check whether the outcome could be spatial noise. Finally, compare the estimates in a table and a plot.
+The workflow has the same three steps as before. First choose the spatial basis. Then, in a single command, use spatial noise placebos to pick the number of clusters (or `avc` for SCPC), and synthetic outcome tests to check whether the outcome could be spatial noise. Finally, compare the estimates in a table and a plot.
 
 ## The Data
 
@@ -53,26 +53,28 @@ The BIC is minimized by the first 13 principal components of a 6x6 tensor.
 plot_basis(fm, china, splines=6, Title="6x6 Tensor Surface of Manufacturing Employment Change")
 ```
 
-## 2. Run Placebo Test
+## 2. Run Placebo and Synthetic Outcome Tests
 
 The placebo treatments are generated exactly as in the least squares case: the treatment is regressed on the spatial basis, and spatial noise with the estimated structure and range of its residuals is added to the fitted values. An IV regression also needs a placebo instrument. This is generated from each placebo treatment using the estimated regression of the instrument on the treatment, plus its own spatial noise with the structure and range of that regression's residuals. Each placebo instrument is therefore related to its placebo treatment as strongly as the real instrument is related to the real treatment, while the outcome is untouched. Placebo regressions estimate the effect of a treatment that has none, through an instrument of realistic strength.
 
-`iv_placebo` takes the same arguments as `placebo`, with `avc` added to request SCPC results, which are the slowest to compute. A single call gives 2SLS and AR results for every correction.
+The synthetic outcome test replaces the outcome with synthetic outcomes, a quadratic trend in longitude and latitude plus spatial noise, and tests the null hypothesis that the outcome is spatial noise unrelated to the treatment.
 
-```{r placebo, message=FALSE, warning=FALSE}
-plbo=iv_placebo(fm, china,
-                splines=6,
-                pc_num=13,
-                nSim=1000,
-                weights="timepwt48",
-                max_clus=7,
-                avc=seq(0.02, 0.1, by=0.02))
+`iv_placebo_synth` runs both tests, taking the same arguments as `placebo_synth`, with `avc` added to request SCPC results, which are the slowest to compute. A single call gives 2SLS and AR results for every correction, with a progress bar to follow the simulations.
+
+```{r placebo_synth, message=FALSE, warning=FALSE}
+ps=iv_placebo_synth(fm, china,
+                    splines=6,
+                    pc_num=13,
+                    nSim=1000,
+                    weights="timepwt48",
+                    max_clus=7,
+                    avc=seq(0.02, 0.1, by=0.02))
 ```
 
-The results are shown with `placebo_table`, which gives every correction in a single table: a block of 2SLS results followed by a block of Anderson-Rubin results, each running through HC, BCH, IM and SCPC. As in the least squares case, IV regressions use from three clusters upwards, and for SCPC the `Clusters/avc` column gives `avc`.
+The results are shown with `placebo_synth_table`, which gives every correction in a single table: a block of 2SLS results followed by a block of Anderson-Rubin results, each running through HC, BCH, IM and SCPC. As in the least squares case, IV regressions use from three clusters upwards, and for SCPC the `Clusters/avc` column gives `avc`.
 
-```{r placebo_table}
-placebo_table(plbo, caption="Placebo significance levels of import exposure.")
+```{r placebo_synth_table}
+placebo_synth_table(ps, caption="Placebo and synthetic outcome significance levels of import exposure.")
 ```
 
 The columns are the same as before, with one addition: `F` is the first stage F statistic of the instrument, computed with the same standard error correction and number of clusters as the row. Clustered F statistics computed from a few large clusters vary a lot, but all are well above conventional thresholds here, so weak instruments are not a concern in this example.
@@ -81,42 +83,13 @@ The Moran statistic of the reduced form residuals is 11.6, far above 2, so we ne
 
 IM is conservative, with fewer than 5% of placebos significant for every number of clusters. With six or seven clusters, however, the confidence intervals become very wide. 2SLS has to be estimated within each cluster, and with small clusters the instrument is weak inside some of them, which makes the cluster estimates erratic. We use five clusters, which give the narrowest interval.
 
-For SCPC, `avc` of 0.04 gives 4.8% of placebos significant at 5%, while 0.02 gives 7.1%. We choose 0.04, with an estimated p value of 0.07.
+For SCPC, `avc` of 0.04 gives 5.0% of placebos significant at 5%, while 0.02 gives 8.7%. We choose 0.04, with an estimated p value of 0.09.
 
-Turning to the Anderson-Rubin block: because the instrument is strong, every AR confidence set is a bounded interval, close to the corresponding 2SLS interval and slightly wider. The placebo rejection rates are also similar to those of 2SLS, so the same choices work: seven BCH clusters (p = 0.08), and `avc` of 0.04 for SCPC (p = 0.05). The IM rows show the advantage of the reduced form. AR with IM only requires least squares regressions on the instrument within each cluster, which are well behaved however weak the instrument is in some clusters. So its confidence intervals stay reasonable with six or seven clusters, where IM for 2SLS breaks down. To keep the comparison with 2SLS simple we stay with five clusters, where the AR p value is 0.12.
+Turning to the Anderson-Rubin block: because the instrument is strong, every AR confidence set is a bounded interval, close to the corresponding 2SLS interval and slightly wider. The placebo rejection rates are also similar to those of 2SLS, so the same choices work: seven BCH clusters (p = 0.08), and `avc` of 0.04 for SCPC (p = 0.07). The IM rows show the advantage of the reduced form. AR with IM only requires least squares regressions on the instrument within each cluster, which are well behaved however weak the instrument is in some clusters. So its confidence intervals stay reasonable with six or seven clusters, where IM for 2SLS breaks down. To keep the comparison with 2SLS simple we stay with five clusters, where the AR p value is 0.12.
 
-## 3. Run Synthetic Outcome Test
+Finally, the `Synth p` column. The synthetic outcome noise has a strong structure of 0.77, so this is a demanding test. At the settings chosen by the placebo test, the synthetic outcome p values are 0.15 for 2SLS with seven BCH clusters, 0.12 for IM with five clusters, and 0.07 for SCPC with `avc` of 0.04. The AR values are 0.16, 0.11 and 0.10. The HC p value of 0.006 shows how misleading it would be to ignore the spatial correlation of the outcome. With spatially robust inference we cannot reject, at 5%, that the outcome is spatial noise unrelated to import exposure.
 
-`iv_synth` replaces the outcome with synthetic outcomes, a quadratic trend in longitude and latitude plus spatial noise, and tests the null hypothesis that the outcome is spatial noise unrelated to the treatment. The noise here has a strong structure of 0.77, so this is a demanding test.
-
-```{r synth, message=FALSE, warning=FALSE}
-synt=iv_synth(fm, china,
-              splines=6,
-              pc_num=13,
-              nSim=1000,
-              weights="timepwt48",
-              max_clus=7,
-              avc=seq(0.02, 0.1, by=0.02))
-```
-
-As with `placebo_table`, `synth_table` shows the 2SLS and AR results for every correction in one table.
-
-```{r synth_table}
-synth_table(synt, caption="Synthetic outcome significance levels of import exposure.")
-```
-
-At the settings chosen by the placebo test, the synthetic outcome p values are 0.15 for 2SLS with seven BCH clusters, 0.12 for IM with five clusters, and 0.07 for SCPC with `avc` of 0.04. The AR values are 0.16, 0.11 and 0.10. The HC p value of 0.006 shows how misleading it would be to ignore the spatial correlation of the outcome. With spatially robust inference we cannot reject, at 5%, that the outcome is spatial noise unrelated to import exposure.
-
-## 4. Compare Estimates
-
-We have now run one placebo and one synthetic outcome test, each covering every correction. `iv_combined_table` is the IV counterpart of `combined_table`: it brings together the HC row and the rows chosen for each correction by the placebo tests, with their synthetic outcome p values. `select` names the number of clusters for BCH and IM and the `avc` for SCPC. The table has a block of 2SLS results and a block of AR results. The AR rows use the same choices unless they are given separately with `ar_select`, for example `ar_select=c(BCH=7, IM=7, SCPC=0.04)` to use the seven IM clusters that work well for AR.
-
-```{r combined}
-iv_combined_table(plbo, synt, select=c(BCH=7, IM=5, SCPC=0.04),
-  caption="Placebo and synthetic outcome significance levels of import exposure.")
-```
-
-The table shows at a glance the pattern discussed above. Every spatially robust correction gives estimated, placebo and synthetic outcome p values above 0.05, while HC gives values below 0.01. The AR results closely follow 2SLS. The notes record the spatial parameters used to simulate the treatment, the instrument and the outcome.
+## 3. Compare Estimates
 
 The last step runs each regression with the settings chosen by the placebo tests. `iv_regression` estimates 2SLS with BCH standard errors (or HC with `cov="HC"`), and `iv_im_regression` and `iv_scpc_regression` use IM and SCPC. Each also gives the AR p value and confidence set computed with the same correction, and `iv_regression` gives the first stage F statistic. For comparison, the original regression adds census division dummies in place of the spatial basis and clusters by state.
 
@@ -156,4 +129,4 @@ iv_regression_plot(orig=Original, bch=iv_bch, im=iv_im, scpc=iv_sc,
                    coef_omit="Intercept|^PC[0-9]+$|^reg_")
 ```
 
-Replacing the division dummies with the spatial basis changes the point estimate little, from -0.40 to -0.35. However, once inference allows for the spatial correlation in the data, the p value of the effect of import exposure rises from 0.001 to between 0.07 and 0.13 for 2SLS, and between 0.05 and 0.12 for AR. The confidence intervals now include zero, although they lie mostly below it. The 2SLS and AR results agree closely, as they should with a strong instrument. When the first stage is weak, the AR sets are the ones to rely on.
+Replacing the division dummies with the spatial basis changes the point estimate little, from -0.40 to -0.35. However, once inference allows for the spatial correlation in the data, the p value of the effect of import exposure rises from 0.001 to between 0.09 and 0.13 for 2SLS, and between 0.07 and 0.12 for AR. The confidence intervals now include zero, although they lie mostly below it. The 2SLS and AR results agree closely, as they should with a strong instrument. When the first stage is weak, the AR sets are the ones to rely on.
