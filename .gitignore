@@ -8,3 +8,5 @@
 /old/
 **/*.quarto_ipynb
 /tutorial_iv_cache/
+.DS_Store
+placebo.log
