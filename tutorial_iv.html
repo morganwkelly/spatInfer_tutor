@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -82,15 +82,14 @@ div.csl-indent {
 <script src="tutorial_iv_files/libs/clipboard/clipboard.min.js"></script>
 <script src="tutorial_iv_files/libs/quarto-html/quarto.js" type="module"></script>
 <script src="tutorial_iv_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="tutorial_iv_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="tutorial_iv_files/libs/quarto-html/popper.min.js"></script>
 <script src="tutorial_iv_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="tutorial_iv_files/libs/quarto-html/anchor.min.js"></script>
 <link href="tutorial_iv_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="tutorial_iv_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="tutorial_iv_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="tutorial_iv_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="tutorial_iv_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="tutorial_iv_files/libs/bootstrap/bootstrap-3c809c52fcdddde53214f26cd7713992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="tutorial_iv_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -143,7 +142,7 @@ div.csl-indent {
 <p>We use the study of <span class="citation" data-cites="ADH13">Autor, Dorn, and Hanson (<a href="#ref-ADH13" role="doc-biblioref">2013</a>)</span> on the effect of Chinese import competition on US local labour markets. The outcome is the change in manufacturing employment as a percentage of the working age population in each of 722 commuting zones. The treatment is the change in Chinese imports per worker. Because US imports may respond to US demand, the treatment is instrumented by Chinese imports to other high income countries. We use the 2000-2007 period, with the controls for the initial share of manufacturing employment and of college educated population, and weight each commuting zone by its share of the national population, as in the original study.</p>
 <p>The formula is written as in <code>fixest</code>: <code>outcome ~ controls | treatment ~ instrument</code>. Use <code>outcome ~ 1 | treatment ~ instrument</code> if there are no controls.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatInfer)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatInfer)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(modelsummary)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tinytable)</span>
@@ -151,14 +150,14 @@ div.csl-indent {
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(autor_china)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>china<span class="ot">=</span><span class="fu">subset</span>(autor_china,t2<span class="sc">==</span><span class="dv">1</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>fm<span class="ot">=</span>d_sh_empl_mfg<span class="sc">~</span>l_shind_manuf_cbp<span class="sc">+</span>l_sh_popedu_c<span class="sc">|</span>d_tradeusch_pw<span class="sc">~</span>d_tradeotch_pw_lag</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>fm<span class="ot">=</span>d_sh_empl_mfg<span class="sc">~</span>l_shind_manuf_cbp<span class="sc">+</span>l_sh_popedu_c<span class="sc">|</span>d_tradeusch_pw<span class="sc">~</span>d_tradeotch_pw_lag</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="choose-the-spatial-basis" class="level2">
 <h2 class="anchored" data-anchor-id="choose-the-spatial-basis">1. Choose the Spatial Basis</h2>
 <p><code>optimal_basis</code> and <code>plot_basis</code> accept the IV formula directly. As before, the basis is chosen to explain the outcome, so only the left hand side matters.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">optimal_basis</span>(fm, china, <span class="at">max_splines=</span><span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">optimal_basis</span>(fm, china, <span class="at">max_splines=</span><span class="dv">7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-basis" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -174,7 +173,7 @@ Figure&nbsp;1: Choice of optimal spline basis.
 </div>
 <p>The BIC is minimized by the first 13 principal components of a 6x6 tensor.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_basis</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">Title=</span><span class="st">"6x6 Tensor Surface of Manufacturing Employment Change"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_basis</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">Title=</span><span class="st">"6x6 Tensor Surface of Manufacturing Employment Change"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-spline" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -195,17 +194,17 @@ Figure&nbsp;2: Spline surface of the change in manufacturing employment.
 <p>The synthetic outcome test replaces the outcome with synthetic outcomes, a quadratic trend in longitude and latitude plus spatial noise, and tests the null hypothesis that the outcome is spatial noise unrelated to the treatment.</p>
 <p><code>iv_placebo_synth</code> runs both tests, taking the same arguments as <code>placebo_synth</code>, with <code>avc</code> added to request SCPC results, which are the slowest to compute. A single call gives 2SLS and AR results for every correction, with a progress bar to follow the simulations.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ps<span class="ot">=</span><span class="fu">iv_placebo_synth</span>(fm, china,</span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ps<span class="ot">=</span><span class="fu">iv_placebo_synth</span>(fm, china,</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">splines=</span><span class="dv">6</span>,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">pc_num=</span><span class="dv">13</span>,</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">nSim=</span><span class="dv">1000</span>,</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">weights=</span><span class="st">"timepwt48"</span>,</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">max_clus=</span><span class="dv">7</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">avc=</span><span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.1</span>, <span class="at">by=</span><span class="fl">0.02</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">avc=</span><span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.1</span>, <span class="at">by=</span><span class="fl">0.02</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The results are shown with <code>placebo_synth_table</code>, which gives every correction in a single table: a block of 2SLS results followed by a block of Anderson-Rubin results, each running through HC, BCH, IM and SCPC. As in the least squares case, IV regressions use from three clusters upwards, and for SCPC the <code>Clusters/avc</code> column gives <code>avc</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_synth_table</span>(ps, <span class="at">caption=</span><span class="st">"Placebo and synthetic outcome significance levels of import exposure."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">placebo_synth_table</span>(ps, <span class="at">caption=</span><span class="st">"Placebo and synthetic outcome significance levels of import exposure."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
@@ -659,20 +658,20 @@ Figure&nbsp;2: Spline surface of the change in manufacturing employment.
 <h2 class="anchored" data-anchor-id="compare-estimates">3. Compare Estimates</h2>
 <p>The last step runs each regression with the settings chosen by the placebo tests. <code>iv_regression</code> estimates 2SLS with BCH standard errors (or HC with <code>cov="HC"</code>), and <code>iv_im_regression</code> and <code>iv_scpc_regression</code> use IM and SCPC. Each also gives the AR p value and confidence set computed with the same correction, and <code>iv_regression</code> gives the first stage F statistic. For comparison, the original regression adds census division dummies in place of the spatial basis and clusters by state.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Original<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(d_sh_empl_mfg<span class="sc">~</span>l_shind_manuf_cbp<span class="sc">+</span>l_sh_popedu_c<span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Original<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(d_sh_empl_mfg<span class="sc">~</span>l_shind_manuf_cbp<span class="sc">+</span>l_sh_popedu_c<span class="sc">+</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                         reg_midatl<span class="sc">+</span>reg_encen<span class="sc">+</span>reg_wncen<span class="sc">+</span>reg_satl<span class="sc">+</span>reg_escen<span class="sc">+</span>reg_wscen<span class="sc">+</span>reg_mount<span class="sc">+</span>reg_pacif<span class="sc">|</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                         d_tradeusch_pw<span class="sc">~</span>d_tradeotch_pw_lag,</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                       china, <span class="at">weights=</span><span class="sc">~</span>timepwt48, <span class="at">cluster=</span><span class="sc">~</span>statefip)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>iv_bch<span class="ot">=</span><span class="fu">iv_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">clusters=</span><span class="dv">7</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>iv_bch<span class="ot">=</span><span class="fu">iv_bch_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">clusters=</span><span class="dv">7</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>iv_im<span class="ot">=</span><span class="fu">iv_im_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">clusters=</span><span class="dv">5</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>iv_sc<span class="ot">=</span><span class="fu">iv_scpc_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">avc=</span><span class="fl">0.04</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>iv_sc<span class="ot">=</span><span class="fu">iv_scpc_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">avc=</span><span class="fl">0.04</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>As with <code>im_regression</code>, the IM estimates within each cluster can be displayed with <code>im_table</code> as a sanity check: a real effect should appear in every region.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">im_table</span>(iv_im, <span class="at">type=</span><span class="st">"clusters"</span>, <span class="at">caption=</span><span class="st">"2SLS coefficients in each cluster."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">im_table</span>(iv_im, <span class="at">type=</span><span class="st">"clusters"</span>, <span class="at">caption=</span><span class="st">"2SLS coefficients in each cluster."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
@@ -769,9 +768,9 @@ Figure&nbsp;2: Spline surface of the change in manufacturing employment.
 <p>The effect of import exposure is negative in four of the five regions, but its size varies widely, from -0.17 to -0.91, and in one region it is slightly positive. This heterogeneity is what makes the IM confidence interval wide.</p>
 <p><code>iv_regression_table</code> combines the results. Below the coefficients it gives, for each column, the first stage F statistic and the AR p value and confidence set, all computed with that column’s correction.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_regression_table</span>(<span class="at">orig=</span>Original, <span class="at">bch=</span>iv_bch, <span class="at">im=</span>iv_im, <span class="at">scpc=</span>iv_sc,</span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_regression_table</span>(<span class="at">orig=</span>Original, <span class="at">bch=</span>iv_bch, <span class="at">im=</span>iv_im, <span class="at">scpc=</span>iv_sc,</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">coef_omit=</span><span class="st">"Intercept|^PC[0-9]+$|^reg_"</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">title=</span><span class="st">"Comparison of standard error corrections for 2SLS."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">title=</span><span class="st">"Comparison of standard error corrections for 2SLS."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
@@ -905,8 +904,8 @@ Figure&nbsp;2: Spline surface of the change in manufacturing employment.
 </div>
 <p><code>iv_regression_plot</code> shows the 2SLS confidence intervals of each coefficient and, for the treatment, the AR confidence set of each spatial basis regression. Any unbounded part of an AR set would run to the edge of the panel and end in an arrow.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_regression_plot</span>(<span class="at">orig=</span>Original, <span class="at">bch=</span>iv_bch, <span class="at">im=</span>iv_im, <span class="at">scpc=</span>iv_sc,</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">coef_omit=</span><span class="st">"Intercept|^PC[0-9]+$|^reg_"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_regression_plot</span>(<span class="at">orig=</span>Original, <span class="at">bch=</span>iv_bch, <span class="at">im=</span>iv_im, <span class="at">scpc=</span>iv_sc,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">coef_omit=</span><span class="st">"Intercept|^PC[0-9]+$|^reg_"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -992,14 +991,13 @@ Müller, Ulrich K., and Mark W. Watson. 2022. <span>“Spatial Correlation Robus
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

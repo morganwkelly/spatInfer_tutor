@@ -99,7 +99,7 @@ Original=fixest::feols(d_sh_empl_mfg~l_shind_manuf_cbp+l_sh_popedu_c+
                          d_tradeusch_pw~d_tradeotch_pw_lag,
                        china, weights=~timepwt48, cluster=~statefip)
 
-iv_bch=iv_regression(fm, china, splines=6, pc_num=13, clusters=7, weights="timepwt48")
+iv_bch=iv_bch_regression(fm, china, splines=6, pc_num=13, clusters=7, weights="timepwt48")
 
 iv_im=iv_im_regression(fm, china, splines=6, pc_num=13, clusters=5, weights="timepwt48")
 
