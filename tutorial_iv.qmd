@@ -89,6 +89,13 @@ Turning to the Anderson-Rubin block: because the instrument is strong, every AR 
 
 Finally, the `Synth p` column. The synthetic outcome noise has a strong structure of 0.77, so this is a demanding test. At the settings chosen by the placebo test, the synthetic outcome p values are 0.15 for 2SLS with seven BCH clusters, 0.12 for IM with five clusters, and 0.07 for SCPC with `avc` of 0.04. The AR values are 0.16, 0.11 and 0.10. The HC p value of 0.006 shows how misleading it would be to ignore the spatial correlation of the outcome. With spatially robust inference we cannot reject, at 5%, that the outcome is spatial noise unrelated to import exposure.
 
+The relevant rows of the large table can be shown as before. (The fact that the three AR intervals are 0.999 is coincidental as a glance at the other rows in the main table shows.)
+
+```{r combined_table, message=FALSE}
+iv_combined_table(ps, select=c(BCH=7, IM=5, SCPC=0.04))
+
+```
+
 ## 3. Compare Estimates
 
 The last step runs each regression with the settings chosen by the placebo tests. `iv_regression` estimates 2SLS with BCH standard errors (or HC with `cov="HC"`), and `iv_im_regression` and `iv_scpc_regression` use IM and SCPC. Each also gives the AR p value and confidence set computed with the same correction, and `iv_regression` gives the first stage F statistic. For comparison, the original regression adds census division dummies in place of the spatial basis and clusters by state.
@@ -106,13 +113,17 @@ iv_im=iv_im_regression(fm, china, splines=6, pc_num=13, clusters=5, weights="tim
 iv_sc=iv_scpc_regression(fm, china, splines=6, pc_num=13, avc=0.04, weights="timepwt48")
 ```
 
-As with `im_regression`, the IM estimates within each cluster can be displayed with `im_table` as a sanity check: a real effect should appear in every region.
+### Coefficient Stability
+
+As with OLS, the coefficient estimates within each cluster can be displayed with `im_table` as a sanity check: a similar, real effect should appear in every region.
 
 ```{r im_clusters}
 im_table(iv_im, type="clusters", caption="2SLS coefficients in each cluster.")
 ```
 
 The effect of import exposure is negative in four of the five regions, but its size varies widely, from -0.17 to -0.91, and in one region it is slightly positive. This heterogeneity is what makes the IM confidence interval wide.
+
+### Regression Results
 
 `iv_regression_table` combines the results. Below the coefficients it gives, for each column, the first stage F statistic and the AR p value and confidence set, all computed with that column's correction.
 
