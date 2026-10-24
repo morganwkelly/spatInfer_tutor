@@ -657,212 +657,27 @@ Figure&nbsp;2: Spline surface of the change in manufacturing employment.
 <p>For SCPC, <code>avc</code> of 0.04 gives 5.0% of placebos significant at 5%, while 0.02 gives 8.7%. We choose 0.04, with an estimated p value of 0.09.</p>
 <p>Turning to the Anderson-Rubin block: because the instrument is strong, every AR confidence set is a bounded interval, close to the corresponding 2SLS interval and slightly wider. The placebo rejection rates are also similar to those of 2SLS, so the same choices work: seven BCH clusters (p = 0.08), and <code>avc</code> of 0.04 for SCPC (p = 0.07). The IM rows show the advantage of the reduced form. AR with IM only requires least squares regressions on the instrument within each cluster, which are well behaved however weak the instrument is in some clusters. So its confidence intervals stay reasonable with six or seven clusters, where IM for 2SLS breaks down. To keep the comparison with 2SLS simple we stay with five clusters, where the AR p value is 0.12.</p>
 <p>Finally, the <code>Synth p</code> column. The synthetic outcome noise has a strong structure of 0.77, so this is a demanding test. At the settings chosen by the placebo test, the synthetic outcome p values are 0.15 for 2SLS with seven BCH clusters, 0.12 for IM with five clusters, and 0.07 for SCPC with <code>avc</code> of 0.04. The AR values are 0.16, 0.11 and 0.10. The HC p value of 0.006 shows how misleading it would be to ignore the spatial correlation of the outcome. With spatially robust inference we cannot reject, at 5%, that the outcome is spatial noise unrelated to import exposure.</p>
-<p>The relevant rows of the large table can be shown as before. (The fact that the three AR intervals are 0.999 is coincidental as a glance at the other rows in the main table shows.)</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_combined_table</span>(ps, <span class="at">select=</span><span class="fu">c</span>(<span class="at">BCH=</span><span class="dv">7</span>, <span class="at">IM=</span><span class="dv">5</span>, <span class="at">SCPC=</span><span class="fl">0.04</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
-
-    <script>
-      // Create table-specific functions using external factory
-      const tableFns_n3b4jtbol872j1ysg9zv = TinyTable.createTableFunctions("tinytable_n3b4jtbol872j1ysg9zv");
-      // tinytable span after
-      window.addEventListener('load', function () { tableFns_n3b4jtbol872j1ysg9zv.spanCell(6, 1, 1, 9) })
-      window.addEventListener('load', function () { tableFns_n3b4jtbol872j1ysg9zv.spanCell(1, 1, 1, 9) })
-      window.addEventListener('load', function () {
-          var cellsToStyle = [
-            // tinytable style arrays after
-          { positions: [ { i: '2', j: 6 }, { i: '4', j: 6 }, { i: '6', j: 6 }, { i: '8', j: 6 }, { i: '10', j: 6 } ], css_id: 'tinytable_css_ttt16i150kizdmi3cq8s',}, 
-          { positions: [ { i: '1', j: 6 }, { i: '3', j: 6 }, { i: '5', j: 6 }, { i: '7', j: 6 }, { i: '9', j: 6 } ], css_id: 'tinytable_css_rauclhf0bjn9f9pic5bt',}, 
-          { positions: [ { i: '0', j: 6 } ], css_id: 'tinytable_css_x3iq67hdk62n76gc3axm',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '7', j: 2 }, { i: '9', j: 2 }, { i: '1', j: 3 }, { i: '3', j: 3 }, { i: '5', j: 3 }, { i: '7', j: 3 }, { i: '9', j: 3 }, { i: '1', j: 4 }, { i: '3', j: 4 }, { i: '5', j: 4 }, { i: '7', j: 4 }, { i: '9', j: 4 }, { i: '1', j: 5 }, { i: '3', j: 5 }, { i: '5', j: 5 }, { i: '7', j: 5 }, { i: '9', j: 5 }, { i: '1', j: 7 }, { i: '3', j: 7 }, { i: '5', j: 7 }, { i: '7', j: 7 }, { i: '9', j: 7 }, { i: '1', j: 8 }, { i: '3', j: 8 }, { i: '5', j: 8 }, { i: '7', j: 8 }, { i: '9', j: 8 }, { i: '1', j: 9 }, { i: '3', j: 9 }, { i: '5', j: 9 }, { i: '7', j: 9 }, { i: '9', j: 9 } ], css_id: 'tinytable_css_fj7lapx18dmec8y1vkqm',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 }, { i: '7', j: 1 }, { i: '9', j: 1 } ], css_id: 'tinytable_css_tteswytbwv1sg2aclpfu',}, 
-          { positions: [ { i: '0', j: 1 }, { i: '2', j: 1 }, { i: '4', j: 1 }, { i: '6', j: 1 }, { i: '8', j: 1 }, { i: '10', j: 1 }, { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 }, { i: '0', j: 7 }, { i: '0', j: 8 }, { i: '0', j: 9 } ], css_id: 'tinytable_css_5h4mi3bfmnxy9yqnbn34',}, 
-          ];
-
-          // Loop over the arrays to style the cells
-          cellsToStyle.forEach(function (group) {
-              group.positions.forEach(function (cell) {
-                  tableFns_n3b4jtbol872j1ysg9zv.styleCell(cell.i, cell.j, group.css_id);
-              });
-          });
-      });
-    </script>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
-    <style>
-    /* tinytable css entries after */
-    #tinytable_n3b4jtbol872j1ysg9zv td.tinytable_css_ttt16i150kizdmi3cq8s, #tinytable_n3b4jtbol872j1ysg9zv th.tinytable_css_ttt16i150kizdmi3cq8s { color: #FFA500 }
-    #tinytable_n3b4jtbol872j1ysg9zv td.tinytable_css_rauclhf0bjn9f9pic5bt, #tinytable_n3b4jtbol872j1ysg9zv th.tinytable_css_rauclhf0bjn9f9pic5bt { color: #FFA500; background-color: #ededed }
-    #tinytable_n3b4jtbol872j1ysg9zv td.tinytable_css_x3iq67hdk62n76gc3axm, #tinytable_n3b4jtbol872j1ysg9zv th.tinytable_css_x3iq67hdk62n76gc3axm { font-weight: bold; color: #FFA500 }
-    #tinytable_n3b4jtbol872j1ysg9zv td.tinytable_css_fj7lapx18dmec8y1vkqm, #tinytable_n3b4jtbol872j1ysg9zv th.tinytable_css_fj7lapx18dmec8y1vkqm { background-color: #ededed }
-    #tinytable_n3b4jtbol872j1ysg9zv td.tinytable_css_tteswytbwv1sg2aclpfu, #tinytable_n3b4jtbol872j1ysg9zv th.tinytable_css_tteswytbwv1sg2aclpfu { font-weight: bold; background-color: #ededed }
-    #tinytable_n3b4jtbol872j1ysg9zv td.tinytable_css_5h4mi3bfmnxy9yqnbn34, #tinytable_n3b4jtbol872j1ysg9zv th.tinytable_css_5h4mi3bfmnxy9yqnbn34 { font-weight: bold }
-    </style>
-    <div class="container">
-      <table class="tinytable" id="tinytable_n3b4jtbol872j1ysg9zv" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <caption></caption>
-        <thead>
-              <tr>
-                <th scope="col" data-row="0" data-col="1">Adj</th>
-                <th scope="col" data-row="0" data-col="2">Clusters/avc</th>
-                <th scope="col" data-row="0" data-col="3">F</th>
-                <th scope="col" data-row="0" data-col="4">Est p</th>
-                <th scope="col" data-row="0" data-col="5">Plac p</th>
-                <th scope="col" data-row="0" data-col="6">Plac 5%</th>
-                <th scope="col" data-row="0" data-col="7">Synth p</th>
-                <th scope="col" data-row="0" data-col="8">CI Width</th>
-                <th scope="col" data-row="0" data-col="9">CI</th>
-              </tr>
-        </thead>
-        <tfoot><tr><td colspan="9">Moran=11.64, N=722, Splines=6, PCs=13.</td></tr>
-<tr><td colspan="9">Treatment: Structure=0, Effective Range=0.05, R2=0.24. Instrument: Structure=0.09, Effective Range=0.65, R2=0.5.</td></tr>
-<tr><td colspan="9">Outcome: Structure=0.77, Effective Range=0.1, R2=0.33.</td></tr>
-<tr><td colspan="9">2SLS estimates and Anderson-Rubin tests of a zero treatment effect, with estimated and
-                placebo p values, proportion of placebo regressions significant at 5%, synthetic outcome
-                p values, and confidence intervals or Anderson-Rubin confidence sets, for the chosen number
-                of clusters or SCPC average correlation bound avc. F is the first stage F statistic, not
-                given for IM or SCPC. Treatment R2 gives the explanatory power of a regression of the
-                treatment on the principal components, instrument R2 of the instrument on the treatment,
-                and outcome R2 of the outcome on a quadratic in longitude and latitude.</td></tr></tfoot>
-        <tbody>
-                <tr>
-                  <td data-row="1" data-col="1">2SLS</td>
-                  <td data-row="1" data-col="2">2SLS</td>
-                  <td data-row="1" data-col="3">2SLS</td>
-                  <td data-row="1" data-col="4">2SLS</td>
-                  <td data-row="1" data-col="5">2SLS</td>
-                  <td data-row="1" data-col="6">2SLS</td>
-                  <td data-row="1" data-col="7">2SLS</td>
-                  <td data-row="1" data-col="8">2SLS</td>
-                  <td data-row="1" data-col="9">2SLS</td>
-                </tr>
-                <tr>
-                  <td data-row="2" data-col="1">HC</td>
-                  <td data-row="2" data-col="2">.</td>
-                  <td data-row="2" data-col="3">34.0</td>
-                  <td data-row="2" data-col="4">0.002</td>
-                  <td data-row="2" data-col="5">0.004</td>
-                  <td data-row="2" data-col="6">0.07</td>
-                  <td data-row="2" data-col="7">0.006</td>
-                  <td data-row="2" data-col="8">0.455</td>
-                  <td data-row="2" data-col="9">[-0.581, -0.127]</td>
-                </tr>
-                <tr>
-                  <td data-row="3" data-col="1">BCH</td>
-                  <td data-row="3" data-col="2">7</td>
-                  <td data-row="3" data-col="3">47.2</td>
-                  <td data-row="3" data-col="4">0.109</td>
-                  <td data-row="3" data-col="5">0.14</td>
-                  <td data-row="3" data-col="6">0.07</td>
-                  <td data-row="3" data-col="7">0.15</td>
-                  <td data-row="3" data-col="8">0.919</td>
-                  <td data-row="3" data-col="9">[-0.813, 0.106]</td>
-                </tr>
-                <tr>
-                  <td data-row="4" data-col="1">IM</td>
-                  <td data-row="4" data-col="2">5</td>
-                  <td data-row="4" data-col="3"></td>
-                  <td data-row="4" data-col="4">0.127</td>
-                  <td data-row="4" data-col="5">0.107</td>
-                  <td data-row="4" data-col="6">0.031</td>
-                  <td data-row="4" data-col="7">0.121</td>
-                  <td data-row="4" data-col="8">1.01</td>
-                  <td data-row="4" data-col="9">[-0.854, 0.156]</td>
-                </tr>
-                <tr>
-                  <td data-row="5" data-col="1">SCPC</td>
-                  <td data-row="5" data-col="2">0.04</td>
-                  <td data-row="5" data-col="3"></td>
-                  <td data-row="5" data-col="4">0.092</td>
-                  <td data-row="5" data-col="5">0.086</td>
-                  <td data-row="5" data-col="6">0.05</td>
-                  <td data-row="5" data-col="7">0.071</td>
-                  <td data-row="5" data-col="8">0.843</td>
-                  <td data-row="5" data-col="9">[-0.775, 0.0678]</td>
-                </tr>
-                <tr>
-                  <td data-row="6" data-col="1">Anderson-Rubin</td>
-                  <td data-row="6" data-col="2">Anderson-Rubin</td>
-                  <td data-row="6" data-col="3">Anderson-Rubin</td>
-                  <td data-row="6" data-col="4">Anderson-Rubin</td>
-                  <td data-row="6" data-col="5">Anderson-Rubin</td>
-                  <td data-row="6" data-col="6">Anderson-Rubin</td>
-                  <td data-row="6" data-col="7">Anderson-Rubin</td>
-                  <td data-row="6" data-col="8">Anderson-Rubin</td>
-                  <td data-row="6" data-col="9">Anderson-Rubin</td>
-                </tr>
-                <tr>
-                  <td data-row="7" data-col="1">HC</td>
-                  <td data-row="7" data-col="2">.</td>
-                  <td data-row="7" data-col="3">34.0</td>
-                  <td data-row="7" data-col="4">0.001</td>
-                  <td data-row="7" data-col="5">0.003</td>
-                  <td data-row="7" data-col="6">0.074</td>
-                  <td data-row="7" data-col="7">0.008</td>
-                  <td data-row="7" data-col="8">0.488</td>
-                  <td data-row="7" data-col="9">[-0.634, -0.146]</td>
-                </tr>
-                <tr>
-                  <td data-row="8" data-col="1">BCH</td>
-                  <td data-row="8" data-col="2">7</td>
-                  <td data-row="8" data-col="3">47.2</td>
-                  <td data-row="8" data-col="4">0.083</td>
-                  <td data-row="8" data-col="5">0.121</td>
-                  <td data-row="8" data-col="6">0.069</td>
-                  <td data-row="8" data-col="7">0.157</td>
-                  <td data-row="8" data-col="8">0.999</td>
-                  <td data-row="8" data-col="9">[-0.939, 0.0599]</td>
-                </tr>
-                <tr>
-                  <td data-row="9" data-col="1">IM</td>
-                  <td data-row="9" data-col="2">5</td>
-                  <td data-row="9" data-col="3"></td>
-                  <td data-row="9" data-col="4">0.116</td>
-                  <td data-row="9" data-col="5">0.096</td>
-                  <td data-row="9" data-col="6">0.034</td>
-                  <td data-row="9" data-col="7">0.109</td>
-                  <td data-row="9" data-col="8">0.999</td>
-                  <td data-row="9" data-col="9">[-0.775, 0.223]</td>
-                </tr>
-                <tr>
-                  <td data-row="10" data-col="1">SCPC</td>
-                  <td data-row="10" data-col="2">0.04</td>
-                  <td data-row="10" data-col="3"></td>
-                  <td data-row="10" data-col="4">0.068</td>
-                  <td data-row="10" data-col="5">0.075</td>
-                  <td data-row="10" data-col="6">0.059</td>
-                  <td data-row="10" data-col="7">0.103</td>
-                  <td data-row="10" data-col="8">0.999</td>
-                  <td data-row="10" data-col="9">[-0.968, 0.0312]</td>
-                </tr>
-        </tbody>
-      </table>
-    </div>
-<!-- hack to avoid NA insertion in last line -->
-</div>
-</div>
 </section>
 <section id="compare-estimates" class="level2">
 <h2 class="anchored" data-anchor-id="compare-estimates">3. Compare Estimates</h2>
 <p>The last step runs each regression with the settings chosen by the placebo tests. <code>iv_regression</code> estimates 2SLS with BCH standard errors (or HC with <code>cov="HC"</code>), and <code>iv_im_regression</code> and <code>iv_scpc_regression</code> use IM and SCPC. Each also gives the AR p value and confidence set computed with the same correction, and <code>iv_regression</code> gives the first stage F statistic. For comparison, the original regression adds census division dummies in place of the spatial basis and clusters by state.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Original<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(d_sh_empl_mfg<span class="sc">~</span>l_shind_manuf_cbp<span class="sc">+</span>l_sh_popedu_c<span class="sc">+</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                         reg_midatl<span class="sc">+</span>reg_encen<span class="sc">+</span>reg_wncen<span class="sc">+</span>reg_satl<span class="sc">+</span>reg_escen<span class="sc">+</span>reg_wscen<span class="sc">+</span>reg_mount<span class="sc">+</span>reg_pacif<span class="sc">|</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                         d_tradeusch_pw<span class="sc">~</span>d_tradeotch_pw_lag,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                       china, <span class="at">weights=</span><span class="sc">~</span>timepwt48, <span class="at">cluster=</span><span class="sc">~</span>statefip)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>iv_bch<span class="ot">=</span><span class="fu">iv_bch_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">clusters=</span><span class="dv">7</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>iv_im<span class="ot">=</span><span class="fu">iv_im_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">clusters=</span><span class="dv">5</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>iv_sc<span class="ot">=</span><span class="fu">iv_scpc_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">avc=</span><span class="fl">0.04</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Original<span class="ot">=</span>fixest<span class="sc">::</span><span class="fu">feols</span>(d_sh_empl_mfg<span class="sc">~</span>l_shind_manuf_cbp<span class="sc">+</span>l_sh_popedu_c<span class="sc">+</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                         reg_midatl<span class="sc">+</span>reg_encen<span class="sc">+</span>reg_wncen<span class="sc">+</span>reg_satl<span class="sc">+</span>reg_escen<span class="sc">+</span>reg_wscen<span class="sc">+</span>reg_mount<span class="sc">+</span>reg_pacif<span class="sc">|</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                         d_tradeusch_pw<span class="sc">~</span>d_tradeotch_pw_lag,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                       china, <span class="at">weights=</span><span class="sc">~</span>timepwt48, <span class="at">cluster=</span><span class="sc">~</span>statefip)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>iv_bch<span class="ot">=</span><span class="fu">iv_bch_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">clusters=</span><span class="dv">7</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>iv_im<span class="ot">=</span><span class="fu">iv_im_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">clusters=</span><span class="dv">5</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>iv_sc<span class="ot">=</span><span class="fu">iv_scpc_regression</span>(fm, china, <span class="at">splines=</span><span class="dv">6</span>, <span class="at">pc_num=</span><span class="dv">13</span>, <span class="at">avc=</span><span class="fl">0.04</span>, <span class="at">weights=</span><span class="st">"timepwt48"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="coefficient-stability" class="level3">
 <h3 class="anchored" data-anchor-id="coefficient-stability">Coefficient Stability</h3>
 <p>As with OLS, the coefficient estimates within each cluster can be displayed with <code>im_table</code> as a sanity check: a similar, real effect should appear in every region.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">im_table</span>(iv_im, <span class="at">type=</span><span class="st">"clusters"</span>, <span class="at">caption=</span><span class="st">"2SLS coefficients in each cluster."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">im_table</span>(iv_im, <span class="at">type=</span><span class="st">"clusters"</span>, <span class="at">caption=</span><span class="st">"2SLS coefficients in each cluster."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
@@ -962,9 +777,9 @@ Figure&nbsp;2: Spline surface of the change in manufacturing employment.
 <h3 class="anchored" data-anchor-id="regression-results">Regression Results</h3>
 <p><code>iv_regression_table</code> combines the results. Below the coefficients it gives, for each column, the first stage F statistic and the AR p value and confidence set, all computed with that column’s correction.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_regression_table</span>(<span class="at">orig=</span>Original, <span class="at">bch=</span>iv_bch, <span class="at">im=</span>iv_im, <span class="at">scpc=</span>iv_sc,</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">coef_omit=</span><span class="st">"Intercept|^PC[0-9]+$|^reg_"</span>,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">title=</span><span class="st">"Comparison of standard error corrections for 2SLS."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_regression_table</span>(<span class="at">orig=</span>Original, <span class="at">bch=</span>iv_bch, <span class="at">im=</span>iv_im, <span class="at">scpc=</span>iv_sc,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">coef_omit=</span><span class="st">"Intercept|^PC[0-9]+$|^reg_"</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">title=</span><span class="st">"Comparison of standard error corrections for 2SLS."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
@@ -1098,8 +913,8 @@ Figure&nbsp;2: Spline surface of the change in manufacturing employment.
 </div>
 <p><code>iv_regression_plot</code> shows the 2SLS confidence intervals of each coefficient and, for the treatment, the AR confidence set of each spatial basis regression. Any unbounded part of an AR set would run to the edge of the panel and end in an arrow.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_regression_plot</span>(<span class="at">orig=</span>Original, <span class="at">bch=</span>iv_bch, <span class="at">im=</span>iv_im, <span class="at">scpc=</span>iv_sc,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">coef_omit=</span><span class="st">"Intercept|^PC[0-9]+$|^reg_"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">iv_regression_plot</span>(<span class="at">orig=</span>Original, <span class="at">bch=</span>iv_bch, <span class="at">im=</span>iv_im, <span class="at">scpc=</span>iv_sc,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">coef_omit=</span><span class="st">"Intercept|^PC[0-9]+$|^reg_"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
