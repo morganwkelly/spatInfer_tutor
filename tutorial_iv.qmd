@@ -23,7 +23,7 @@ The workflow has the same three steps as before. First choose the spatial basis.
 
 ## The Data
 
-We use the study of @ADH13 on the effect of Chinese import competition on US local labour markets. The outcome is the change in manufacturing employment as a percentage of the working age population in each of 722 commuting zones. The treatment is the change in Chinese imports per worker. Because US imports may respond to US demand, the treatment is instrumented by Chinese imports to other high income countries. We use the 2000-2007 period, with the controls for the initial share of manufacturing employment and of college educated population, and weight each commuting zone by its share of the national population, as in the original study.
+We use the study of @ADH13 on the effect of Chinese import competition on US local labour markets. The outcome is the change in manufacturing employment as a percentage of the working age population in each of 722 commuting zones. The treatment is the change in Chinese imports per worker. Because US imports may respond to US demand, the treatment is instrumented by Chinese imports to other high income countries. We use the 2000-2007 period, with the controls for the initial share of manufacturing employment and of college educated population, and weight each commuting zone by population as in the original study.
 
 The formula is written as in `fixest`: `outcome ~ controls | treatment ~ instrument`. Use `outcome ~ 1 | treatment ~ instrument` if there are no controls.
 
