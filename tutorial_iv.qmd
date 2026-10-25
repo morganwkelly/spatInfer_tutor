@@ -1,14 +1,31 @@
 ---
 title: "spatInfer Tutorial: Instrumental Variables"
-author: ""
+subtitle: "Two stage least squares and Anderson-Rubin tests with spatial data"
+date: last-modified
 editor: visual
 format:
   html:
+    theme:
+      light: flatly
+      dark: darkly
     toc: true
+    toc-depth: 3
+    toc-location: left
+    code-copy: true
+    code-overflow: wrap
+    highlight-style: github
     html-math-method: katex
+    fig-align: center
+    fig-width: 7
+    fig-height: 4.5
+    link-external-newwindow: true
 bibliography: tutor.bib
 execute:
   cache: true
+  message: false
+knitr:
+  opts_chunk:
+    comment: ""
 ---
 
 This tutorial shows how to apply `spatInfer` to instrumental variable regressions. It assumes that you have worked through the [tutorial for least squares regressions](tutorial.html): the workflow is the same, so we concentrate on what is new.
@@ -23,34 +40,47 @@ The workflow has the same three steps as before. First choose the spatial basis.
 
 ## The Data
 
-We use the study of @ADH13 on the effect of Chinese import competition on US local labour markets. The outcome is the change in manufacturing employment as a percentage of the working age population in each of 722 commuting zones. The treatment is the change in Chinese imports per worker. Because US imports may respond to US demand, the treatment is instrumented by Chinese imports to other high income countries. We use the 2000-2007 period, with the controls for the initial share of manufacturing employment and of college educated population, and weight each commuting zone by population as in the original study.
+We use the study of @ADH13 on the effect of Chinese import competition on US local labour markets. The outcome is the change in manufacturing employment as a percentage of the working age population in each of 722 commuting zones. The treatment is the change in Chinese imports per worker. Because US imports may respond to US demand, the treatment is instrumented by Chinese imports to other high income countries. We use the 2000–2007 period, with the controls for the initial share of manufacturing employment and of college educated population, and weight each commuting zone by population as in the original study.
 
 The formula is written as in `fixest`: `outcome ~ controls | treatment ~ instrument`. Use `outcome ~ 1 | treatment ~ instrument` if there are no controls.
 
-```{r setup, message=FALSE}
+```{r}
+#| label: setup
+#| message: false
 library(spatInfer)
 library(modelsummary)
 library(ggplot2)
 library(tinytable)
 
 data(autor_china)
-china=subset(autor_china,t2==1)
+china <- subset(autor_china, t2 == 1)
 
-fm=d_sh_empl_mfg~l_shind_manuf_cbp+l_sh_popedu_c|d_tradeusch_pw~d_tradeotch_pw_lag
+fm <- d_sh_empl_mfg ~ l_shind_manuf_cbp + l_sh_popedu_c |
+  d_tradeusch_pw ~ d_tradeotch_pw_lag
 ```
 
 ## 1. Choose the Spatial Basis
 
-`optimal_basis` and `plot_basis` accept the IV formula directly. As before, the basis is chosen to explain the outcome, so only the left hand side matters.
+`optimal_basis()` and `plot_basis()` accept the IV formula directly. As before, the basis is chosen to explain the outcome, so only the left hand side matters.
 
-```{r fig-basis, fig.cap="Choice of optimal spline basis."}
-optimal_basis(fm, china, max_splines=7)
+```{r}
+#| label: fig-basis
+#| message: false
+#| fig-cap: "Choice of optimal spline basis."
+optimal_basis(fm, china, max_splines = 7)
 ```
 
-The BIC is minimized by the first 13 principal components of a 6x6 tensor.
+In @fig-basis the BIC is minimized by the first 13 principal components of a 6x6 tensor.
 
-```{r fig-spline, fig.cap="Spline surface of the change in manufacturing employment."}
-plot_basis(fm, china, splines=6, Title="6x6 Tensor Surface of Manufacturing Employment Change")
+```{r}
+#| label: fig-spline
+#| message: false
+#| fig-cap: "Spline surface of the change in manufacturing employment."
+plot_basis(
+  fm, china,
+  splines = 6,
+  Title = "6x6 Tensor Surface of Manufacturing Employment Change"
+)
 ```
 
 ## 2. Run Placebo and Synthetic Outcome Tests
@@ -59,22 +89,31 @@ The placebo treatments are generated exactly as in the least squares case: the t
 
 The synthetic outcome test replaces the outcome with synthetic outcomes, a quadratic trend in longitude and latitude plus spatial noise, and tests the null hypothesis that the outcome is spatial noise unrelated to the treatment.
 
-`iv_placebo_synth` runs both tests, taking the same arguments as `placebo_synth`, with `avc` added to request SCPC results, which are the slowest to compute. A single call gives 2SLS and AR results for every correction, with a progress bar to follow the simulations.
+`iv_placebo_synth()` runs both tests, taking the same arguments as `placebo_synth()`, with `avc` added to request SCPC results, which are the slowest to compute. A single call gives 2SLS and AR results for every correction, with a progress bar to follow the simulations.
 
-```{r placebo_synth, message=FALSE, warning=FALSE}
-ps=iv_placebo_synth(fm, china,
-                    splines=6,
-                    pc_num=13,
-                    nSim=1000,
-                    weights="timepwt48",
-                    max_clus=7,
-                    avc=seq(0.02, 0.1, by=0.02))
+```{r}
+#| label: placebo-synth
+#| message: false
+ps <- iv_placebo_synth(
+  fm, china,
+  splines = 6,
+  pc_num = 13,
+  nSim = 1000,
+  weights = "timepwt48",
+  max_clus = 7,
+  avc = seq(0.02, 0.1, by = 0.02)
+)
 ```
 
-The results are shown with `placebo_synth_table`, which gives every correction in a single table: a block of 2SLS results followed by a block of Anderson-Rubin results, each running through HC, BCH, IM and SCPC. As in the least squares case, IV regressions use from three clusters upwards, and for SCPC the `Clusters/avc` column gives `avc`.
+The results are shown with `placebo_synth_table()`, which gives every correction in a single table: a block of 2SLS results followed by a block of Anderson-Rubin results, each running through HC, BCH, IM and SCPC. As in the least squares case, IV regressions use from three clusters upwards, and for SCPC the `Clusters/avc` column gives `avc`.
 
-```{r placebo_synth_table}
-placebo_synth_table(ps, caption="Placebo and synthetic outcome significance levels of import exposure.")
+```{r}
+#| label: placebo-synth-table
+#| message: false
+placebo_synth_table(
+  ps,
+  caption = "Placebo and synthetic outcome significance levels of import exposure."
+)
 ```
 
 The columns are the same as before, with one addition: `F` is the first stage F statistic of the instrument, computed with the same standard error correction and number of clusters as the row. Clustered F statistics computed from a few large clusters vary a lot, but all are well above conventional thresholds here, so weak instruments are not a concern in this example.
@@ -91,46 +130,73 @@ Finally, the `Synth p` column. The synthetic outcome noise has a strong structur
 
 ## 3. Compare Estimates
 
-The last step runs each regression with the settings chosen by the placebo tests. `iv_regression` estimates 2SLS with BCH standard errors (or HC with `cov="HC"`), and `iv_im_regression` and `iv_scpc_regression` use IM and SCPC. Each also gives the AR p value and confidence set computed with the same correction, and `iv_regression` gives the first stage F statistic. For comparison, the original regression adds census division dummies in place of the spatial basis and clusters by state.
+The last step runs each regression with the settings chosen by the placebo tests. `iv_bch_regression()` estimates 2SLS with BCH standard errors (or HC with `cov = "HC"`), and `iv_im_regression()` and `iv_scpc_regression()` use IM and SCPC. Each also gives the AR p value and confidence set computed with the same correction, and `iv_bch_regression()` gives the first stage F statistic. For comparison, the original regression adds census division dummies in place of the spatial basis and clusters by state.
 
-```{r regressions, message=FALSE, warning=FALSE}
-Original=fixest::feols(d_sh_empl_mfg~l_shind_manuf_cbp+l_sh_popedu_c+
-                         reg_midatl+reg_encen+reg_wncen+reg_satl+reg_escen+reg_wscen+reg_mount+reg_pacif|
-                         d_tradeusch_pw~d_tradeotch_pw_lag,
-                       china, weights=~timepwt48, cluster=~statefip)
+```{r}
+#| label: regressions
+#| message: false
+original <- fixest::feols(
+  d_sh_empl_mfg ~ l_shind_manuf_cbp + l_sh_popedu_c +
+    reg_midatl + reg_encen + reg_wncen + reg_satl + reg_escen + reg_wscen +
+    reg_mount + reg_pacif |
+    d_tradeusch_pw ~ d_tradeotch_pw_lag,
+  data = china,
+  weights = ~timepwt48,
+  cluster = ~statefip
+)
 
-iv_bch=iv_bch_regression(fm, china, splines=6, pc_num=13, clusters=7, weights="timepwt48")
+iv_bch <- iv_bch_regression(
+  fm, china,
+  splines = 6, pc_num = 13, clusters = 7, weights = "timepwt48"
+)
 
-iv_im=iv_im_regression(fm, china, splines=6, pc_num=13, clusters=5, weights="timepwt48")
+iv_im <- iv_im_regression(
+  fm, china,
+  splines = 6, pc_num = 13, clusters = 5, weights = "timepwt48"
+)
 
-iv_sc=iv_scpc_regression(fm, china, splines=6, pc_num=13, avc=0.04, weights="timepwt48")
+iv_sc <- iv_scpc_regression(
+  fm, china,
+  splines = 6, pc_num = 13, avc = 0.04, weights = "timepwt48"
+)
 ```
 
-### Coefficient Stability
+### Coefficient stability
 
-As with OLS, the coefficient estimates within each cluster can be displayed with `im_table` as a sanity check: a similar, real effect should appear in every region.
+As with OLS, the coefficient estimates within each cluster can be displayed with `im_table()` as a sanity check: a similar, real effect should appear in every region.
 
-```{r im_clusters}
-im_table(iv_im, type="clusters", caption="2SLS coefficients in each cluster.")
+```{r}
+#| label: im-clusters
+#| message: false
+im_table(iv_im, type = "clusters", caption = "2SLS coefficients in each cluster.")
 ```
 
-The effect of import exposure is negative in four of the five regions, but its size varies widely, from -0.17 to -0.91, and in one region it is slightly positive. This heterogeneity is what makes the IM confidence interval wide.
+The effect of import exposure is negative in four of the five regions, but its size varies widely, from −0.17 to −0.91, and in one region it is slightly positive. This heterogeneity is what makes the IM confidence interval wide.
 
-### Regression Results
+### Regression results
 
-`iv_regression_table` combines the results. Below the coefficients it gives, for each column, the first stage F statistic and the AR p value and confidence set, all computed with that column's correction.
+`iv_regression_table()` combines the results. Below the coefficients it gives, for each column, the first stage F statistic and the AR p value and confidence set, all computed with that column's correction.
 
-```{r reg_table}
-iv_regression_table(orig=Original, bch=iv_bch, im=iv_im, scpc=iv_sc,
-                    coef_omit="Intercept|^PC[0-9]+$|^reg_",
-                    title="Comparison of standard error corrections for 2SLS.")
+```{r}
+#| label: reg-table
+#| message: false
+iv_regression_table(
+  orig = original, bch = iv_bch, im = iv_im, scpc = iv_sc,
+  coef_omit = "Intercept|^PC[0-9]+$|^reg_",
+  title = "Comparison of standard error corrections for 2SLS."
+)
 ```
 
-`iv_regression_plot` shows the 2SLS confidence intervals of each coefficient and, for the treatment, the AR confidence set of each spatial basis regression. Any unbounded part of an AR set would run to the edge of the panel and end in an arrow.
+`iv_regression_plot()` shows the 2SLS confidence intervals of each coefficient and, for the treatment, the AR confidence set of each spatial basis regression (@fig-reg-plot). Any unbounded part of an AR set would run to the edge of the panel and end in an arrow.
 
-```{r reg_plot, fig.cap="2SLS confidence intervals and Anderson-Rubin confidence sets."}
-iv_regression_plot(orig=Original, bch=iv_bch, im=iv_im, scpc=iv_sc,
-                   coef_omit="Intercept|^PC[0-9]+$|^reg_")
+```{r}
+#| label: fig-reg-plot
+#| message: false
+#| fig-cap: "2SLS confidence intervals and Anderson-Rubin confidence sets."
+iv_regression_plot(
+  orig = original, bch = iv_bch, im = iv_im, scpc = iv_sc,
+  coef_omit = "Intercept|^PC[0-9]+$|^reg_"
+)
 ```
 
-Replacing the division dummies with the spatial basis changes the point estimate little, from -0.40 to -0.35. However, once inference allows for the spatial correlation in the data, the p value of the effect of import exposure rises from 0.001 to between 0.09 and 0.13 for 2SLS, and between 0.07 and 0.12 for AR. The confidence intervals now include zero, although they lie mostly below it. The 2SLS and AR results agree closely, as they should with a strong instrument. When the first stage is weak, the AR sets are the ones to rely on.
+Replacing the division dummies with the spatial basis changes the point estimate little, from −0.40 to −0.35. However, once inference allows for the spatial correlation in the data, the p value of the effect of import exposure rises from 0.001 to between 0.09 and 0.13 for 2SLS, and between 0.07 and 0.12 for AR. The confidence intervals now include zero, although they lie mostly below it. The 2SLS and AR results agree closely, as they should with a strong instrument. When the first stage is weak, the AR sets are the ones to rely on.
